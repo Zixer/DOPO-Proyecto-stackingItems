@@ -1,140 +1,312 @@
+import java.util.Stack;
 import java.util.ArrayList;
 
 /**
  * Write a description of class Tower here.
- *
- * @author (your name)
+ * 
+ * @author (your name) 
  * @version (a version number or a date)
  */
 public class Tower
 {
-    // instance variables - replace the example below with your own
-    private ArrayList<Cup> cups;
-    private ArrayList<Lid> lids;
-    private Rectangle floor;    
-    
+    private int width;
+    private int height;
+    private int minHeight;
     private int maxHeight;
-    private boolean lastOperationOk;
+    private boolean isVisible;
+    private Stack<Cup> cups;
+    private Stack<Lid> lids;
+    private boolean isOK;
     
-    private int baseX;
-    private int baseY;
-    private int elementHeight;
     /**
      * Constructor for objects of class Tower
      */
-    public Tower(int maxHeight)
+    public Tower(int nwidth, int nmaxHeight)
     {
-        this.maxHeight = maxHeight;
-        
-        cups = new ArrayList<>();
-        lids = new ArrayList<>();
-        
-        lastOperationOk = true;
-        
-        baseX = 200;
-        baseY = 300;
-        elementHeight = 20;
-        
-        // Crear piso
-        floor = new Rectangle();
-        floor.changeColor("black");
-        floor.changeSize(10, 120);
-        floor.moveHorizontal(baseX - 40);
-        floor.moveVertical(baseY + 5);
-        floor.makeVisible();
-    }
-
-    public void pushCup(int number)
-    {
-
-        for(Cup c : cups)
-        {
-            if(c.getNumber() == number)
-            {
-                lastOperationOk = false;
-                return;
-            }
-        }
-        
-        if(cups.size() + lids.size() >= maxHeight)
-        {
-            lastOperationOk = false;
-            return;
-        }
-        
-        int currentHeight = cups.size() + lids.size();
-        int yPosition = baseY - (currentHeight * elementHeight);
-        
-        Cup newCup = new Cup(number, baseX, yPosition);
-        cups.add(newCup);
-        newCup.draw();
-        lastOperationOk = true;
-    }
-    
-    public void popCup()
-    {
-        if(cups.isEmpty())
-        {
-            lastOperationOk = false;
-            return;
-        }
-    
-        Cup topCup = cups.remove(cups.size() - 1);
-        topCup.erase();
-        
-        lastOperationOk = true;
-    }
-
-    public void pushLid(int number)
-    {
-
-        for(Lid l : lids)
-        {
-            if(l.getNumber() == number)
-            {
-                lastOperationOk = false;
-                return;
-            }
-        }
-        
-        if(cups.size() + lids.size() >= maxHeight)
-        {
-            lastOperationOk = false;
-            return;
-        }
-        
-        int currentHeight = cups.size() + lids.size();
-        int yPosition = baseY - (currentHeight * elementHeight);
-        
-        Lid newLid = new Lid(number, baseX, yPosition);
-        lids.add(newLid);
-        newLid.draw();
-        lastOperationOk = true;
-    }
-    
-    public void popLid()
-    {
-        if(lids.isEmpty())
-        {
-            lastOperationOk = false;
-            return;
-        }
-        
-        Lid topLid = lids.remove(lids.size() - 1);
-        topLid.erase();
-        
-        lastOperationOk = true;
+        width = nwidth;
+        maxHeight = nmaxHeight;
+        isVisible = false;
+        cups = new Stack<Cup>();
+        lids = new Stack<Lid>();
+        isOK = true;
     }
     
     /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
+     * Agrega una taza al tope de la torre
      */
-    public int sampleMethod(int y)
+    public void pushCup(int i){
+        boolean alreadyExist = false;
+        boolean isEmpty=cups.isEmpty();
+        if(!isEmpty){
+            for (Cup c : cups) {
+                int number=c.getNumber();
+                if (number == i) {
+                    alreadyExist = true;
+                    isOK = false;
+                    break;
+                }
+            }
+        }
+        if (!alreadyExist) {
+            Cup ncup = new Cup(i);
+            cups.push(ncup);
+            Lid nlid=ncup.getCover();
+            pushLid(nlid);
+            isOK = true;
+        }
+    }
+    
+    /**
+     * Remueve y retorna la taza del tope
+     */
+    public Cup popCup()
+    {   
+        boolean isEmpty=cups.isEmpty();
+        if (!isEmpty) {
+            isOK = true;
+            return cups.pop();
+        } else {
+            isOK = false;
+            return null;
+        }
+    }
+    
+    /**
+     * Remueve una taza específica por número
+     */
+    public void removeCup(int i)
     {
-        // put your code here
-        return 0;
+        Stack<Cup> temp = new Stack<Cup>();
+        Cup removedCup = null;
+        boolean found = false;
+        boolean isEmpty=cups.isEmpty();
+        while (!isEmpty) {
+            Cup c = cups.pop();
+            int number=c.getNumber(); 
+            if (number != i) {
+                temp.push(c);
+            } else {
+                found = true;
+                removedCup=c;
+            }
+        }
+        boolean tIsEmpty=temp.isEmpty();
+        while (!tIsEmpty) {
+            cups.push(temp.pop());
+        } 
+        if (found && removedCup != null) {
+            removeLid(removedCup);
+        }
+        isOK = found;
+    }
+    
+    /**
+     * Agrega una tapa al tope de la torre
+     */
+    public void pushLid(Lid lid)
+    {
+        if (lid != null) {
+            lids.push(lid);
+            isOK = true;
+        } else {
+            isOK = false;
+        }
+    }
+    
+    /**
+     * Remueve y retorna la tapa del tope
+     */
+    public Lid popLid()
+    {
+        if (!lids.isEmpty()) {
+            isOK = true;
+            return lids.pop();
+        } else {
+            isOK = false;
+            return null;
+        }
+    }
+    
+    public void removeLid(Cup removedCup){
+        Lid tapaDeLaTaza = removedCup.getCover();
+        removeLid(tapaDeLaTaza);
+    }
+    
+    /**
+     * Remueve una tapa del stack
+     */
+    public void removeLid(Lid lid)
+    {
+        if (lids.remove(lid)) {
+            isOK = true;
+        } else {
+            isOK = false;
+        }
+    }
+    
+    /**
+     * Ordena la torre de mayor a menor altura
+     */
+    public void orderTower()
+    {
+        ArrayList<Cup> temp = new ArrayList<Cup>(cups);
+        for (int i = 0; i < temp.size(); i++) {
+            for (int j = 0; j < temp.size() - 1; j++) {
+                if (temp.get(j).getNumber() < temp.get(j + 1).getNumber()) {
+                    Cup aux = temp.get(j);
+                    temp.set(j, temp.get(j + 1));
+                    temp.set(j + 1, aux);
+                }
+            }
+        }
+        cups.clear();
+        for (Cup c : temp) {
+            cups.push(c);
+        }
+        System.out.println(cups);
+        isOK = true;
+    }
+    
+    /**
+     * Invierte el orden de la torre
+     */
+    public void reverseTower()
+    {
+        Stack<Cup> temp = new Stack<Cup>();
+        while (!cups.isEmpty()) {
+            temp.push(cups.pop());
+        }
+        cups = temp;
+        isOK = true;
+    }
+    
+    /**
+     * Retorna la altura total de elementos apilados
+     */
+    public int getHeight()
+    {
+        int totalHeight = 0;
+        for (Cup c : cups) {
+            totalHeight += c.getHeight();
+        }        
+        return totalHeight;
+    }
+    
+    /**
+     * Retorna array con números de tazas tapadas
+     */
+    public int[] lidedCups()
+    {
+        ArrayList<Integer> covered = new ArrayList<Integer>();
+        
+        for (Cup c : cups) {
+            if (c.cubierto()) {
+                covered.add(c.getNumber());
+            }
+        }
+        int[] result = new int[covered.size()];
+        for (int i = 0; i < covered.size(); i++) {
+            result[i] = covered.get(i);
+        }
+        return result;
+    }
+    
+    /**
+     * Retorna matriz con tipo y número de elementos
+     */
+    public String[][] stackingItems()
+    {
+        int totalElements = cups.size() + lids.size();
+        String[][] result = new String[totalElements][2];
+        
+        // Convertir stack a lista para iterar
+        ArrayList<Cup> cupList = new ArrayList<Cup>(cups);
+        ArrayList<Lid> lidList = new ArrayList<Lid>(lids);
+        
+        int index = 0;
+        
+        // Agregar tazas
+        for (Cup c : cupList) {
+            result[index][0] = "cup";
+            result[index][1] = String.valueOf(c.getNumber());
+            index++;
+        }
+        
+        // Agregar tapas
+        for (Lid l : lidList) {
+            result[index][0] = "lid";
+            result[index][1] = String.valueOf(l.getHeight());
+            index++;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Hace visible la torre
+     */
+    public void makeVisible()
+    {
+        isVisible = true;
+    }
+    
+    /**
+     * Hace invisible la torre
+     */
+    public void makeInvisible()
+    {
+        isVisible = false;
+    }
+    
+    /**
+     * Verifica si la torre es visible
+     */
+    public boolean isVisible()
+    {
+        return isVisible;
+    }
+    
+    /**
+     * Termina el simulador
+     */
+    public void exit()
+    {
+        cups.clear();
+        lids.clear();
+        isVisible = false;
+    }
+    
+    /**
+     * Verifica si la última operación fue exitosa
+     */
+    public boolean isOk()
+    {
+        return isOK;
+    }
+    
+    /**
+     * Retorna el tamaño del stack de tazas
+     */
+    public int getCupsSize()
+    {
+        return cups.size();
+    }
+    
+    /**
+     * Retorna el tamaño del stack de tapas
+     */
+    public int getLidsSize()
+    {
+        return lids.size();
+    }
+    
+    public void drawRule(){
+        for (int i=0;i<=maxHeight;i = i+1){
+            Rectangle r= new Rectangle();
+            r.changeSize(2,10);
+            r.changeP(0,i*10);
+            r.changeColor("black");
+            r.makeVisible();
+        }
     }
 }

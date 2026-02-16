@@ -9,37 +9,50 @@ public class Lid
 {
     // instance variables - replace the example below with your own
     private int number;
-    private int xPosition;
-    private int yPosition;
+    private int width;
     private String color;
-    private Rectangle body;
+    private static int height = 1;
+    private int posx;
+    private int posy;
+    private String state;
     private boolean isVisible;
+    private Cup cup;
+    private Rectangle cuerpo;
     /**
      * Constructor for objects of class Lid
      */
-    public Lid(int number, int xPosition, int yPosition)
+    public Lid(int nwidth, String ncolor, Cup ncup)
     {
-        this.number = number;
-        body = new Rectangle();
-        body.changeColor("red");
-        
-        body.changeSize(10, 40); 
-        
-        body.moveHorizontal(xPosition);
-        body.moveVertical(yPosition);
-        
+        width = nwidth;
+        posx = 0;
+        posy = 0;
+        state = "normal";
         isVisible = false;
+        color = ncolor;
+        cup=ncup;
     }
 
-    public void draw()
-    {
-        body.makeVisible();
-        isVisible = true;
+    public int getWidth() {
+        return width;
     }
     
-    public void erase()
-    {
-        body.makeInvisible();
+    public int getHeight() {
+        return height;
+    }
+    
+    public void draw(){
+        cuerpo=new Rectangle();
+        cuerpo.changeColor(color);
+        cuerpo.changeSize(height*10,width);
+        posx=cup.body.getXpo();
+        posy=cup.body.getYpo();
+        cuerpo.changeP(posy,posx);
+        cuerpo.makeVisible();
+    }
+    
+    
+    public void erase(){
+        cuerpo.makeInvisible();
         isVisible = false;
     }
     
@@ -48,15 +61,4 @@ public class Lid
         return number;
     }
         
-    /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
-     */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return 0;
-    }
 }

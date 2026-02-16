@@ -182,5 +182,36 @@ public class Rectangle{
             canvas.erase(this);
         }
     }
+    
+    public void setPosition(int numero){
+        this.xPosition = numero;
+        this.yPosition = numero;
+    }
+    
+    public void setSize(int numero){
+        this.height = numero;
+        this.width = numero;
+    }
+    
+    public int getHeight(){
+        return height;
+    }
+    
+    public int getWidth(){
+        return width;
+    }
+    
+    public int getXpo(){
+        return xPosition;
+    }
+    
+    public int getYpo(){
+        return yPosition;
+    }
+    
+    public void changeP(int ancho,int alto){
+        this.xPosition = ancho; 
+        this.yPosition =alto;
+    }  
 }
 
