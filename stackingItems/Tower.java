@@ -34,9 +34,10 @@ public class Tower
     /**
      * Agrega una taza al tope de la torre
      */
-    public void pushCup(int i){
+    public void pushCup(int i,String color){
         boolean alreadyExist = false;
         boolean isEmpty=cups.isEmpty();
+        Cup ncup = new Cup(i,color);
         if(!isEmpty){
             for (Cup c : cups) {
                 int number=c.getNumber();
@@ -48,13 +49,25 @@ public class Tower
             }
         }
         if (!alreadyExist) {
-            Cup ncup = new Cup(i);
+            if (cups.size() != 0 ){
+                Cup top = cups.peek();
+                if (top.getWidth() > ncup.getWidth()){
+                    ncup.redraw(top.interior.getHeight(),ncup.getHeight(),top.getXpo(),top.getYpo());
+                    return;
+                }
+                if (top.getWidth() < ncup.getWidth()){
+                    top.moverVertical(ncup.getHeight());
+                    
+                }
+            }
             cups.push(ncup);
-            Lid nlid=ncup.getCover();
-            pushLid(nlid);
+            ncup.draw();
+            Lid nlid=ncup.getTapa();
             isOK = true;
+            
         }
     }
+    
     
     /**
      * Remueve y retorna la taza del tope
@@ -62,6 +75,7 @@ public class Tower
     public Cup popCup()
     {   
         boolean isEmpty=cups.isEmpty();
+
         if (!isEmpty) {
             isOK = true;
             return cups.pop();
@@ -103,12 +117,18 @@ public class Tower
     /**
      * Agrega una tapa al tope de la torre
      */
-    public void pushLid(Lid lid)
+    public void pushLid(String color)
     {
-        if (lid != null) {
-            lids.push(lid);
+        if (!cups.isEmpty()) {
+
+            Cup top = cups.peek();
+            Lid nueva = new Lid(top.getWidth(), color);
+            lids.clear(); // Solo permitimos 1 tapa arriba
+            lids.push(nueva);
+            nueva.draw();
             isOK = true;
-        } else {
+        }
+        else {
             isOK = false;
         }
     }
@@ -128,7 +148,7 @@ public class Tower
     }
     
     public void removeLid(Cup removedCup){
-        Lid tapaDeLaTaza = removedCup.getCover();
+        Lid tapaDeLaTaza = removedCup.getTapa();
         removeLid(tapaDeLaTaza);
     }
     

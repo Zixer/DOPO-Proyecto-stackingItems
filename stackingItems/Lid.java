@@ -11,25 +11,25 @@ public class Lid
     private int number;
     private int width;
     private String color;
-    private static int height = 1;
+    private static int height = 5;
     private int posx;
     private int posy;
     private String state;
     private boolean isVisible;
     private Cup cup;
     private Rectangle cuerpo;
+    private static final int PIXEL_POR_CM = 5;
     /**
      * Constructor for objects of class Lid
      */
-    public Lid(int nwidth, String ncolor, Cup ncup)
+    public Lid(int nwidth, String ncolor)
     {
-        width = nwidth;
-        posx = 0;
-        posy = 0;
+        width = calcularHeight(nwidth);
+        posx = 150-(nwidth/2);
+        posy = 150-(nwidth/2);
         state = "normal";
         isVisible = false;
         color = ncolor;
-        cup=ncup;
     }
 
     public int getWidth() {
@@ -42,14 +42,15 @@ public class Lid
     
     public void draw(){
         cuerpo=new Rectangle();
+        cuerpo.setPosition(150-(width/2));
+        cuerpo.changeSize(height,width);
         cuerpo.changeColor(color);
-        cuerpo.changeSize(height*10,width);
-        posx=cup.body.getXpo();
-        posy=cup.body.getYpo();
-        cuerpo.changeP(posy,posx);
         cuerpo.makeVisible();
     }
     
+    public int calcularHeight(int number) {
+        return ((2 * number) - 1) * PIXEL_POR_CM;
+    }
     
     public void erase(){
         cuerpo.makeInvisible();

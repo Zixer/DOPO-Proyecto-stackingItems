@@ -6,92 +6,133 @@ import java.util.*;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class Cup
-{
+public class Cup{
     // instance variables - replace the example below with your own
     private int number;
     private int height;
-    private int max;
-    private int min;
-    private int posx;
-    private int posy;
-    private String estado;
+    private int width;
+    private int xPosition;
+    private int yPosition;
     private String color;
     private boolean isVisible;
+    private boolean hasLid;
     private Lid tapa;
+    private static final int PIXEL_POR_CM = 5;
+    
     public Rectangle body;
     public Rectangle interior;
     
+    
+
     /**
      * Constructor for objects of class Cup
      */
-    public Cup(int tamano)
-    {
-        body = new Rectangle();
-        interior = new Rectangle();
-        interior.setPosition(150-(tamano/2));
-        body.setPosition(150-(tamano/2));
-        body.changeSize(tamano, tamano);
-        body.changeColor("red");
-        estado = "noCovered";
+    public Cup(int number, String color) {
+        this.number = number;
+        this.height = calcularHeight(number);
+        this.color = color;
+        this.xPosition = 130; 
+        this.yPosition = 200;
+        this.width = calcularHeight(number);
+        this.isVisible = false;
         
-        int tamanoInterior = (int)(tamano * 0.8);
-        int offset = (tamano - tamanoInterior) / 2; 
-
-        interior.changeSize(tamanoInterior + 5, tamanoInterior );  
-        interior.changeColor("white");
-        interior.moveHorizontal(offset);
-     
+        this.hasLid = false; //esto es para indicar que por defecto ninguna copa viene con tapa (Lid)
     }
     
-    public int getMin() {
-        return min;
+    public int calcularHeight(int number) {
+        return ((2 * number) - 1) * PIXEL_POR_CM;
     }
     
-    public int getMax() {
-        return max;
-    }
-
-    public boolean cubierto() {
-        return estado=="Covered";
-    }
-    
-    public int getHeight(){
-        return height;
-    }
-    
-    public void draw()
-    {
-        body.makeVisible();
-        interior.makeVisible();
+    public void makeVisible() {
         isVisible = true;
+        draw();
     }
     
-    public void erase()
-    {
-        body.makeInvisible();
-        interior.makeInvisible();
+    public void makeInvisible() {
+        erase();
         isVisible = false;
     }
     
-    public int getNumber()
-    {
+    public void moverVertical(int distancia) {
+        erase();
+        yPosition += distancia;
+        draw();
+    }
+    
+    public void moveTo(int x, int y) {
+        erase();
+        xPosition = x;
+        yPosition = y;
+        draw();
+    }
+    
+    public int getNumber() {
         return number;
     }
     
-     public void setState(String nstate) {
-        estado = nstate;
+    public int getHeight() {
+        return height;
     }
     
-      private String randomColor(){
-        String[] colors = {"red","black","blue","yellow","green","magenta"};
-        Random random = new Random();
-        int index = random.nextInt(colors.length);
-        return colors[index];
+    public void setPosition(int x, int y) {
+        xPosition = x;
+        yPosition = y;
     }
     
-    public Lid getCover() {
+    public void gotALid() {
+        hasLid = true;
+    }
+    
+    public void redraw(int alturaAnt,int altura,int x, int y){
+        int grosor = 7;
+        int diferencia = alturaAnt - altura ;
+        body = new Rectangle();
+        body.changeSize(height, width);
+        body.changeP(x,y);
+        body.makeVisible();
+            
+    }
+    
+    public void draw() {
+
+        int grosor = 7;
+
+        body = new Rectangle();
+        body.changeSize(height, width);
+        body.changeColor(color);
+        body.setPosition(150 - (height/2));
+        body.makeVisible();
+            
+        interior = new Rectangle();
+        interior.setPosition(150 - (height/2));
+        interior.changeSize(height - grosor, width - 2 * grosor);
+        interior.moveHorizontal(grosor);
+        interior.changeColor("black");
+        interior.makeVisible();
+    }
+        
+    public void erase() {
+        if (body != null) body.makeInvisible();
+        if (interior != null) interior.makeInvisible();
+    }
+    
+    public Lid getTapa(){
         return tapa;
     }
     
+    public boolean cubierto(){
+        return hasLid;
+    }
+    
+    public int getXpo(){
+        return xPosition;
+    }
+    
+    public int getYpo(){
+        return yPosition;
+    }
+    
+    public int getWidth(){
+        return width;
+    }
 }

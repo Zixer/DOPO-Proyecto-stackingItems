@@ -209,9 +209,9 @@ public class Rectangle{
         return yPosition;
     }
     
-    public void changeP(int ancho,int alto){
-        this.xPosition = ancho; 
-        this.yPosition =alto;
+    public void changeP(int x,int y){
+        this.xPosition = x; 
+        this.yPosition = y;
     }  
 }
 
