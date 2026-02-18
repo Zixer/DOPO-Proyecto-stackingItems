@@ -1,5 +1,8 @@
 import java.util.Stack;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  * Write a description of class Tower here.
@@ -11,7 +14,7 @@ public class Tower
 {
     private int width;
     private int height;
-    private int minHeight;
+    private int maxWidth;
     private int maxHeight;
     private int Y = 200;
     private int X = 130;
@@ -19,34 +22,47 @@ public class Tower
     private Stack<Cup> cups;
     private Stack<Lid> lids;
     private boolean isOK;
+    private Random random;
+    
     
     /**
      * Constructor for objects of class Tower
      */
-    public Tower(int nmaxHeight)
+    public Tower(int nmaxHeight,int nmaxWidth)
     {
         cups = new Stack<Cup>();
         lids = new Stack<Lid>();
 
         this.maxHeight = nmaxHeight;
+        this.maxWidth = maxWidth;
 
         isVisible = false;
         isOK = true;
+    }
+    
+    private String randomColor(){
+        List<String> lista = List.of("magenta", "green", "yellow","blue","black","red");
+        int random = new Random().nextInt(lista.size());
+        String color = lista.get(random);
+        return color;
     }
     
     
     /**
      * Agrega una taza al tope de la torre
      */
-    public void pushCup(int i,String color){
-        Cup nueva = new Cup(i, color);
+    public void pushCup(int i){
+        String color = randomColor();
+        Cup nueva = new Cup(i,color);
 
-        if (getHeight() + nueva.getHeight() <= maxHeight) {
+ 
+        if (getHeight() + nueva.getHeight() <= maxHeight && i < maxWidth ) {
             cups.push(nueva);
             redraw();
             isOK = true;
         }
         else {
+            JOptionPane.showMessageDialog(null , "No se pudo realizar la operacion");
             isOK = false;
         }
     }
@@ -303,6 +319,7 @@ public class Tower
         lids.clear();
         isVisible = false;
     }
+
     
     /**
      * Verifica si la última operación fue exitosa

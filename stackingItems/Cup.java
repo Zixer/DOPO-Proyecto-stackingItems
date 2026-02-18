@@ -26,7 +26,7 @@ public class Cup{
     /**
      * Constructor for objects of class Cup
      */
-    public Cup(int number, String color) {
+    public Cup(int number,String color) {
         this.number = number;
         this.height = calcularHeight(number);
         this.color = color;
