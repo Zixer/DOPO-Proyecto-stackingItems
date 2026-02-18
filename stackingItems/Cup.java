@@ -18,7 +18,7 @@ public class Cup{
     private boolean hasLid;
     private Lid tapa;
     private static final int PIXEL_POR_CM = 5;
-    
+    public boolean inside;
     public Rectangle body;
     public Rectangle interior;
     
@@ -40,6 +40,14 @@ public class Cup{
     
     public int calcularHeight(int number) {
         return ((2 * number) - 1) * PIXEL_POR_CM;
+    }
+    
+    public boolean isInside() {
+        return inside;
+    }
+
+    public void setInside(boolean value) {
+        inside = value;
     }
     
     public void makeVisible() {
