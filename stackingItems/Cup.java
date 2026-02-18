@@ -22,7 +22,6 @@ public class Cup{
     public Rectangle body;
     public Rectangle interior;
     
-    
 
     /**
      * Constructor for objects of class Cup
@@ -71,7 +70,7 @@ public class Cup{
     }
     
     public int getHeight() {
-        return height;
+        return height/5;
     }
     
     public void setPosition(int x, int y) {
@@ -83,34 +82,29 @@ public class Cup{
         hasLid = true;
     }
     
-    public void redraw(int alturaAnt,int altura,int x, int y){
-        int grosor = 7;
-        int diferencia = alturaAnt - altura ;
-        body = new Rectangle();
-        body.changeSize(height, width);
-        body.changeP(x,y);
-        body.makeVisible();
+    public void draw() {
+        if (isVisible) {
+            int grosor = 7;
+
+            int esquinaX = xPosition - width / 2;
+            int esquinaY = yPosition - height;
+
+            body = new Rectangle();
+            body.changeSize(height, width);
+            body.changeColor(color);
+            body.moveHorizontal(esquinaX - 70);
+            body.moveVertical(esquinaY);
+            body.makeVisible();
             
+            interior = new Rectangle();
+            interior.changeSize(height - grosor, width - 2 * grosor);
+            interior.changeColor("white");
+            interior.moveHorizontal((esquinaX + grosor) - 70);
+            interior.moveVertical(esquinaY);
+            interior.makeVisible();
+        }
     }
     
-    public void draw() {
-
-        int grosor = 7;
-
-        body = new Rectangle();
-        body.changeSize(height, width);
-        body.changeColor(color);
-        body.setPosition(150 - (height/2));
-        body.makeVisible();
-            
-        interior = new Rectangle();
-        interior.setPosition(150 - (height/2));
-        interior.changeSize(height - grosor, width - 2 * grosor);
-        interior.moveHorizontal(grosor);
-        interior.changeColor("black");
-        interior.makeVisible();
-    }
-        
     public void erase() {
         if (body != null) body.makeInvisible();
         if (interior != null) interior.makeInvisible();

@@ -1,65 +1,120 @@
-
+import java.awt.*;
 /**
  * Write a description of class Lid here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * 
+ * @author Yazid Sánchez - Sergio Ramírez
+ * @version 1.0
  */
 public class Lid
 {
-    // instance variables - replace the example below with your own
     private int number;
+    private int height;
     private int width;
+    private int xPosition;
+    private int yPosition;
     private String color;
-    private static int height = 5;
-    private int posx;
-    private int posy;
-    private String state;
     private boolean isVisible;
-    private Cup cup;
-    private Rectangle cuerpo;
     private static final int PIXEL_POR_CM = 5;
+    private Rectangle lid;
     /**
      * Constructor for objects of class Lid
      */
-    public Lid(int nwidth, String ncolor)
-    {
-        width = calcularHeight(nwidth);
-        posx = 150-(nwidth/2);
-        posy = 150-(nwidth/2);
-        state = "normal";
-        isVisible = false;
-        color = ncolor;
-    }
+    public Lid(int number, String color) {
+        this.number = number;
+        this.color = color;
+        this.width = ((2 * number) - 1) * PIXEL_POR_CM;
 
-    public int getWidth() {
-        return width;
+        this.height = PIXEL_POR_CM; 
+        
+        this.xPosition = 130; 
+        this.yPosition = 200;
+        this.isVisible = false;
     }
     
-    public int getHeight() {
-        return height;
+    /**
+     * Hace visible la tapa en pantalla.
+     */
+    public void makeVisible() {
+        isVisible = true;
+        draw();
     }
     
-    public void draw(){
-        cuerpo=new Rectangle();
-        cuerpo.setPosition(150-(width/2));
-        cuerpo.changeSize(height,width);
-        cuerpo.changeColor(color);
-        cuerpo.makeVisible();
-    }
-    
-    public int calcularHeight(int number) {
-        return ((2 * number) - 1) * PIXEL_POR_CM;
-    }
-    
-    public void erase(){
-        cuerpo.makeInvisible();
+    /**
+     * Hace invisible la tapa en pantalla.
+     */
+    public void makeInvisible() {
+        erase();
         isVisible = false;
     }
     
-    public int getNumber()
-    {
+    /**
+     * Mueve la tapa verticalmente
+     * 
+     * @param distancia distancia en píxeles
+     */
+    public void moveVertical(int distancia) {
+        erase();
+        yPosition += distancia;
+        draw();
+    }
+    
+    /**
+     * Mueve la tapa a una posición absoluta específica
+     * 
+     * @param x Nueva posición horizontal
+     * @param y Nueva posición vertical
+     */
+    public void moveTo(int x, int y) {
+        erase();
+        xPosition = x;
+        yPosition = y;
+        draw();
+    }
+    
+    /**
+     * Devuelve el número 
+     * 
+     * @return Número identificador
+     */
+    public int getNumber() {
         return number;
     }
-        
+    
+    public int getSize() {
+        return number;
+    }
+    
+    /**
+     * Establece una nueva posición sin redibujar de manera inmediata
+     * @param x Nueva posición horizontal
+     * @param y Nueva posición vertical
+     */
+    public void setPosition(int x, int y) {
+        xPosition = x;
+        yPosition = y;
+    }
+    
+    /**
+     * Dibuja la tapa en pantalla utilizando un rectángulo.   
+    */
+    public void draw() {
+        if (isVisible) {
+            int esquinaX = xPosition - width / 2;
+            int esquinaY = yPosition - height * 2 * (number); 
+            
+            lid = new Rectangle();
+            lid.changeSize(height, width);
+            lid.changeColor(color);
+            lid.moveHorizontal(esquinaX - 70);
+            lid.moveVertical(esquinaY);
+            lid.makeVisible();
+        }
+    }
+    
+    /**
+     * Elimina la tapa en pantalla
+     */
+    public void erase() {
+        if (lid != null) lid.makeInvisible();
+    }
 }

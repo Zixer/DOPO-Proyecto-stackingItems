@@ -13,6 +13,8 @@ public class Tower
     private int height;
     private int minHeight;
     private int maxHeight;
+    private int Y = 200;
+    private int X = 130;
     private boolean isVisible;
     private Stack<Cup> cups;
     private Stack<Lid> lids;
@@ -21,50 +23,75 @@ public class Tower
     /**
      * Constructor for objects of class Tower
      */
-    public Tower(int nwidth, int nmaxHeight)
+    public Tower(int nmaxHeight)
     {
-        width = nwidth;
-        maxHeight = nmaxHeight;
-        isVisible = false;
         cups = new Stack<Cup>();
         lids = new Stack<Lid>();
+
+        this.maxHeight = nmaxHeight;
+
+        isVisible = false;
         isOK = true;
     }
+    
     
     /**
      * Agrega una taza al tope de la torre
      */
     public void pushCup(int i,String color){
-        boolean alreadyExist = false;
-        boolean isEmpty=cups.isEmpty();
-        Cup ncup = new Cup(i,color);
-        if(!isEmpty){
-            for (Cup c : cups) {
-                int number=c.getNumber();
-                if (number == i) {
-                    alreadyExist = true;
-                    isOK = false;
-                    break;
-                }
-            }
-        }
-        if (!alreadyExist) {
-            if (cups.size() != 0 ){
-                Cup top = cups.peek();
-                if (top.getWidth() > ncup.getWidth()){
-                    ncup.redraw(top.interior.getHeight(),ncup.getHeight(),top.getXpo(),top.getYpo());
-                    return;
-                }
-                if (top.getWidth() < ncup.getWidth()){
-                    top.moverVertical(ncup.getHeight());
-                    
-                }
-            }
-            cups.push(ncup);
-            ncup.draw();
-            Lid nlid=ncup.getTapa();
+        Cup nueva = new Cup(i, color);
+
+        if (getHeight() + nueva.getHeight() <= maxHeight) {
+            cups.push(nueva);
+            redraw();
             isOK = true;
+        }
+        else {
+            isOK = false;
+        }
+    }
+    
+    private void redraw(){
+        int yActual = Y;
+        Cup anterior = null;
+        
+        for (int i = 0; i < cups.size(); i++) {
+            Cup c = cups.get(i);
+            c.makeInvisible();
+        
+            if (anterior == null) {
+                c.setPosition(X, yActual);
+            } else {
+                int grosor = 7;
+        
+                if (c.getNumber() > anterior.getNumber()) {
+                    // más grande: se apila encima de la anterior
+                    yActual = anterior.getYpo() - anterior.getHeight() * 5;
+                    c.setPosition(X, yActual);
+                } else {
+                    // más pequeña: dentro, tocando la base interior de la anterior
+                    int baseInteriorAnterior = anterior.getYpo() ;
+                    yActual = baseInteriorAnterior - 7;
+                    c.setPosition(X, yActual);
+                }
+            }
+        
+            c.makeVisible();
+            anterior = c;
+        }
             
+        if (!lids.isEmpty()) {
+                Lid topLid = lids.peek();
+                topLid.makeInvisible();
+    
+                int alturaTotal = getHeight();
+                int yTapa = Y - alturaTotal;
+    
+                topLid.setPosition(X, yTapa + 15);
+
+                if (isVisible) {
+                    topLid.makeVisible();
+                }
         }
     }
     
@@ -73,19 +100,22 @@ public class Tower
      * Remueve y retorna la taza del tope
      */
     public Cup popCup()
-    {   
-        boolean isEmpty=cups.isEmpty();
+    {
+        if (!cups.isEmpty()) {
 
-        if (!isEmpty) {
+            Cup removida = cups.pop();
+            removida.makeInvisible();
+
+            redraw();
             isOK = true;
-            return cups.pop();
-        } else {
-            isOK = false;
-            return null;
+            return removida;
         }
+
+        isOK = false;
+        return null;
     }
     
-    /**
+   /**
      * Remueve una taza específica por número
      */
     public void removeCup(int i)
@@ -109,7 +139,7 @@ public class Tower
             cups.push(temp.pop());
         } 
         if (found && removedCup != null) {
-            removeLid(removedCup);
+           removeLid(removedCup);
         }
         isOK = found;
     }
@@ -141,7 +171,7 @@ public class Tower
         if (!lids.isEmpty()) {
             isOK = true;
             return lids.pop();
-        } else {
+         } else {
             isOK = false;
             return null;
         }
@@ -234,33 +264,10 @@ public class Tower
     /**
      * Retorna matriz con tipo y número de elementos
      */
-    public String[][] stackingItems()
-    {
-        int totalElements = cups.size() + lids.size();
-        String[][] result = new String[totalElements][2];
+    //public String[][] stackingItems()
+    //{
         
-        // Convertir stack a lista para iterar
-        ArrayList<Cup> cupList = new ArrayList<Cup>(cups);
-        ArrayList<Lid> lidList = new ArrayList<Lid>(lids);
-        
-        int index = 0;
-        
-        // Agregar tazas
-        for (Cup c : cupList) {
-            result[index][0] = "cup";
-            result[index][1] = String.valueOf(c.getNumber());
-            index++;
-        }
-        
-        // Agregar tapas
-        for (Lid l : lidList) {
-            result[index][0] = "lid";
-            result[index][1] = String.valueOf(l.getHeight());
-            index++;
-        }
-        
-        return result;
-    }
+    //}
     
     /**
      * Hace visible la torre
@@ -268,6 +275,7 @@ public class Tower
     public void makeVisible()
     {
         isVisible = true;
+        redraw();
     }
     
     /**
