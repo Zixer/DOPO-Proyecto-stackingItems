@@ -30,5 +30,5 @@ comment8.target=void\ setPosition(int,\ int)
 comment8.text=\r\n\ Establece\ una\ nueva\ posici\u00F3n\ sin\ redibujar\ de\ manera\ inmediata\r\n\ @param\ x\ Nueva\ posici\u00F3n\ horizontal\r\n\ @param\ y\ Nueva\ posici\u00F3n\ vertical\r\n
 comment9.params=
 comment9.target=void\ draw()
-comment9.text=\r\n\ Dibuja\ la\ tapa\ en\ pantalla\ utilizando\ un\ rect\u00E1ngulo.\ \ \ \r\n
+comment9.text=\r\n\ Dibuja\ la\ tapa\ sobre\ el\ canvas\ utilizando\ un\ rect\u00E1ngulo.\r\n\r\n\ Si\ el\ objeto\ est\u00E1\ marcado\ como\ visible,\ crea\ un\ nuevo\ Rectangle\r\n\ que\ representa\ la\ tapa\ y\ lo\ posiciona\ horizontalmente\ centrado\r\n\ dentro\ del\ canvas\ (300\ px\ de\ ancho).\r\n\r\n\ La\ posici\u00F3n\ vertical\ depende\ del\ valor\ actual\ de\ yPosition,\r\n\ permitiendo\ que\ la\ tapa\ siga\ la\ altura\ de\ la\ torre.\r\n\r\n\ Caracter\u00EDsticas\:\r\n\ -\ La\ tapa\ siempre\ queda\ centrada\ horizontalmente\ en\ el\ canvas.\r\n\ -\ Solo\ cambia\ su\ posici\u00F3n\ vertical\ seg\u00FAn\ la\ torre.\r\n\ -\ Se\ crea\ un\ nuevo\ objeto\ gr\u00E1fico\ cada\ vez\ que\ se\ dibuja.\r\n
 numComments=12

@@ -28,7 +28,10 @@ public class Tower
     
     
     /**
-     * Constructor for objects of class Tower
+     * Construye una torre vacía con límites máximos de altura y ancho.
+     *
+     * @param nmaxHeight altura máxima permitida para la torre (suma de alturas externas).
+     * @param nmaxWidth  tamaño máximo permitido para una copa (número/diámetro).
      */
     public Tower(int nmaxHeight,int nmaxWidth)
     {
@@ -41,7 +44,14 @@ public class Tower
         isVisible = false;
         isOK = true;
     }
-
+    
+    /**
+     * Genera y retorna un color aleatorio de una lista predefinida.
+     * Crea un objeto Random y elige un color entre:
+     * magenta, green, yellow, blue, black, red.
+     *
+     * @return un String con el nombre del color aleatorio.
+     */
     private String randomColor(){
         random = new Random ();
         List<String> lista = List.of("magenta", "green", "yellow","blue","black","red");
@@ -49,7 +59,18 @@ public class Tower
     }
     
     /**
-     * Agrega una taza al tope de la torre
+     * Agrega una copa al tope de la torre, si cumple restricciones.
+     * Reglas:
+     * - No permite tamaños duplicados.
+     * - No permite tamaños mayores al máximo (maxWidth).
+     * - No permite exceder la altura máxima (maxHeight) sumando alturas externas.
+     *
+     * Efectos:
+     * - Hace visible la torre.
+     * - Muestra mensajes por JOptionPane si la operación falla.
+     * - Redibuja la torre si se inserta correctamente.
+     *
+     * @param i número/tamaño de la copa a insertar.
      */
     public void pushCup(int i){
         String color = randomColor();
@@ -64,7 +85,7 @@ public class Tower
             }
         }
  
-        if (height() + nueva.getHeight() <= maxHeight && i < maxWidth) {
+        if (Height() + nueva.getHeight() <= maxHeight && i < maxWidth) {
             cups.push(nueva);
             redraw();
             isOK = true;
@@ -75,6 +96,15 @@ public class Tower
         }
     }          
 
+    /**
+     * Compara dos copas y retorna la que está más alta en pantalla (menor Y efectivo).
+     * Se usa durante el redibujado para determinar cuál copa queda en la posición
+     * superior entre las candidatas.
+     *
+     * @param actualAlta copa actualmente considerada como la más alta (puede ser null).
+     * @param copaActual copa candidata a comparar.
+     * @return la copa que queda más alta.
+     */
     private Cup getHighest(Cup actualAlta, Cup copaActual) {
 
         if (actualAlta == null) {
@@ -88,6 +118,16 @@ public class Tower
         return actualAlta;
     }
 
+    /**
+     * Recalcula y actualiza la posición visual de todas las copas según la lógica de apilamiento:
+     * - Copas más grandes pueden quedar por fuera ("outside").
+     * - Copas más pequeñas pueden ir dentro ("inside") y se posicionan con un ajuste distinto.
+     *
+     * Efectos:
+     * - Hace invisible cada copa antes de reposicionarla.
+     * - Reposiciona, define inside/outside, y vuelve visibles las copas.
+     * - Finalmente intenta dibujar/posicionar la tapa sobre la copa más alta.
+     */
     private void redraw() {
         int yActual = Y;
         Cup anterior = null;
@@ -134,7 +174,13 @@ public class Tower
         drawLid(masAlto);
         }
         
-
+    /**
+     * Posiciona y muestra la tapa actual (si existe) sobre la copa indicada.
+     * Si no hay tapas en el stack, no hace nada.
+     * Si la copa es null, oculta la tapa.
+     *
+     * @param cup copa sobre la cual se posicionará la tapa (normalmente la más alta).
+     */
     private void drawLid(Cup cup) {
         if (lids.isEmpty()) return;
     
@@ -152,6 +198,12 @@ public class Tower
         lid.makeVisible();
     }
     
+    /**
+     * Verifica si ya existe una copa con el mismo tamaño/número dentro de la torre.
+     *
+     * @param newSize tamaño/número a validar.
+     * @return true si ya existe una copa con ese número, false si no.
+     */
     private boolean duplicatedSize(int newSize){
         boolean estado = false; 
         for (int i = 0; i < cups.size(); i++) {
@@ -164,7 +216,14 @@ public class Tower
     }
     
     /**
-     * Remueve y retorna la taza del tope
+     * Remueve y retorna la copa que está en el tope del stack.
+     *
+     * Efectos:
+     * - Oculta visualmente la copa removida.
+     * - Redibuja la torre después de remover.
+     * - Actualiza el estado isOK.
+     *
+     * @return la copa removida si existía; null si la torre está vacía.
      */
     public Cup popCup()
     {
@@ -182,8 +241,17 @@ public class Tower
         return null;
     }
     
-   /**
-     * Remueve una taza específica por número
+    /**
+     * Remueve la primera copa encontrada (desde el tope hacia abajo) cuyo número coincida.
+     * Si la torre está vacía muestra un mensaje.
+     * Si no encuentra la copa indicada, muestra un mensaje.
+     *
+     * Efectos:
+     * - Oculta visualmente la copa removida (si se encuentra).
+     * - Reconstruye el stack manteniendo el orden relativo de las demás copas.
+     * - Redibuja la torre al final.
+     *
+     * @param number número/tamaño de la copa que se desea eliminar.
      */
     public void removeCup(int number) {
         if (cups.isEmpty()) {
@@ -198,11 +266,13 @@ public class Tower
             Cup c = cups.pop();
             if (!found && c.getNumber() == number) {
                 found = true; 
+                c.makeInvisible();
             } else {
                 temp.push(c);
             }
         }
-    
+        
+        cups.clear();
        
         if (!found) {
             JOptionPane.showMessageDialog(null, "No existe la copa indicada");
@@ -217,7 +287,16 @@ public class Tower
     }
     
     /**
-     * Agrega una tapa al tope de la torre
+     * Agrega una tapa sobre la copa del tope.
+     * La implementación actual mantiene solo UNA tapa:
+     * limpia el stack de tapas y agrega la nueva.
+     *
+     * Efectos:
+     * - Si hay copas, crea una tapa asociada al número de la copa superior.
+     * - Redibuja para ubicar la tapa correctamente.
+     * - Si no hay copas, marca isOK = false.
+     *
+     * @param color color de la tapa a crear.
      */
     public void pushLid(String color) {
         if (!cups.isEmpty()) {
@@ -236,7 +315,9 @@ public class Tower
     }
     
     /**
-     * Remueve y retorna la tapa del tope
+     * Remueve y retorna la tapa del tope del stack de tapas.
+     *
+     * @return la tapa removida si existía; null si no hay tapas.
      */
     public Lid popLid()
     {
@@ -247,11 +328,6 @@ public class Tower
             isOK = false;
             return null;
         }
-    }
-    
-    public void removeLid(Cup removedCup){
-        Lid tapaDeLaTaza = removedCup.getTapa();
-        removeLid(tapaDeLaTaza);
     }
     
     /**
@@ -267,7 +343,17 @@ public class Tower
     }
     
     /**
-     * Ordena la torre de mayor a menor altura
+     * Ordena la torre de mayor a menor según el número/tamaño de cada copa.
+     * Implementación:
+     * - Extrae los números de las copas a una lista.
+     * - Oculta visualmente las copas existentes.
+     * - Ordena descendentemente.
+     * - Limpia el stack y reconstruye usando pushCup.
+     *
+     * Efectos secundarios importantes:
+     * - Al reconstruir con pushCup, se crean copas nuevas y el color se asigna aleatoriamente.
+     * - Se ejecutan validaciones de pushCup.
+     * - Se redibuja varias veces.
      */
     public void orderTower() {
         
@@ -284,8 +370,14 @@ public class Tower
         
         redraw();
     }
+    
     /**
-     * Invierte el orden de la torre
+     * Invierte el orden del stack de copas (tope pasa a ser base y viceversa).
+     *
+     * Efectos:
+     * - Reorganiza las referencias de copas en un stack temporal.
+     * - Redibuja la torre al final.
+     * - Marca isOK = true.
      */
     public void reverseTower() {
         Stack<Cup> temp = new Stack<>();
@@ -300,45 +392,27 @@ public class Tower
     }
     
     /**
-     * Retorna la altura total de elementos apilados
+     * Calcula la altura total efectiva de la torre sumando solo las copas "externas".
+     * Si una copa está marcada como inside, no se suma a la altura total.
+     *
+     * @return altura total acumulada de copas externas.
      */
-    public int height(){
-
+    public int Height(){
         int total = 0;
-
         for (Cup c : cups){
             if (c.isInside()) {
             }
             else {
-            total += c.getHeight();
+                total += c.getHeight();
             }
         }
-
         return total;
     }
-    
-    /**
-     * Retorna array con números de tazas tapadas
-     */
-    public int[] lidedCups()
-    {
-        ArrayList<Integer> covered = new ArrayList<Integer>();
-        
-        for (Cup c : cups) {
-            if (c.cubierto()) {
-                covered.add(c.getNumber());
-            }
-        }
-        int[] result = new int[covered.size()];
-        for (int i = 0; i < covered.size(); i++) {
-            result[i] = covered.get(i);
-        }
-        return result;
-    }
 
     
     /**
-     * Hace visible la torre
+     * Marca la torre como visible (bandera lógica).
+     * Nota: no dibuja automáticamente, solo cambia el estado.
      */
     public void makeVisible()
     {
@@ -366,6 +440,12 @@ public class Tower
      */
     public void exit()
     {
+        for (Cup c:cups){
+            c.makeInvisible();
+        }
+        for (Lid l:lids){
+            l.makeInvisible();
+        }
         cups.clear();
         lids.clear();
         isVisible = false;
@@ -374,11 +454,34 @@ public class Tower
     /**
      * Verifica si la última operación fue exitosa
      */
-    public boolean ok()
+    public boolean isOk()
     {
         return isOK;
     }
     
+    /**
+     * Retorna el tamaño del stack de tazas
+     */
+    public int getCupsSize()
+    {
+        return cups.size();
+    }
+    
+    /**
+     * Retorna el tamaño del stack de tapas
+     */
+    public int getLidsSize()
+    {
+        return lids.size();
+    }
+    
+    /**
+     * Dibuja una "regla" vertical de referencia en el canvas usando rectángulos pequeños.
+     * Crea múltiples objetos Rectangle y los hace visibles.
+     *
+     * Nota: El bucle recorre hasta maxHeight y ubica cada marca en i*10.
+     * Dependiendo del valor de maxHeight, puede dibujar muchos rectángulos.
+     */
     public void drawRule(){
         for (int i=0;i<=maxHeight;i = i+1){
             Rectangle r= new Rectangle();

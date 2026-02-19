@@ -75,6 +75,10 @@ public class Lid
         return number;
     }
     
+    public int getSize() {
+        return number;
+    }
+    
     /**
      * Establece una nueva posición sin redibujar de manera inmediata
      * @param x Nueva posición horizontal
@@ -86,21 +90,32 @@ public class Lid
     }
     
     /**
-     * Dibuja la tapa en pantalla utilizando un rectángulo.   
-    */
+     * Dibuja la tapa sobre el canvas utilizando un rectángulo.
+     *
+     * Si el objeto está marcado como visible, crea un nuevo Rectangle
+     * que representa la tapa y lo posiciona horizontalmente centrado
+     * dentro del canvas (300 px de ancho).
+     *
+     * La posición vertical depende del valor actual de yPosition,
+     * permitiendo que la tapa siga la altura de la torre.
+     *
+     * Características:
+     * - La tapa siempre queda centrada horizontalmente en el canvas.
+     * - Solo cambia su posición vertical según la torre.
+     * - Se crea un nuevo objeto gráfico cada vez que se dibuja.
+     */
     public void draw() {
-        if (isVisible) {
-            int grosor = 7;
-            int esquinaX = xPosition - width / 2;
-            int esquinaY = yPosition - height;
-            
-            lid = new Rectangle();
-            lid.changeSize(height, width);
-            lid.changeColor(color);
-            lid.moveHorizontal(esquinaX + grosor - 70);
-            lid.moveVertical(esquinaY);
-            lid.makeVisible();
-        }
+        int canvasWidth = 300;
+        int centroX = (canvasWidth - width) / 2;
+        int esquinaY = yPosition - height;
+        
+        lid = new Rectangle();
+        lid.changeSize(height, width);
+        lid.changeColor(color); 
+        lid.changeP(centroX, esquinaY); 
+    
+        lid.makeVisible();
+        
     }
     
     /**

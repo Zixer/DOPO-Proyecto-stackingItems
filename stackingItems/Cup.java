@@ -7,6 +7,7 @@ import java.util.*;
  * @version (a version number or a date)
  */
 public class Cup{
+    // instance variables - replace the example below with your own
     private int number;
     private int height;
     private int width;
@@ -21,6 +22,7 @@ public class Cup{
     public Rectangle body;
     public Rectangle interior;
     
+
     /**
      * Constructor for objects of class Cup
      */
@@ -36,6 +38,9 @@ public class Cup{
         this.hasLid = false; //esto es para indicar que por defecto ninguna copa viene con tapa (Lid)
     }
     
+    /**
+     * calcula la altura teniendo en cuenta los "centimetros"
+     */
     public int calcularHeight(int number) {
         return ((2 * number) - 1) * cm;
     }
@@ -58,12 +63,32 @@ public class Cup{
         isVisible = false;
     }
     
+    /**
+     * Mueve el objeto verticalmente una distancia relativa respecto
+     * a su posición actual.
+     *
+     * El objeto se borra del canvas, se actualiza la posición vertical
+     * sumando la distancia indicada y luego se vuelve a dibujar.
+     *
+     * @param distancia cantidad de píxeles a mover:
+     *                  valores positivos → hacia abajo
+     *                  valores negativos → hacia arriba
+     */
     public void moverVertical(int distancia) {
         erase();
         yPosition += distancia;
         draw();
     }
     
+    /**
+     * Mueve el objeto directamente a una posición absoluta dentro del canvas.
+     *
+     * El objeto se borra del canvas, se asignan las nuevas coordenadas
+     * X e Y y luego se vuelve a dibujar en la nueva ubicación.
+     *
+     * @param x nueva posición horizontal absoluta.
+     * @param y nueva posición vertical absoluta.
+     */
     public void moveTo(int x, int y) {
         erase();
         xPosition = x;
@@ -79,6 +104,16 @@ public class Cup{
         return height/5;
     }
     
+    /**
+     * Establece directamente la posición del objeto sin redibujarlo.
+     *
+     * Actualiza las coordenadas internas X y Y del objeto,
+     * pero NO realiza operaciones gráficas como borrar o dibujar.
+     * El cambio solo será visible cuando se invoque posteriormente draw().
+     *
+     * @param x nueva posición horizontal absoluta.
+     * @param y nueva posición vertical absoluta.
+     */
     public void setPosition(int x, int y) {
         xPosition = x;
         yPosition = y;
@@ -88,6 +123,24 @@ public class Cup{
         hasLid = true;
     }
     
+    /**
+     * Dibuja visualmente la copa en el canvas si el objeto está marcado como visible.
+     *
+     * El método calcula la esquina superior izquierda a partir de la posición central
+     * (xPosition, yPosition) y crea dos rectángulos:
+     *
+     * - body: representa el exterior de la copa con el color asignado.
+     * - interior: representa el interior blanco de la copa, ligeramente más pequeño
+     *   para simular el grosor de las paredes.
+     *
+     * El valor "grosor" define el espesor visual del borde.
+     *
+     * Nota:
+     * - Se crean nuevos objetos Rectangle cada vez que se dibuja.
+     * - El desplazamiento horizontal (-70) corresponde a un ajuste manual
+     *   para alinear la copa dentro del canvas.
+     * - El objeto solo se dibuja si isVisible == true.
+     */
     public void draw() {
         if (isVisible) {
             int grosor = 7;
@@ -111,6 +164,13 @@ public class Cup{
         }
     }
     
+    /**
+     * Oculta visualmente la copa del canvas.
+     *
+     * El método verifica si los rectángulos gráficos que representan
+     * el exterior (body) y el interior (interior) existen y, en caso afirmativo,
+     * los hace invisibles.
+     */
     public void erase() {
         if (body != null) body.makeInvisible();
         if (interior != null) interior.makeInvisible();
