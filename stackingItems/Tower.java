@@ -2,6 +2,8 @@ import java.util.Stack;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.List;
+import java.util.Collections;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -39,13 +41,12 @@ public class Tower
         isVisible = false;
         isOK = true;
     }
-    
+
     private String randomColor(){
         random = new Random ();
         List<String> lista = List.of("magenta", "green", "yellow","blue","black","red");
         return  lista.get(random.nextInt(lista.size()));
     }
-    
     
     /**
      * Agrega una taza al tope de la torre
@@ -53,6 +54,7 @@ public class Tower
     public void pushCup(int i){
         String color = randomColor();
         Cup nueva = new Cup(i,color);
+        makeVisible();
         
         if (i > maxWidth || duplicatedSize(i)) {
             if (this.isVisible){
@@ -71,29 +73,55 @@ public class Tower
             JOptionPane.showMessageDialog(null , "No se pudo realizar la operacion");
             isOK = false;
         }
-    }
+    }          
+
+    private Cup getHighest(Cup actualAlta, Cup copaActual) {
+
+        if (actualAlta == null) {
+            return copaActual;
+        }
     
-    private void redraw(){
+        if (copaActual.getYpo() - copaActual.getHeight() * 5 < actualAlta.getYpo() - actualAlta.getHeight() * 5 ) {
+            return copaActual;
+        }
+    
+        return actualAlta;
+    }
+
+    private void redraw() {
         int yActual = Y;
         Cup anterior = null;
-        
-        for (int i = 0; i < cups.size(); i++) {
+        Cup masExterno = null;
+        Cup masAlto = null; 
+         
+        for (int i = 0;i < cups.size();i++ ){
             Cup c = cups.get(i);
             c.makeInvisible();
-        
             if (anterior == null) {
                 c.setPosition(X, yActual);
                 c.setInside(false);
-            } else {
-                int grosor = 7;
-        
-                if (c.getNumber() > anterior.getNumber()) {
-                    // más grande: se apila encima de la anterior
+                masExterno = c; 
+                masAlto = c;
+                anterior = c;
+                c.makeVisible();
+                continue;
+            }
+            
+            if (c.getNumber() > masExterno.getNumber()){
+                yActual = masAlto.getYpo() - masAlto.getHeight() * 5;
+                c.setPosition(X, yActual);
+                c.setInside(false);
+                masExterno = c;
+                masAlto = getHighest(masAlto, c);
+            } else{
+                if (c.getNumber() > anterior.getNumber() ) {
+                    
                     yActual = anterior.getYpo() - anterior.getHeight() * 5;
                     c.setInside(false);
                     c.setPosition(X, yActual);
+                    masAlto = getHighest(masAlto, c);
                 } else {
-                    // más pequeña: dentro, tocando la base interior de la anterior
+                    
                     int baseInteriorAnterior = anterior.getYpo() ;
                     yActual = baseInteriorAnterior - 7;
                      c.setInside(true);
@@ -101,23 +129,27 @@ public class Tower
                 }
             }
             c.makeVisible();
-            
             anterior = c;
         }
-            
-        if (!lids.isEmpty()) {
-                Lid topLid = lids.peek();
-                topLid.makeInvisible();
-    
-                int alturaTotal = getHeight();
-                int yTapa = Y - alturaTotal;
-    
-                topLid.setPosition(X, yTapa + 15);
-
-                if (isVisible) {
-                    topLid.makeVisible();
-                }
+        drawLid(masAlto);
         }
+        
+
+    private void drawLid(Cup cup) {
+        if (lids.isEmpty()) return;
+    
+        Lid lid = lids.peek();
+    
+        if (cup == null) {
+            lid.makeInvisible();
+            return;
+        }
+    
+        int xLid = cup.getXpo();
+        int yLid = cup.getYpo() ; // ajuste fino (altura de la tapa)
+    
+        lid.moveTo(xLid, yLid);
+        lid.makeVisible();
     }
     
     private boolean duplicatedSize(int newSize){
@@ -125,7 +157,7 @@ public class Tower
         for (int i = 0; i < cups.size(); i++) {
             Cup c = cups.get(i);
             if (newSize == c.getNumber()){
-                estado = true;
+                 estado = true;
             }
         }
         return estado;
@@ -153,47 +185,52 @@ public class Tower
    /**
      * Remueve una taza específica por número
      */
-    public void removeCup(int i)
-    {
-        Stack<Cup> temp = new Stack<Cup>();
-        Cup removedCup = null;
+    public void removeCup(int number) {
+        if (cups.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No existe ninguna copa");
+            return;
+        }
+    
+        Stack<Cup> temp = new Stack<>();
         boolean found = false;
-        boolean isEmpty=cups.isEmpty();
-        while (!isEmpty) {
+    
+        while (!cups.isEmpty()) {
             Cup c = cups.pop();
-            int number=c.getNumber(); 
-            if (number != i) {
-                temp.push(c);
+            if (!found && c.getNumber() == number) {
+                found = true; 
             } else {
-                found = true;
-                removedCup=c;
+                temp.push(c);
             }
         }
-        boolean tIsEmpty=temp.isEmpty();
-        while (!tIsEmpty) {
-            cups.push(temp.pop());
-        } 
-        if (found && removedCup != null) {
-           removeLid(removedCup);
+    
+       
+        if (!found) {
+            JOptionPane.showMessageDialog(null, "No existe la copa indicada");
         }
-        isOK = found;
+    
+        
+        while (!temp.isEmpty()) {
+            cups.push(temp.pop());
+        }
+    
+        redraw();
     }
     
     /**
      * Agrega una tapa al tope de la torre
      */
-    public void pushLid(String color)
-    {
+    public void pushLid(String color) {
         if (!cups.isEmpty()) {
-            
             Cup top = cups.peek();
-            Lid nueva = new Lid(top.getWidth(), color);
-            lids.clear(); // Solo permitimos 1 tapa arriba
+    
+            Lid nueva = new Lid(top.getNumber(), color); // ✅ NO getWidth()
+    
+            lids.clear();
             lids.push(nueva);
-            nueva.draw();
+    
             isOK = true;
-        }
-        else {
+            redraw(); // ✅ para que se posicione con las copas
+        } else {
             isOK = false;
         }
     }
@@ -232,36 +269,33 @@ public class Tower
     /**
      * Ordena la torre de mayor a menor altura
      */
-    public void orderTower()
-    {
-        ArrayList<Cup> temp = new ArrayList<Cup>(cups);
-        for (int i = 0; i < temp.size(); i++) {
-            for (int j = 0; j < temp.size() - 1; j++) {
-                if (temp.get(j).getNumber() < temp.get(j + 1).getNumber()) {
-                    Cup aux = temp.get(j);
-                    temp.set(j, temp.get(j + 1));
-                    temp.set(j + 1, aux);
-                }
-            }
+    public void rebuildTower() {
+        
+        ArrayList<Integer> sizes = new ArrayList<>();
+        for (Cup c : cups) {
+            sizes.add(c.getNumber());
+            c.makeInvisible();
         }
+        Collections.sort(sizes, Collections.reverseOrder());
         cups.clear();
-        for (Cup c : temp) {
-            cups.push(c);
+        for (Integer size : sizes) {
+            pushCup(size);
         }
-        System.out.println(cups);
-        isOK = true;
+        
+        redraw();
     }
-    
     /**
      * Invierte el orden de la torre
      */
-    public void reverseTower()
-    {
-        Stack<Cup> temp = new Stack<Cup>();
+    public void reverseTower() {
+        Stack<Cup> temp = new Stack<>();
+    
         while (!cups.isEmpty()) {
             temp.push(cups.pop());
         }
+    
         cups = temp;
+        redraw();
         isOK = true;
     }
     
@@ -301,14 +335,7 @@ public class Tower
         }
         return result;
     }
-    
-    /**
-     * Retorna matriz con tipo y número de elementos
-     */
-    //public String[][] stackingItems()
-    //{
-        
-    //}
+
     
     /**
      * Hace visible la torre
@@ -316,8 +343,6 @@ public class Tower
     public void makeVisible()
     {
         isVisible = true;
-        redraw();
-        drawRule();
     }
     
     /**
@@ -346,7 +371,6 @@ public class Tower
         isVisible = false;
     }
 
-    
     /**
      * Verifica si la última operación fue exitosa
      */

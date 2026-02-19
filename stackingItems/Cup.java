@@ -17,7 +17,7 @@ public class Cup{
     private boolean isVisible;
     private boolean hasLid;
     private Lid tapa;
-    private static final int PIXEL_POR_CM = 5;
+    private static final int cm = 5;
     public boolean inside;
     public Rectangle body;
     public Rectangle interior;
@@ -30,8 +30,8 @@ public class Cup{
         this.number = number;
         this.height = calcularHeight(number);
         this.color = color;
-        this.xPosition = 130; 
-        this.yPosition = 200;
+        this.xPosition = (150 - (((2 * height) - 1) * 5)/2); 
+        this.yPosition = (150 - (((2 * height) - 1) * 5)/2);
         this.width = calcularHeight(number);
         this.isVisible = false;
         
@@ -39,7 +39,7 @@ public class Cup{
     }
     
     public int calcularHeight(int number) {
-        return ((2 * number) - 1) * PIXEL_POR_CM;
+        return ((2 * number) - 1) * cm;
     }
     
     public boolean isInside() {

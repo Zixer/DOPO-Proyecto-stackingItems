@@ -1,10 +1,5 @@
 import java.awt.*;
-/**
- * Write a description of class Lid here.
- * 
- * @author Yazid Sánchez - Sergio Ramírez
- * @version 1.0
- */
+
 public class Lid
 {
     private int number;
@@ -14,7 +9,7 @@ public class Lid
     private int yPosition;
     private String color;
     private boolean isVisible;
-    private static final int PIXEL_POR_CM = 5;
+    private static final int cm = 5;
     private Rectangle lid;
     /**
      * Constructor for objects of class Lid
@@ -22,12 +17,12 @@ public class Lid
     public Lid(int number, String color) {
         this.number = number;
         this.color = color;
-        this.width = ((2 * number) - 1) * PIXEL_POR_CM;
+        this.width = ((2 * number) - 1) * cm;
 
-        this.height = PIXEL_POR_CM; 
+        this.height = cm; 
         
-        this.xPosition = 130; 
-        this.yPosition = 200;
+        this.xPosition = (150 - (((2 * height) - 1) * 5)/2); 
+        this.yPosition = (150 - (((2 * height) - 1) * 5)/2);
         this.isVisible = false;
     }
     
@@ -99,13 +94,14 @@ public class Lid
     */
     public void draw() {
         if (isVisible) {
+            int grosor = 7;
             int esquinaX = xPosition - width / 2;
-            int esquinaY = yPosition - height * 2 * (number); 
+            int esquinaY = yPosition - height;
             
             lid = new Rectangle();
             lid.changeSize(height, width);
             lid.changeColor(color);
-            lid.moveHorizontal(esquinaX - 70);
+            lid.moveHorizontal(esquinaX + grosor - 70);
             lid.moveVertical(esquinaY);
             lid.makeVisible();
         }
@@ -116,5 +112,9 @@ public class Lid
      */
     public void erase() {
         if (lid != null) lid.makeInvisible();
+    }
+    
+    public boolean isVisible(){
+        return isVisible;
     }
 }

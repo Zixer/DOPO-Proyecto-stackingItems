@@ -1,12 +1,13 @@
 #BlueJ class context
 comment0.target=Lid
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ Lid\ here.\r\n\ \r\n\ @author\ Yazid\ S\u00E1nchez\ -\ Sergio\ Ram\u00EDrez\r\n\ @version\ 1.0\r\n
 comment1.params=number\ color
 comment1.target=Lid(int,\ java.lang.String)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ Lid\r\n
 comment10.params=
 comment10.target=void\ erase()
 comment10.text=\r\n\ Elimina\ la\ tapa\ en\ pantalla\r\n
+comment11.params=
+comment11.target=boolean\ isVisible()
 comment2.params=
 comment2.target=void\ makeVisible()
 comment2.text=\r\n\ Hace\ visible\ la\ tapa\ en\ pantalla.\r\n
@@ -30,4 +31,4 @@ comment8.text=\r\n\ Establece\ una\ nueva\ posici\u00F3n\ sin\ redibujar\ de\ ma
 comment9.params=
 comment9.target=void\ draw()
 comment9.text=\r\n\ Dibuja\ la\ tapa\ en\ pantalla\ utilizando\ un\ rect\u00E1ngulo.\ \ \ \r\n
-numComments=11
+numComments=12
