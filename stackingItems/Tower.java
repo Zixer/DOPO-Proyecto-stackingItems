@@ -64,7 +64,7 @@ public class Tower
             }
         }
  
-        if (getHeight() + nueva.getHeight() <= maxHeight && i < maxWidth) {
+        if (height() + nueva.getHeight() <= maxHeight && i < maxWidth) {
             cups.push(nueva);
             redraw();
             isOK = true;
@@ -223,13 +223,13 @@ public class Tower
         if (!cups.isEmpty()) {
             Cup top = cups.peek();
     
-            Lid nueva = new Lid(top.getNumber(), color); // ✅ NO getWidth()
+            Lid nueva = new Lid(top.getNumber(), color); 
     
             lids.clear();
             lids.push(nueva);
     
             isOK = true;
-            redraw(); // ✅ para que se posicione con las copas
+            redraw(); 
         } else {
             isOK = false;
         }
@@ -269,7 +269,7 @@ public class Tower
     /**
      * Ordena la torre de mayor a menor altura
      */
-    public void rebuildTower() {
+    public void orderTower() {
         
         ArrayList<Integer> sizes = new ArrayList<>();
         for (Cup c : cups) {
@@ -302,7 +302,7 @@ public class Tower
     /**
      * Retorna la altura total de elementos apilados
      */
-    public int getHeight(){
+    public int height(){
 
         int total = 0;
 
@@ -374,25 +374,9 @@ public class Tower
     /**
      * Verifica si la última operación fue exitosa
      */
-    public boolean isOk()
+    public boolean ok()
     {
         return isOK;
-    }
-    
-    /**
-     * Retorna el tamaño del stack de tazas
-     */
-    public int getCupsSize()
-    {
-        return cups.size();
-    }
-    
-    /**
-     * Retorna el tamaño del stack de tapas
-     */
-    public int getLidsSize()
-    {
-        return lids.size();
     }
     
     public void drawRule(){

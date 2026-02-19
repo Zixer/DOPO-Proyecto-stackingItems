@@ -75,10 +75,6 @@ public class Lid
         return number;
     }
     
-    public int getSize() {
-        return number;
-    }
-    
     /**
      * Establece una nueva posición sin redibujar de manera inmediata
      * @param x Nueva posición horizontal
