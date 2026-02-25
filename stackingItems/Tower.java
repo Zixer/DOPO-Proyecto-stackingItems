@@ -118,6 +118,54 @@ public class Tower
         return actualAlta;
     }
 
+    private Cup prepararCup(int i) {
+        Cup c = cups.get(i);
+        c.makeInvisible();
+        return c;
+    }
+    
+    private Cup posicionarPrimera(Cup c, int yActual) {
+        c.setPosition(X, yActual);
+        c.setInside(false);
+        c.makeVisible();
+        return c;
+    }
+    
+    private int posicionarCup(Cup c,Cup anterior,Cup masExterno,Cup masAlto) {
+
+        int yActual;
+    
+        if (c.getNumber() > masExterno.getNumber()) {
+    
+            yActual = masAlto.getYpo() - masAlto.getHeight() * 5;
+            c.setPosition(X, yActual);
+            c.setInside(false);
+    
+        } else if (c.getNumber() > anterior.getNumber()) {
+    
+            yActual = anterior.getYpo() - anterior.getHeight() * 5;
+            c.setPosition(X, yActual);
+            c.setInside(false);
+    
+        } else {
+    
+            int baseInteriorAnterior = anterior.getYpo();
+            yActual = baseInteriorAnterior - 7;
+    
+            c.setInside(true);
+            c.setPosition(X, yActual);
+        }
+    
+        return yActual;
+    }
+    
+    private Cup actualizarMasExterno(Cup c, Cup masExterno) {
+        if (c.getNumber() > masExterno.getNumber()) {
+            return c;
+        }
+        return masExterno;
+    }
+    
     /**
      * Recalcula y actualiza la posición visual de todas las copas según la lógica de apilamiento:
      * - Copas más grandes pueden quedar por fuera ("outside").
@@ -130,49 +178,33 @@ public class Tower
      */
     private void redraw() {
         int yActual = Y;
+    
         Cup anterior = null;
         Cup masExterno = null;
-        Cup masAlto = null; 
-         
-        for (int i = 0;i < cups.size();i++ ){
-            Cup c = cups.get(i);
-            c.makeInvisible();
+        Cup masAlto = null;
+    
+        for (int i = 0; i < cups.size(); i++) {
+    
+            Cup c = prepararCup(i);
+    
             if (anterior == null) {
-                c.setPosition(X, yActual);
-                c.setInside(false);
-                masExterno = c; 
+                masExterno = posicionarPrimera(c, yActual);
                 masAlto = c;
                 anterior = c;
-                c.makeVisible();
                 continue;
             }
-            
-            if (c.getNumber() > masExterno.getNumber()){
-                yActual = masAlto.getYpo() - masAlto.getHeight() * 5;
-                c.setPosition(X, yActual);
-                c.setInside(false);
-                masExterno = c;
-                masAlto = getHighest(masAlto, c);
-            } else{
-                if (c.getNumber() > anterior.getNumber() ) {
-                    
-                    yActual = anterior.getYpo() - anterior.getHeight() * 5;
-                    c.setInside(false);
-                    c.setPosition(X, yActual);
-                    masAlto = getHighest(masAlto, c);
-                } else {
-                    
-                    int baseInteriorAnterior = anterior.getYpo() ;
-                    yActual = baseInteriorAnterior - 7;
-                     c.setInside(true);
-                    c.setPosition(X, yActual);
-                }
-            }
+    
+            yActual = posicionarCup(c,anterior,masExterno,masAlto);
+    
+            masExterno = actualizarMasExterno(c, masExterno);
+            masAlto = getHighest(masAlto, c);
+    
             c.makeVisible();
             anterior = c;
         }
+    
         drawLid(masAlto);
-        }
+    }
         
     /**
      * Posiciona y muestra la tapa actual (si existe) sobre la copa indicada.
