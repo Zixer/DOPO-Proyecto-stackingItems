@@ -151,14 +151,14 @@ public class Cup{
             body = new Rectangle();
             body.changeSize(height, width);
             body.changeColor(color);
-            body.moveHorizontal(esquinaX - 70);
+            body.moveHorizontal(esquinaX - 50);
             body.moveVertical(esquinaY);
             body.makeVisible();
             
             interior = new Rectangle();
             interior.changeSize(height - grosor, width - 2 * grosor);
             interior.changeColor("white");
-            interior.moveHorizontal((esquinaX + grosor) - 70);
+            interior.moveHorizontal((esquinaX + grosor) - 50);
             interior.moveVertical(esquinaY);
             interior.makeVisible();
         }
