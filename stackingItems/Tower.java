@@ -666,7 +666,7 @@ public class Tower
         for (Lid l : lids) l.makeInvisible();
         cups.clear();
         lids.clear();
-        insertionOrder.clear(); // falta esto
+        insertionOrder.clear();
         isVisible = false;
     }
 
