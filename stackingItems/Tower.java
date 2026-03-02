@@ -62,6 +62,7 @@ public class Tower
         for (int i = 1; i <= numCups; i++) {
             int size = (2 * i) - 1; // 1, 3, 5, 7...
             cups.push(new Cup(size, randomColor()));
+            insertionOrder.add(new String[]{"cup", String.valueOf(size)});
         }
         makeVisible();
         redraw();
@@ -228,32 +229,18 @@ public class Tower
         return c;
     }
     
-    private int posicionarCup(Cup c,Cup anterior,Cup masExterno,Cup masAlto) {
-
-        int yActual;
-    
-        if (c.getNumber() > masExterno.getNumber()) {
-    
-            yActual = masAlto.getYpo() - masAlto.getHeight() * 5;
+    private int posicionarCup(Cup c, int yActual, Cup masExterno, Cup masAlto) {
+        if (masExterno == null || c.getNumber() > masExterno.getNumber()) {
             c.setPosition(X, yActual);
             c.setInside(false);
-    
-        } else if (c.getNumber() > anterior.getNumber()) {
-    
-            yActual = anterior.getYpo() - anterior.getHeight() * 5;
+        } else if (masAlto != null && c.getNumber() > masAlto.getNumber()) {
             c.setPosition(X, yActual);
             c.setInside(false);
-    
         } else {
-    
-            int baseInteriorAnterior = anterior.getYpo();
-            yActual = baseInteriorAnterior - 7;
-    
+            c.setPosition(X, yActual - 7);
             c.setInside(true);
-            c.setPosition(X, yActual);
         }
-    
-        return yActual;
+        return c.getYpo();
     }
     
     private Cup actualizarMasExterno(Cup c, Cup masExterno) {
@@ -261,20 +248,6 @@ public class Tower
             return c;
         }
         return masExterno;
-    }
-    
-    /**
-     * Retorna el Y más bajo ocupado por las lids (el mayor yPosition).
-     * Si no hay lids, retorna Y base de la torre.
-     */
-    private int getBottomOfLids() {
-        int maxY = Integer.MIN_VALUE;
-        for (Lid l : lids) {
-            if (l.getYpo() > maxY) {
-                maxY = l.getYpo();
-            }
-        }
-        return maxY + 5; // +5 de margen para no solaparse
     }
     
     /**
@@ -288,39 +261,30 @@ public class Tower
      * - Finalmente intenta dibujar/posicionar la tapa sobre la copa más alta.
      */
     private void redraw() {
+        for (Cup c : cups) c.makeInvisible();
+        for (Lid l : lids) l.makeInvisible();
+    
+        Cup masExternoCup = null, masAltoCup = null;
+        Lid masExternoLid = null, masAltoLid = null;
         int yActual = Y;
-        
-        if (!lids.isEmpty() && cups.isEmpty() ) {
-            Lid ultima = lids.peek();
-            yActual = ultima.getYpo() - 15;
-        }
-        
-        Cup anterior = null;
-        Cup masExterno = null;
-        Cup masAlto = null;
     
-        for (int i = 0; i < cups.size(); i++) {
-    
-            Cup c = prepararCup(i);
-    
-            if (anterior == null) {
-                masExterno = posicionarPrimera(c, yActual);
-                masAlto = c;
-                anterior = c;
-                continue;
+        for (String[] item : insertionOrder) {
+            int numero = Integer.parseInt(item[1]);
+            if (item[0].equals("cup")) {
+                Cup c = findCup(numero);
+                posicionarCup(c, yActual, masExternoCup, masAltoCup);
+                masExternoCup = actualizarMasExterno(c, masExternoCup != null ? masExternoCup : c);
+                masAltoCup = getHighest(masAltoCup, c);
+                yActual = c.getYpo() - c.getHeight() * 5 + 9;
+                c.makeVisible();
+            } else {
+                Lid l = findLid(numero);
+                posicionarLid(l, yActual, masExternoLid, masAltoLid);
+                masExternoLid = actualizarMasExternoLid(l, masExternoLid != null ? masExternoLid : l);
+                masAltoLid = getHighestLid(masAltoLid, l);
+                yActual = l.getYpo() - l.getHeight() * 5 - 10;
+                l.makeVisible();
             }
-    
-            yActual = posicionarCup(c,anterior,masExterno,masAlto);
-    
-            masExterno = actualizarMasExterno(c, masExterno);
-            masAlto = getHighest(masAlto, c);
-    
-            c.makeVisible();
-            anterior = c;
-        }
-    
-        if (cups.isEmpty()) {
-                drawLid(null);
         }
     }
         
@@ -347,23 +311,13 @@ public class Tower
      *
      * @return el nuevo yActual resultante.
      */
-    private int posicionarLid(Lid l, Lid anterior, Lid masExterno) {
-        int yActual;
-    
-        if (l.getNumber() > masExterno.getNumber()) {
-            yActual = masExterno.getYpo() - masExterno.getHeight() * 5;
+    private int posicionarLid(Lid l, int yActual, Lid masExterno, Lid masAlto) {
+        if (masExterno == null || l.getNumber() > masExterno.getNumber()) {
             l.moveTo(X, yActual);
-    
-        } else if (l.getNumber() > anterior.getNumber()) {
-            yActual = anterior.getYpo() - anterior.getHeight() * 5;
-            l.moveTo(X, yActual);
-    
         } else {
-            yActual = anterior.getYpo() - 7;
-            l.moveTo(X, yActual);
+            l.moveTo(X, yActual - 7);
         }
-    
-        return yActual;
+        return l.getYpo();
     }
 
     /**
@@ -403,18 +357,16 @@ public class Tower
      *
      * @return la copa removida si existía; null si la torre está vacía.
      */
-    public Cup popCup()
-    {
-        if (!cups.isEmpty()) {
-
+    public Cup popCup(){
+            if (!cups.isEmpty()) {
             Cup removida = cups.pop();
             removida.makeInvisible();
-
+            insertionOrder.removeIf(e -> e[0].equals("cup") && 
+                e[1].equals(String.valueOf(removida.getNumber()))); 
             redraw();
             isOK = true;
             return removida;
         }
-
         isOK = false;
         return null;
     }
@@ -443,8 +395,10 @@ public class Tower
         while (!cups.isEmpty()) {
             Cup c = cups.pop();
             if (!found && c.getNumber() == number) {
-                found = true; 
+                found = true;
                 c.makeInvisible();
+                insertionOrder.removeIf(e -> e[0].equals("cup") && 
+                    e[1].equals(String.valueOf(number)));
             } else {
                 temp.push(c);
             }
@@ -485,7 +439,7 @@ public class Tower
             return;
         }
     
-        // Buscar si hay una copa del mismo color para asociar la tapa
+
         for (Cup c : cups) {
             if (c.getColor().equals(color)) {
                 if (c.getNumber() != i) {
@@ -499,6 +453,7 @@ public class Tower
     
         ListLid.put(color, nueva);
         lids.push(nueva);
+        insertionOrder.add(new String[]{"lid", String.valueOf(i)}); 
         makeVisible();
         redraw();
         isOK = true;
@@ -510,17 +465,19 @@ public class Tower
      *
      * @return la tapa removida si existía; null si no hay tapas.
      */
-    public Lid popLid(){
-            if (!lids.isEmpty()) {
+    public Lid popLid() {
+        if (!lids.isEmpty()) {
             Lid removida = lids.pop();
             removida.makeInvisible();
+            insertionOrder.removeIf(e -> e[0].equals("lid") && 
+                e[1].equals(String.valueOf(removida.getNumber())));
             redraw();
             isOK = true;
             return removida;
         }
         isOK = false;
         return null;
-    }     
+    }    
     
     private boolean duplicatedLidSize(int newSize) {
         for (Lid l : lids) {
@@ -548,7 +505,9 @@ public class Tower
             if (!found && l.getNumber() == number) {
                 found = true;
                 l.makeInvisible();
-                ListLid.remove(l.getColor()); // limpiar del mapa también
+                ListLid.remove(l.getColor());
+                insertionOrder.removeIf(e -> e[0].equals("lid") && 
+                    e[1].equals(String.valueOf(number)));
             } else {
                 temp.push(l);
             }
@@ -608,7 +567,8 @@ public class Tower
         while (!cups.isEmpty()) {
             temp.push(cups.pop());
         }
-    
+        
+        Collections.reverse(insertionOrder); 
         cups = temp;
         redraw();
         isOK = true;
@@ -656,6 +616,20 @@ public class Tower
     public boolean isVisible()
     {
         return isVisible;
+    }
+    
+    private Cup findCup(int number) {
+        for (Cup c : cups) {
+            if (c.getNumber() == number) return c;
+        }
+        return null;
+    }
+    
+    private Lid findLid(int number) {
+        for (Lid l : lids) {
+            if (l.getNumber() == number) return l;
+        }
+        return null;
     }
     
     /**
@@ -732,6 +706,32 @@ public class Tower
                 }
             }
         }
+        redraw();
+        isOK = true;
+    }
+    
+    /**
+     * Intercambia la posición de dos objetos en la torre.
+     * Los objetos se identifican por tipo y número: {"cup","4"} o {"lid","4"}.
+     * @param o1 identificador del primer objeto [tipo, número]
+     * @param o2 identificador del segundo objeto [tipo, número]
+     */
+    public void swap(String[] o1, String[] o2) {
+        int idx1 = -1, idx2 = -1;
+    
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] item = insertionOrder.get(i);
+            if (item[0].equals(o1[0]) && item[1].equals(o1[1])) idx1 = i;
+            if (item[0].equals(o2[0]) && item[1].equals(o2[1])) idx2 = i;
+        }
+    
+        if (idx1 == -1 || idx2 == -1) {
+            if (isVisible) JOptionPane.showMessageDialog(null, "Objeto no encontrado");
+            isOK = false;
+            return;
+        }
+    
+        Collections.swap(insertionOrder, idx1, idx2);
         redraw();
         isOK = true;
     }
