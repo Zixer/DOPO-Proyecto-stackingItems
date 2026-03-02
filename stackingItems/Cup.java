@@ -15,12 +15,11 @@ public class Cup{
     private int yPosition;
     private String color;
     private boolean isVisible;
-    private boolean hasLid;
-    private Lid tapa;
     private static final int cm = 5;
     public boolean inside;
     public Rectangle body;
     public Rectangle interior;
+    public Lid lid;
     
 
     /**
@@ -34,8 +33,7 @@ public class Cup{
         this.yPosition = (150 - (((2 * height) - 1) * 5)/2);
         this.width = calcularHeight(number);
         this.isVisible = false;
-        
-        this.hasLid = false; //esto es para indicar que por defecto ninguna copa viene con tapa (Lid)
+        this.lid =null;
     }
     
     /**
@@ -49,6 +47,14 @@ public class Cup{
         return inside;
     }
 
+    public void addLid(Lid lid){
+        this.lid = lid;
+    }
+    
+    public Lid getLid(){
+        return this.lid;    
+    }
+    
     public void setInside(boolean value) {
         inside = value;
     }
@@ -119,8 +125,8 @@ public class Cup{
         yPosition = y;
     }
     
-    public void gotALid() {
-        hasLid = true;
+    public String getColor(){
+        return this.color;
     }
     
     /**
@@ -174,14 +180,6 @@ public class Cup{
     public void erase() {
         if (body != null) body.makeInvisible();
         if (interior != null) interior.makeInvisible();
-    }
-    
-    public Lid getTapa(){
-        return tapa;
-    }
-    
-    public boolean cubierto(){
-        return hasLid;
     }
     
     public int getXpo(){

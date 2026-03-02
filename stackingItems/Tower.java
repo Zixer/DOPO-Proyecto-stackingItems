@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.*;
 import javax.swing.JOptionPane;
 
+
 /**
  * Write a description of class Tower here.
  * 
@@ -22,9 +23,11 @@ public class Tower
     private int X = 130;
     private boolean isVisible;
     private Stack<Cup> cups;
-    private Stack<Lid> lids;
+    private Stack<Lid> lids; 
+    private HashMap<String, Lid> ListLid;
     private boolean isOK;
     private Random random;
+    private ArrayList<String[]> insertionOrder = new ArrayList<>();
     
     
     /**
@@ -36,13 +39,32 @@ public class Tower
     public Tower(int nmaxHeight,int nmaxWidth)
     {
         cups = new Stack<Cup>();
+        ListLid = new HashMap<>();
         lids = new Stack<Lid>();
+        insertionOrder = new ArrayList<String[]>();
 
         this.maxHeight = nmaxHeight;
         this.maxWidth = nmaxWidth;
 
         isVisible = false;
         isOK = true;
+    }
+    
+    
+    
+    /**
+     * Crea una torre con n tazas de tamaños impares: 1, 3, 5, ..., 2n-1.
+     * No se incluyen tapas.
+     * @param numCups número de tazas a crear
+     */
+    public Tower(int numCups) {
+        this(numCups * 2, numCups * 10);
+        for (int i = 1; i <= numCups; i++) {
+            int size = (2 * i) - 1; // 1, 3, 5, 7...
+            cups.push(new Cup(size, randomColor()));
+        }
+        makeVisible();
+        redraw();
     }
     
     /**
@@ -54,7 +76,7 @@ public class Tower
      */
     private String randomColor(){
         random = new Random ();
-        List<String> lista = List.of("magenta", "green", "yellow","blue","black","red");
+        List<String> lista = List.of("magenta", "green", "yellow","blue","black","red","orange","cyan","pink","grey");
         return  lista.get(random.nextInt(lista.size()));
     }
     
@@ -75,6 +97,13 @@ public class Tower
     public void pushCup(int i){
         String color = randomColor();
         Cup nueva = new Cup(i,color);
+        if (ListLid.get(color) != null) {
+            Lid lid = ListLid.get(color);
+            if (lid.getNumber() != i){
+              JOptionPane.showMessageDialog(null , "No se puede añadir una copa con tamaño distinto a su tapa");  
+            }
+            nueva.addLid(ListLid.get(color));
+        }
         makeVisible();
         
         if (i > maxWidth || duplicatedSize(i)) {
@@ -87,6 +116,7 @@ public class Tower
  
         if (Height() + nueva.getHeight() <= maxHeight && i < maxWidth) {
             cups.push(nueva);
+            insertionOrder.add(new String[]{"cup", String.valueOf(i)}); // agregar esto
             redraw();
             isOK = true;
         }
@@ -96,6 +126,73 @@ public class Tower
         }
     }          
 
+    
+    
+    private Lid getHighestLid(Lid actualAlta, Lid lidActual) {
+        if (actualAlta == null) return lidActual;
+        if (lidActual.getYpo() - lidActual.getHeight() * 5 < actualAlta.getYpo() - actualAlta.getHeight() * 5) {
+            return lidActual;
+        }
+        return actualAlta;
+    }
+    
+    private int posicionarLid(Lid l, Lid anterior, Lid masExterno, Lid masAlto) {
+        int yActual;
+    
+        if (l.getNumber() > masExterno.getNumber()) {
+            yActual = masAlto.getYpo() - masAlto.getHeight() * 5;  // igual que posicionarCup
+            l.moveTo(X, yActual);
+    
+        } else if (l.getNumber() > anterior.getNumber()) {
+            yActual = anterior.getYpo() - anterior.getHeight() * 5;
+            l.moveTo(X, yActual);
+    
+        } else {
+            yActual = anterior.getYpo() - 7;
+            l.moveTo(X, yActual);
+        }
+    
+        return yActual;
+    }
+    
+    /**
+     * Posiciona y muestra todas las tapas continuando desde la copa más alta,
+     * como si fueran una extensión de la misma torre.
+     *
+     * @param cup copa más alta — punto de partida para apilar las lids.
+     */
+    private void drawLid(Cup cup) {
+        if (lids.isEmpty()) return;
+    
+        int yActual;
+        if (cup == null) {
+            yActual = Y;         } else {
+            yActual = cup.getYpo() - cup.getHeight() * 5 + 5;
+        }
+    
+        Lid anterior = null;
+        Lid masExterno = null;
+        Lid masAlto = null;
+    
+        for (int i = 0; i < lids.size(); i++) {
+            Lid l = prepararLid(i);
+    
+            if (anterior == null) {
+                masExterno = posicionarPrimeraLid(l, yActual);
+                masAlto = l;
+                anterior = l;
+                continue;
+            }
+    
+            yActual = posicionarLid(l, anterior, masExterno, masAlto);
+            masExterno = actualizarMasExternoLid(l, masExterno);
+            masAlto = getHighestLid(masAlto, l);
+    
+            l.makeVisible();
+            anterior = l;
+        }
+    }
+    
     /**
      * Compara dos copas y retorna la que está más alta en pantalla (menor Y efectivo).
      * Se usa durante el redibujado para determinar cuál copa queda en la posición
@@ -167,6 +264,20 @@ public class Tower
     }
     
     /**
+     * Retorna el Y más bajo ocupado por las lids (el mayor yPosition).
+     * Si no hay lids, retorna Y base de la torre.
+     */
+    private int getBottomOfLids() {
+        int maxY = Integer.MIN_VALUE;
+        for (Lid l : lids) {
+            if (l.getYpo() > maxY) {
+                maxY = l.getYpo();
+            }
+        }
+        return maxY + 5; // +5 de margen para no solaparse
+    }
+    
+    /**
      * Recalcula y actualiza la posición visual de todas las copas según la lógica de apilamiento:
      * - Copas más grandes pueden quedar por fuera ("outside").
      * - Copas más pequeñas pueden ir dentro ("inside") y se posicionan con un ajuste distinto.
@@ -178,7 +289,12 @@ public class Tower
      */
     private void redraw() {
         int yActual = Y;
-    
+        
+        if (!lids.isEmpty() && cups.isEmpty() ) {
+            Lid ultima = lids.peek();
+            yActual = ultima.getYpo() - 15;
+        }
+        
         Cup anterior = null;
         Cup masExterno = null;
         Cup masAlto = null;
@@ -203,33 +319,63 @@ public class Tower
             anterior = c;
         }
     
-        drawLid(masAlto);
+        if (cups.isEmpty()) {
+                drawLid(null);
+        }
     }
         
     /**
-     * Posiciona y muestra la tapa actual (si existe) sobre la copa indicada.
-     * Si no hay tapas en el stack, no hace nada.
-     * Si la copa es null, oculta la tapa.
-     *
-     * @param cup copa sobre la cual se posicionará la tapa (normalmente la más alta).
+     * Prepara una tapa haciéndola invisible antes de reposicionarla.
      */
-    private void drawLid(Cup cup) {
-        if (lids.isEmpty()) return;
-    
-        Lid lid = lids.peek();
-    
-        if (cup == null) {
-            lid.makeInvisible();
-            return;
-        }
-    
-        int xLid = cup.getXpo();
-        int yLid = cup.getYpo() ; // ajuste fino (altura de la tapa)
-    
-        lid.moveTo(xLid, yLid);
-        lid.makeVisible();
+    private Lid prepararLid(int i) {
+        Lid l = lids.get(i);
+        l.makeInvisible();
+        return l;
     }
     
+    /**
+     * Posiciona la primera tapa directamente sobre la copa más alta.
+     */
+    private Lid posicionarPrimeraLid(Lid l, int yActual) {
+        l.moveTo(X, yActual);
+        l.makeVisible();
+        return l;
+    }
+    
+    /**
+     * Posiciona una tapa según su tamaño relativo a la anterior y la más externa.
+     *
+     * @return el nuevo yActual resultante.
+     */
+    private int posicionarLid(Lid l, Lid anterior, Lid masExterno) {
+        int yActual;
+    
+        if (l.getNumber() > masExterno.getNumber()) {
+            yActual = masExterno.getYpo() - masExterno.getHeight() * 5;
+            l.moveTo(X, yActual);
+    
+        } else if (l.getNumber() > anterior.getNumber()) {
+            yActual = anterior.getYpo() - anterior.getHeight() * 5;
+            l.moveTo(X, yActual);
+    
+        } else {
+            yActual = anterior.getYpo() - 7;
+            l.moveTo(X, yActual);
+        }
+    
+        return yActual;
+    }
+
+    /**
+     * Actualiza cuál es la tapa más externa según el tamaño.
+     */
+    private Lid actualizarMasExternoLid(Lid l, Lid masExterno) {
+        if (l.getNumber() > masExterno.getNumber()) {
+            return l;
+        }
+        return masExterno;
+    }
+
     /**
      * Verifica si ya existe una copa con el mismo tamaño/número dentro de la torre.
      *
@@ -330,20 +476,33 @@ public class Tower
      *
      * @param color color de la tapa a crear.
      */
-    public void pushLid(String color) {
-        if (!cups.isEmpty()) {
-            Cup top = cups.peek();
+    public void pushLid(int i,String color) {
+        Lid nueva = new Lid(i, color);
     
-            Lid nueva = new Lid(top.getNumber(), color); 
-    
-            lids.clear();
-            lids.push(nueva);
-    
-            isOK = true;
-            redraw(); 
-        } else {
+        if (i > maxWidth || duplicatedLidSize(i)) {
+            JOptionPane.showMessageDialog(null, "No se puede hacer la operacion con la tapa");
             isOK = false;
+            return;
         }
+    
+        // Buscar si hay una copa del mismo color para asociar la tapa
+        for (Cup c : cups) {
+            if (c.getColor().equals(color)) {
+                if (c.getNumber() != i) {
+                    JOptionPane.showMessageDialog(null, "No se puede añadir una tapa con tamaño distinto a su copa");
+                    isOK = false;
+                    return;
+                }
+                c.addLid(nueva);
+            }
+        }
+    
+        ListLid.put(color, nueva);
+        lids.push(nueva);
+        makeVisible();
+        redraw();
+        isOK = true;
+
     }
     
     /**
@@ -351,27 +510,59 @@ public class Tower
      *
      * @return la tapa removida si existía; null si no hay tapas.
      */
-    public Lid popLid()
-    {
-        if (!lids.isEmpty()) {
+    public Lid popLid(){
+            if (!lids.isEmpty()) {
+            Lid removida = lids.pop();
+            removida.makeInvisible();
+            redraw();
             isOK = true;
-            return lids.pop();
-         } else {
-            isOK = false;
-            return null;
+            return removida;
         }
+        isOK = false;
+        return null;
+    }     
+    
+    private boolean duplicatedLidSize(int newSize) {
+        for (Lid l : lids) {
+            if (l.getNumber() == newSize) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
      * Remueve una tapa del stack
      */
-    public void removeLid(Lid lid)
-    {
-        if (lids.remove(lid)) {
-            isOK = true;
-        } else {
-            isOK = false;
+    public void removeLid(int number){
+        if (lids.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No existe ninguna tapa");
+            return;
         }
+    
+        Stack<Lid> temp = new Stack<>();
+        boolean found = false;
+    
+        while (!lids.isEmpty()) {
+            Lid l = lids.pop();
+            if (!found && l.getNumber() == number) {
+                found = true;
+                l.makeInvisible();
+                ListLid.remove(l.getColor()); // limpiar del mapa también
+            } else {
+                temp.push(l);
+            }
+        }
+    
+        if (!found) {
+            JOptionPane.showMessageDialog(null, "No existe la tapa indicada");
+        }
+    
+        while (!temp.isEmpty()) {
+            lids.push(temp.pop());
+        }
+    
+        redraw();
     }
     
     /**
@@ -470,16 +661,12 @@ public class Tower
     /**
      * Termina el simulador
      */
-    public void exit()
-    {
-        for (Cup c:cups){
-            c.makeInvisible();
-        }
-        for (Lid l:lids){
-            l.makeInvisible();
-        }
+    public void exit(){
+        for (Cup c : cups) c.makeInvisible();
+        for (Lid l : lids) l.makeInvisible();
         cups.clear();
         lids.clear();
+        insertionOrder.clear(); // falta esto
         isVisible = false;
     }
 
@@ -522,5 +709,30 @@ public class Tower
             r.changeColor("black");
             r.makeVisible();
         }
+    }
+    
+    public void cover() {
+            for (int i = 0; i < insertionOrder.size() - 1; i++) {
+            String[] actual = insertionOrder.get(i);
+            String[] siguiente = insertionOrder.get(i + 1);
+    
+            boolean actualEsCup = actual[0].equals("cup");
+            boolean siguienteEsLid = siguiente[0].equals("lid");
+            boolean mismoNumero = actual[1].equals(siguiente[1]);
+    
+            if (actualEsCup && siguienteEsLid && mismoNumero) {
+                for (Cup c : cups) {
+                    if (c.getNumber() == Integer.parseInt(actual[1])) {
+                        for (Lid l : lids) {
+                            if (l.getNumber() == c.getNumber()) {
+                                c.addLid(l);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        redraw();
+        isOK = true;
     }
 }

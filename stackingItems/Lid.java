@@ -25,6 +25,18 @@ public class Lid
         this.yPosition = (150 - (((2 * height) - 1) * 5)/2);
         this.isVisible = false;
     }
+
+    public int getHeight() {
+        return height/5;
+    }
+    
+    public int getXpo(){
+        return xPosition;
+    }
+    
+    public int getYpo(){
+        return yPosition;
+    }
     
     /**
      * Hace visible la tapa en pantalla.
@@ -40,6 +52,10 @@ public class Lid
     public void makeInvisible() {
         erase();
         isVisible = false;
+    }
+    
+    public String getColor(){
+        return this.color;
     }
     
     /**
@@ -107,12 +123,11 @@ public class Lid
     public void draw() {
         int canvasWidth = 300;
         int centroX = (canvasWidth - width) / 2;
-        int esquinaY = yPosition - height;
         
         lid = new Rectangle();
         lid.changeSize(height, width);
         lid.changeColor(color); 
-        lid.changeP(centroX, esquinaY); 
+        lid.changeP(centroX, yPosition); 
     
         lid.makeVisible();
         
