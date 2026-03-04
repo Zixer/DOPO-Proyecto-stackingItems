@@ -11,6 +11,7 @@ public class Lid
     private boolean isVisible;
     private static final int cm = 5;
     private Rectangle lid;
+    private boolean inside;
     /**
      * Constructor for objects of class Lid
      */
@@ -18,16 +19,14 @@ public class Lid
         this.number = number;
         this.color = color;
         this.width = ((2 * number) - 1) * cm;
-
-        this.height = cm; 
-        
-        this.xPosition = (150 - (((2 * height) - 1) * 5)/2); 
+        this.height = 4; 
+        this.xPosition = (150 - (((2 * width) - 1) * 5)/2) ; 
         this.yPosition = (150 - (((2 * height) - 1) * 5)/2);
         this.isVisible = false;
     }
 
     public int getHeight() {
-        return height/5;
+        return height;
     }
     
     public int getXpo(){
@@ -45,6 +44,15 @@ public class Lid
         isVisible = true;
         draw();
     }
+
+    public void setInside(boolean inside) {
+        this.inside = inside;
+    }
+    
+    public boolean isInside() {
+        return this.inside;
+    }
+    
     
     /**
      * Hace invisible la tapa en pantalla.
@@ -127,10 +135,9 @@ public class Lid
         lid = new Rectangle();
         lid.changeSize(height, width);
         lid.changeColor(color); 
-        lid.changeP(centroX, yPosition); 
+        lid.changeP(centroX + 1, yPosition); 
     
         lid.makeVisible();
-        
     }
     
     /**

@@ -27,7 +27,7 @@ public class Tower
     private HashMap<String, Lid> ListLid;
     private boolean isOK;
     private Random random;
-    private ArrayList<String[]> insertionOrder = new ArrayList<>();
+    private ArrayList<String[]> insertionOrder;
     
     
     /**
@@ -126,129 +126,6 @@ public class Tower
             isOK = false;
         }
     }          
-
-    
-    
-    private Lid getHighestLid(Lid actualAlta, Lid lidActual) {
-        if (actualAlta == null) return lidActual;
-        if (lidActual.getYpo() - lidActual.getHeight() * 5 < actualAlta.getYpo() - actualAlta.getHeight() * 5) {
-            return lidActual;
-        }
-        return actualAlta;
-    }
-    
-    private int posicionarLid(Lid l, Lid anterior, Lid masExterno, Lid masAlto) {
-        int yActual;
-    
-        if (l.getNumber() > masExterno.getNumber()) {
-            yActual = masAlto.getYpo() - masAlto.getHeight() * 5;  // igual que posicionarCup
-            l.moveTo(X, yActual);
-    
-        } else if (l.getNumber() > anterior.getNumber()) {
-            yActual = anterior.getYpo() - anterior.getHeight() * 5;
-            l.moveTo(X, yActual);
-    
-        } else {
-            yActual = anterior.getYpo() - 7;
-            l.moveTo(X, yActual);
-        }
-    
-        return yActual;
-    }
-    
-    /**
-     * Posiciona y muestra todas las tapas continuando desde la copa más alta,
-     * como si fueran una extensión de la misma torre.
-     *
-     * @param cup copa más alta — punto de partida para apilar las lids.
-     */
-    private void drawLid(Cup cup) {
-        if (lids.isEmpty()) return;
-    
-        int yActual;
-        if (cup == null) {
-            yActual = Y;         } else {
-            yActual = cup.getYpo() - cup.getHeight() * 5 + 5;
-        }
-    
-        Lid anterior = null;
-        Lid masExterno = null;
-        Lid masAlto = null;
-    
-        for (int i = 0; i < lids.size(); i++) {
-            Lid l = prepararLid(i);
-    
-            if (anterior == null) {
-                masExterno = posicionarPrimeraLid(l, yActual);
-                masAlto = l;
-                anterior = l;
-                continue;
-            }
-    
-            yActual = posicionarLid(l, anterior, masExterno, masAlto);
-            masExterno = actualizarMasExternoLid(l, masExterno);
-            masAlto = getHighestLid(masAlto, l);
-    
-            l.makeVisible();
-            anterior = l;
-        }
-    }
-    
-    /**
-     * Compara dos copas y retorna la que está más alta en pantalla (menor Y efectivo).
-     * Se usa durante el redibujado para determinar cuál copa queda en la posición
-     * superior entre las candidatas.
-     *
-     * @param actualAlta copa actualmente considerada como la más alta (puede ser null).
-     * @param copaActual copa candidata a comparar.
-     * @return la copa que queda más alta.
-     */
-    private Cup getHighest(Cup actualAlta, Cup copaActual) {
-
-        if (actualAlta == null) {
-            return copaActual;
-        }
-    
-        if (copaActual.getYpo() - copaActual.getHeight() * 5 < actualAlta.getYpo() - actualAlta.getHeight() * 5 ) {
-            return copaActual;
-        }
-    
-        return actualAlta;
-    }
-
-    private Cup prepararCup(int i) {
-        Cup c = cups.get(i);
-        c.makeInvisible();
-        return c;
-    }
-    
-    private Cup posicionarPrimera(Cup c, int yActual) {
-        c.setPosition(X, yActual);
-        c.setInside(false);
-        c.makeVisible();
-        return c;
-    }
-    
-    private int posicionarCup(Cup c, int yActual, Cup masExterno, Cup masAlto) {
-        if (masExterno == null || c.getNumber() > masExterno.getNumber()) {
-            c.setPosition(X, yActual);
-            c.setInside(false);
-        } else if (masAlto != null && c.getNumber() > masAlto.getNumber()) {
-            c.setPosition(X, yActual);
-            c.setInside(false);
-        } else {
-            c.setPosition(X, yActual - 7);
-            c.setInside(true);
-        }
-        return c.getYpo();
-    }
-    
-    private Cup actualizarMasExterno(Cup c, Cup masExterno) {
-        if (c.getNumber() > masExterno.getNumber()) {
-            return c;
-        }
-        return masExterno;
-    }
     
     /**
      * Recalcula y actualiza la posición visual de todas las copas según la lógica de apilamiento:
@@ -260,75 +137,121 @@ public class Tower
      * - Reposiciona, define inside/outside, y vuelve visibles las copas.
      * - Finalmente intenta dibujar/posicionar la tapa sobre la copa más alta.
      */
-    private void redraw() {
-        for (Cup c : cups) c.makeInvisible();
-        for (Lid l : lids) l.makeInvisible();
-    
-        Cup masExternoCup = null, masAltoCup = null;
-        Lid masExternoLid = null, masAltoLid = null;
+     private void redraw() {
         int yActual = Y;
+        int anteriorNumber = -1;
+        int anteriorYpo = 0;
+        String anteriorTipo = "";
+        Cup masExternoCup = null;
+        Lid masExternoLid = null;
+        int masAltoYpo = 0;
+        int masAltoHeight = 0;
+        for (Cup c : cups) {c.makeInvisible();}
+        for (Lid l : lids) {l.makeInvisible();}
     
-        for (String[] item : insertionOrder) {
+            
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] item = insertionOrder.get(i);
+            String tipo = item[0];
             int numero = Integer.parseInt(item[1]);
-            if (item[0].equals("cup")) {
-                Cup c = findCup(numero);
-                posicionarCup(c, yActual, masExternoCup, masAltoCup);
-                masExternoCup = actualizarMasExterno(c, masExternoCup != null ? masExternoCup : c);
-                masAltoCup = getHighest(masAltoCup, c);
-                yActual = c.getYpo() - c.getHeight() * 5 + 9;
-                c.makeVisible();
-            } else {
-                Lid l = findLid(numero);
-                posicionarLid(l, yActual, masExternoLid, masAltoLid);
-                masExternoLid = actualizarMasExternoLid(l, masExternoLid != null ? masExternoLid : l);
-                masAltoLid = getHighestLid(masAltoLid, l);
-                yActual = l.getYpo() - l.getHeight() * 5 - 10;
-                l.makeVisible();
+            Cup c = null;
+            Lid l = null;
+            int height = 0;
+                
+            if (tipo.equals("cup")) {
+                c = findCup(numero);
+                if (c == null) continue;
+                height = c.getHeight(); // ahora devuelve height real en px
+            } else if (tipo.equals("lid")) {
+                l = findLid(numero);
+                if (l == null) continue;
+                height = l.getHeight(); // devuelve cm = 5
+            }
+            
+            if (i == 0) {
+                JOptionPane.showMessageDialog(null , "caso 0");
+                yActual = Y;
+                masAltoYpo = Y - height;
+                masAltoHeight = height;
+                if (c != null){masExternoCup = c;}
+                if (l != null){masExternoLid = l;}
+                    
+                JOptionPane.showMessageDialog(null , "yactual = " + yActual + ", masAltoYpo = " + masAltoYpo);
+                if (c != null) { c.setPosition(X, yActual); c.setInside(false); }
+                if (l != null) { l.setPosition(X, yActual); l.setInside(false); }
+                } else {
+                    JOptionPane.showMessageDialog(null , "cup");
+                    if (numero >= masExternoCup.getNumber()){
+                         JOptionPane.showMessageDialog(null , "caso1");
+                        if (tipo.equals("lid")){
+                            JOptionPane.showMessageDialog(null , "es lid:)");
+                            masExternoLid = l;
+                            yActual = masAltoYpo + 10;
+                        }else {
+                            JOptionPane.showMessageDialog(null , "No es lid");
+                            
+                            yActual = masAltoYpo ;// techo de la más alta + height de la nueva pieza
+                        } 
+                        if (c != null) c.setInside(false);
+                        if (l != null) l.setInside(false);
+                    }else if (numero > anteriorNumber) {
+                        JOptionPane.showMessageDialog(null , "caso2");
+                        yActual = getTechoPiezaMenor(numero);
+                        if (c != null) c.setInside(false);
+                        if (l != null) l.setInside(false);
+                    } else {
+                        JOptionPane.showMessageDialog(null , "caso3");
+                        // menor que anterior -> va adentro o encima si cup tras lid
+                         boolean anteriorEsLid = anteriorTipo.equals("lid");
+                        if (c != null && anteriorEsLid) {
+                            JOptionPane.showMessageDialog(null , "caso4");
+                            yActual = anteriorYpo - 16;
+                            c.setInside(false);
+                        } else {
+                            JOptionPane.showMessageDialog(null , "caso5");
+                            if (l != null && anteriorTipo.equals("cup")) {
+                                JOptionPane.showMessageDialog(null , "caso6");
+                                yActual = anteriorYpo + 6;
+                            } else {
+                                JOptionPane.showMessageDialog(null , "caso7");
+                                yActual = anteriorYpo - 5;
+                            }
+                            if (c != null) c.setInside(true);
+                            if (l != null) l.setInside(true);
+                            }
+                        }
+                    }
+            JOptionPane.showMessageDialog(null , "sale");
+            if (c != null) { c.setPosition(X, yActual); c.makeVisible(); }
+            if (l != null) { l.setPosition(X, yActual); l.makeVisible(); }
+            JOptionPane.showMessageDialog(null , "por fuera");
+            if (c != null && masExternoCup.getNumber() < yActual) {masExternoCup = c;}
+            if (l != null && masExternoLid.getNumber() < yActual) {masExternoLid = l;}
+            anteriorNumber = numero;
+            anteriorYpo = yActual;
+            anteriorTipo = tipo;       
+        }
+    }
+    
+        
+    private int getTechoPiezaMenor(int numeroLimit) {
+        int techoMenor = Integer.MAX_VALUE; 
+        
+        for (Cup c : cups) {
+            if (c.getNumber() < numeroLimit) {
+                int top = c.getYpo() - c.getHeight();
+                if (top < techoMenor) techoMenor = top;
             }
         }
-    }
-        
-    /**
-     * Prepara una tapa haciéndola invisible antes de reposicionarla.
-     */
-    private Lid prepararLid(int i) {
-        Lid l = lids.get(i);
-        l.makeInvisible();
-        return l;
+        for (Lid l : lids) {
+            if (l.getNumber() < numeroLimit) {
+                int top = l.getYpo() - l.getHeight();
+                if (top < techoMenor) techoMenor = top;
+            }
+        }
+        return techoMenor == Integer.MAX_VALUE ? Y : techoMenor;
     }
     
-    /**
-     * Posiciona la primera tapa directamente sobre la copa más alta.
-     */
-    private Lid posicionarPrimeraLid(Lid l, int yActual) {
-        l.moveTo(X, yActual);
-        l.makeVisible();
-        return l;
-    }
-    
-    /**
-     * Posiciona una tapa según su tamaño relativo a la anterior y la más externa.
-     *
-     * @return el nuevo yActual resultante.
-     */
-    private int posicionarLid(Lid l, int yActual, Lid masExterno, Lid masAlto) {
-        if (masExterno == null || l.getNumber() > masExterno.getNumber()) {
-            l.moveTo(X, yActual);
-        } else {
-            l.moveTo(X, yActual - 7);
-        }
-        return l.getYpo();
-    }
-
-    /**
-     * Actualiza cuál es la tapa más externa según el tamaño.
-     */
-    private Lid actualizarMasExternoLid(Lid l, Lid masExterno) {
-        if (l.getNumber() > masExterno.getNumber()) {
-            return l;
-        }
-        return masExterno;
-    }
 
     /**
      * Verifica si ya existe una copa con el mismo tamaño/número dentro de la torre.
@@ -586,7 +509,7 @@ public class Tower
             if (c.isInside()) {
             }
             else {
-                total += c.getHeight();
+                total += c.realHeight();
             }
         }
         return total;
@@ -599,6 +522,12 @@ public class Tower
      */
     public void makeVisible()
     {
+        for (Cup c: cups){
+            c.makeVisible();
+        }
+        for (Lid l: lids){
+           l.makeVisible(); 
+        }
         isVisible = true;
     }
     
@@ -607,6 +536,12 @@ public class Tower
      */
     public void makeInvisible()
     {
+        for (Cup c: cups){
+            c.makeInvisible();
+        }
+        for (Lid l: lids){
+           l.makeInvisible(); 
+        }
         isVisible = false;
     }
     

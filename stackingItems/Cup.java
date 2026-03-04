@@ -107,9 +107,16 @@ public class Cup{
     }
     
     public int getHeight() {
-        return height/5;
+        return this.height;
     }
     
+    public int realHeight(){
+        int number =0 ;
+        number = height/5;
+        number = number +1;
+        number = number/2;
+        return number;
+    }
     /**
      * Establece directamente la posición del objeto sin redibujarlo.
      *
@@ -149,7 +156,7 @@ public class Cup{
      */
     public void draw() {
         if (isVisible) {
-            int grosor = 7;
+            int grosor = 5;
 
             int esquinaX = xPosition - width / 2;
             int esquinaY = yPosition - height;
