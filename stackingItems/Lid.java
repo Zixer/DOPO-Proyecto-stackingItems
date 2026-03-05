@@ -129,15 +129,18 @@ public class Lid
      * - Se crea un nuevo objeto gráfico cada vez que se dibuja.
      */
     public void draw() {
-        int canvasWidth = 300;
-        int centroX = (canvasWidth - width) / 2;
-        
+        if (!isVisible) return;
+    
         lid = new Rectangle();
         lid.changeSize(height, width);
-        lid.changeColor(color); 
-        lid.changeP(centroX + 1, yPosition); 
+        lid.changeColor(color);
     
+        lid.changeP(xPosition, yPosition - height);
         lid.makeVisible();
+    }
+    
+    public int getWidth() {
+        return width;
     }
     
     /**

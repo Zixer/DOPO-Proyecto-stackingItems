@@ -136,6 +136,19 @@ public class Cup{
         return this.color;
     }
     
+    public int getInnerBaseY() {
+        // base interior = ySuperiorInterior + alturaInterior
+        return interior.getYpo() + interior.getHeight();
+    }
+    
+    public int getInnerX() {
+        return interior.getXpo();
+    }
+    
+    public int getInnerWidth() {
+        return interior.getWidth();
+    }
+    
     /**
      * Dibuja visualmente la copa en el canvas si el objeto está marcado como visible.
      *
@@ -155,26 +168,24 @@ public class Cup{
      * - El objeto solo se dibuja si isVisible == true.
      */
     public void draw() {
-        if (isVisible) {
-            int grosor = 5;
-
-            int esquinaX = xPosition - width / 2;
-            int esquinaY = yPosition - height;
-
-            body = new Rectangle();
-            body.changeSize(height, width);
-            body.changeColor(color);
-            body.moveHorizontal(esquinaX - 50);
-            body.moveVertical(esquinaY);
-            body.makeVisible();
-            
-            interior = new Rectangle();
-            interior.changeSize(height - grosor, width - 2 * grosor);
-            interior.changeColor("white");
-            interior.moveHorizontal((esquinaX + grosor) - 50);
-            interior.moveVertical(esquinaY);
-            interior.makeVisible();
-        }
+        if (!isVisible) return;
+    
+        int grosor = 5;
+    
+        int esquinaX = xPosition;        
+        int esquinaY = yPosition - height; 
+    
+        body = new Rectangle();
+        body.changeSize(height, width);
+        body.changeColor(color);
+        body.changeP(esquinaX, esquinaY);
+        body.makeVisible();
+    
+        interior = new Rectangle();
+        interior.changeSize(height - grosor, width - 2 * grosor);
+        interior.changeColor("white");
+        interior.changeP(esquinaX + grosor, esquinaY);
+        interior.makeVisible();
     }
     
     /**

@@ -27,8 +27,8 @@ public class Tower
     private HashMap<String, Lid> ListLid;
     private boolean isOK;
     private Random random;
-    private ArrayList<String[]> insertionOrder;
-    
+    private ArrayList<String[]> insertionOrder = new ArrayList<>();
+    private Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
     
     /**
      * Construye una torre vacía con límites máximos de altura y ancho.
@@ -42,7 +42,7 @@ public class Tower
         ListLid = new HashMap<>();
         lids = new Stack<Lid>();
         insertionOrder = new ArrayList<String[]>();
-
+        Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
         this.maxHeight = nmaxHeight;
         this.maxWidth = nmaxWidth;
 
@@ -126,7 +126,7 @@ public class Tower
             isOK = false;
         }
     }          
-    
+
     /**
      * Recalcula y actualiza la posición visual de todas las copas según la lógica de apilamiento:
      * - Copas más grandes pueden quedar por fuera ("outside").
@@ -137,122 +137,209 @@ public class Tower
      * - Reposiciona, define inside/outside, y vuelve visibles las copas.
      * - Finalmente intenta dibujar/posicionar la tapa sobre la copa más alta.
      */
-     private void redraw() {
-        int yActual = Y;
-        int anteriorNumber = -1;
-        int anteriorYpo = 0;
-        String anteriorTipo = "";
-        Cup masExternoCup = null;
-        Lid masExternoLid = null;
-        int masAltoYpo = 0;
-        int masAltoHeight = 0;
-        for (Cup c : cups) {c.makeInvisible();}
-        for (Lid l : lids) {l.makeInvisible();}
+    private void redraw() {
+
+        final int CANVAS_WIDTH = 300;
+        final int GROSOR = 5;
     
-            
+        for (Cup c : cups) c.makeInvisible();
+        for (Lid l : lids) l.makeInvisible();
+    
+        Cup outer = null;
+        Stack<Cup> insideStack = new Stack<>();
+    
+        Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
+    
+        // ✅ “manda afuera” por tamaño (cup o lid)
+        int outsideTopSize = -1;
+    
+        // ✅ techo visual REAL (incluye piezas inside y outside)
+        int globalTopY = Y;  // se irá volviendo más pequeño (más arriba)
+    
+        int baseStart = Y;
+    
         for (int i = 0; i < insertionOrder.size(); i++) {
-            String[] item = insertionOrder.get(i);
-            String tipo = item[0];
-            int numero = Integer.parseInt(item[1]);
-            Cup c = null;
-            Lid l = null;
-            int height = 0;
-                
-            if (tipo.equals("cup")) {
-                c = findCup(numero);
-                if (c == null) continue;
-                height = c.getHeight(); // ahora devuelve height real en px
-            } else if (tipo.equals("lid")) {
-                l = findLid(numero);
-                if (l == null) continue;
-                height = l.getHeight(); // devuelve cm = 5
-            }
-            
-            if (i == 0) {
-                JOptionPane.showMessageDialog(null , "caso 0");
-                yActual = Y;
-                masAltoYpo = Y - height;
-                masAltoHeight = height;
-                if (c != null){masExternoCup = c;}
-                if (l != null){masExternoLid = l;}
-                    
-                JOptionPane.showMessageDialog(null , "yactual = " + yActual + ", masAltoYpo = " + masAltoYpo);
-                if (c != null) { c.setPosition(X, yActual); c.setInside(false); }
-                if (l != null) { l.setPosition(X, yActual); l.setInside(false); }
-                } else {
-                    JOptionPane.showMessageDialog(null , "cup");
-                    if (numero >= masExternoCup.getNumber()){
-                         JOptionPane.showMessageDialog(null , "caso1");
-                        if (tipo.equals("lid")){
-                            JOptionPane.showMessageDialog(null , "es lid:)");
-                            masExternoLid = l;
-                            yActual = masAltoYpo + 10;
-                        }else {
-                            JOptionPane.showMessageDialog(null , "No es lid");
-                            
-                            yActual = masAltoYpo ;// techo de la más alta + height de la nueva pieza
-                        } 
-                        if (c != null) c.setInside(false);
-                        if (l != null) l.setInside(false);
-                    }else if (numero > anteriorNumber) {
-                        JOptionPane.showMessageDialog(null , "caso2");
-                        yActual = getTechoPiezaMenor(numero);
-                        if (c != null) c.setInside(false);
-                        if (l != null) l.setInside(false);
-                    } else {
-                        JOptionPane.showMessageDialog(null , "caso3");
-                        // menor que anterior -> va adentro o encima si cup tras lid
-                         boolean anteriorEsLid = anteriorTipo.equals("lid");
-                        if (c != null && anteriorEsLid) {
-                            JOptionPane.showMessageDialog(null , "caso4");
-                            yActual = anteriorYpo - 16;
-                            c.setInside(false);
-                        } else {
-                            JOptionPane.showMessageDialog(null , "caso5");
-                            if (l != null && anteriorTipo.equals("cup")) {
-                                JOptionPane.showMessageDialog(null , "caso6");
-                                yActual = anteriorYpo + 6;
-                            } else {
-                                JOptionPane.showMessageDialog(null , "caso7");
-                                yActual = anteriorYpo - 5;
-                            }
-                            if (c != null) c.setInside(true);
-                            if (l != null) l.setInside(true);
-                            }
-                        }
-                    }
-            JOptionPane.showMessageDialog(null , "sale");
-            if (c != null) { c.setPosition(X, yActual); c.makeVisible(); }
-            if (l != null) { l.setPosition(X, yActual); l.makeVisible(); }
-            JOptionPane.showMessageDialog(null , "por fuera");
-            if (c != null && masExternoCup.getNumber() < yActual) {masExternoCup = c;}
-            if (l != null && masExternoLid.getNumber() < yActual) {masExternoLid = l;}
-            anteriorNumber = numero;
-            anteriorYpo = yActual;
-            anteriorTipo = tipo;       
-        }
-    }
     
-        
-    private int getTechoPiezaMenor(int numeroLimit) {
-        int techoMenor = Integer.MAX_VALUE; 
-        
-        for (Cup c : cups) {
-            if (c.getNumber() < numeroLimit) {
-                int top = c.getYpo() - c.getHeight();
-                if (top < techoMenor) techoMenor = top;
+            String tipo = insertionOrder.get(i)[0];
+            int numero = Integer.parseInt(insertionOrder.get(i)[1]);
+    
+            if (tipo.equals("cup")) {
+    
+                Cup c = findCup(numero);
+                if (c == null) continue;
+    
+                if (outer == null) {
+                    int x = (CANVAS_WIDTH - c.getWidth()) / 2;
+                    c.setPosition(x, baseStart);
+                    c.setInside(false);
+    
+                    outer = c;
+                    insideStack.clear();
+    
+                    // actualizar “manda afuera”
+                    outsideTopSize = c.getNumber();
+    
+                    // actualizar techo visual
+                    globalTopY = Math.min(globalTopY, c.getYpo() - c.getHeight());
+    
+                    c.makeVisible();
+                    continue;
+                }
+    
+                boolean goesOutside = c.getNumber() >= outsideTopSize;
+    
+                if (goesOutside) {
+                    int x = (CANVAS_WIDTH - c.getWidth()) / 2;
+    
+                    // ✅ afuera SIEMPRE va encima del techo visual real
+                    c.setPosition(x, globalTopY);
+                    c.setInside(false);
+    
+                    outer = c;
+                    insideStack.clear();
+    
+                    // actualizar “manda afuera”
+                    outsideTopSize = c.getNumber();
+    
+                    // actualizar techo visual
+                    globalTopY = Math.min(globalTopY, c.getYpo() - c.getHeight());
+    
+                    c.makeVisible();
+                } else {
+                    // --- INSIDE ---
+                    Cup support = null;
+    
+                    while (!insideStack.isEmpty() && c.getNumber() >= insideStack.peek().getNumber()) {
+                        support = insideStack.pop();
+                    }
+    
+                    Cup container = insideStack.isEmpty() ? outer : insideStack.peek();
+    
+                    if (support == null) {
+                        placeInside(c, container);
+                    } else {
+                        placeAboveInContainer(c, support, container);
+                    }
+    
+                    c.setInside(true);
+                    insideStack.push(c);
+    
+                    // ✅ aunque sea inside, igual puede subir el techo visual
+                    globalTopY = Math.min(globalTopY, c.getYpo() - c.getHeight());
+    
+                    c.makeVisible();
+                }
+            }
+    
+            else if (tipo.equals("lid")) {
+    
+                Lid l = findLid(numero);
+                if (l == null) continue;
+    
+                Cup container = (!insideStack.isEmpty()) ? insideStack.peek() : outer;
+    
+                if (container == null) {
+                    int x = (CANVAS_WIDTH - l.getWidth()) / 2;
+                    l.setPosition(x, Y);
+                    l.setInside(false);
+    
+                    outsideTopSize = l.getNumber();
+                    globalTopY = Math.min(globalTopY, l.getYpo() - l.getHeight());
+    
+                    l.makeVisible();
+                    continue;
+                }
+    
+                boolean goesInside = l.getNumber() < container.getNumber();
+    
+                if (goesInside) {
+                    int innerX = container.getXpo() + GROSOR;
+                    int innerW = container.getWidth() - 2 * GROSOR;
+                    int x = innerX + (innerW - l.getWidth()) / 2;
+    
+                    Lid topInside = topInsideLidByCup.get(container);
+    
+                    int y;
+                    if (topInside == null) y = container.getYpo() - GROSOR;
+                    else y = topInside.getYpo() - topInside.getHeight();
+    
+                    l.setPosition(x, y);
+                    l.setInside(true);
+    
+                    topInsideLidByCup.put(container, l);
+    
+                    // ✅ lid inside también puede subir techo visual
+                    globalTopY = Math.min(globalTopY, l.getYpo() - l.getHeight());
+    
+                    l.makeVisible();
+                }
+                else {
+                    // --- OUTSIDE ---
+                    // ✅ regla de tamaño: si es >= outsideTopSize, “manda afuera”
+                    if (l.getNumber() >= outsideTopSize) outsideTopSize = l.getNumber();
+    
+                    // centrar sobre la cup exterior actual (outer)
+                    int x = (outer != null)
+                            ? outer.getXpo() + (outer.getWidth() - l.getWidth()) / 2
+                            : (CANVAS_WIDTH - l.getWidth()) / 2;
+    
+                    // ✅ afuera va encima del techo visual real (incluye inside)
+                    l.setPosition(x, globalTopY);
+                    l.setInside(false);
+    
+                    globalTopY = Math.min(globalTopY, l.getYpo() - l.getHeight());
+    
+                    l.makeVisible();
+                }
             }
         }
-        for (Lid l : lids) {
-            if (l.getNumber() < numeroLimit) {
-                int top = l.getYpo() - l.getHeight();
-                if (top < techoMenor) techoMenor = top;
-            }
-        }
-        return techoMenor == Integer.MAX_VALUE ? Y : techoMenor;
+    
+        isOK = true;
     }
     
 
+    private void placeAboveInContainer(Cup upper, Cup lower, Cup container) {
+        int x = container.getXpo() + (container.getWidth() - upper.getWidth()) / 2;
+        int y = lower.getYpo() - lower.getHeight();   // ✅ CORRECTO
+        upper.setPosition(x, y);
+        upper.setInside(true);
+    }
+    
+    private void placeInside(Cup inner, Cup outer) {
+        int x = outer.getXpo() + (outer.getWidth() - inner.getWidth()) / 2;
+        int y = outer.getYpo();                 // misma base
+        inner.setPosition(x, y - 5);
+        inner.setInside(true);
+    }
+    
+    private void placeAboveCup(Cup upper, Cup lower) {
+        int x = lower.getXpo() + (lower.getWidth() - upper.getWidth()) / 2;
+        int y = lower.getYpo() - lower.getHeight();   // ✅ CORRECTO
+        upper.setPosition(x, y);
+        upper.setInside(false);
+    }
+    
+    private void placeAboveLid(Lid lid, Cup orLidRef, int refX, int refY) {
+        // Para lids, solo las ponemos arriba del "techo" actual de la torre.
+         // refX/refY son la esquina izquierda y la base actual del tope.
+        lid.setPosition(refX, refY);
+        lid.setInside(false);
+    }
+    
+    private int getTechoPiezaMenor(int numero, HashMap<Integer, Integer> techo) {
+        int mejorNumero = -1;
+        int mejorTecho = Y;
+    
+        for (Map.Entry<Integer, Integer> e : techo.entrySet()) {
+            int n = e.getKey();
+            if (n < numero && n > mejorNumero) {
+                mejorNumero = n;
+                mejorTecho = e.getValue();
+            }
+        }
+        return mejorTecho;
+    }
+    
     /**
      * Verifica si ya existe una copa con el mismo tamaño/número dentro de la torre.
      *
@@ -509,7 +596,7 @@ public class Tower
             if (c.isInside()) {
             }
             else {
-                total += c.realHeight();
+                total += c.getHeight();
             }
         }
         return total;
@@ -522,12 +609,6 @@ public class Tower
      */
     public void makeVisible()
     {
-        for (Cup c: cups){
-            c.makeVisible();
-        }
-        for (Lid l: lids){
-           l.makeVisible(); 
-        }
         isVisible = true;
     }
     
@@ -536,12 +617,6 @@ public class Tower
      */
     public void makeInvisible()
     {
-        for (Cup c: cups){
-            c.makeInvisible();
-        }
-        for (Lid l: lids){
-           l.makeInvisible(); 
-        }
         isVisible = false;
     }
     
