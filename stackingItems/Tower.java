@@ -1,3 +1,4 @@
+
 import java.util.Stack;
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,8 +28,8 @@ public class Tower
     private HashMap<String, Lid> ListLid;
     private boolean isOK;
     private Random random;
-    private ArrayList<String[]> insertionOrder = new ArrayList<>();
-    private Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
+    private ArrayList<String[]> insertionOrder;
+    private Map<Cup, Lid> topInsideLidByCup;
     
     /**
      * Construye una torre vacía con límites máximos de altura y ancho.
@@ -42,7 +43,7 @@ public class Tower
         ListLid = new HashMap<>();
         lids = new Stack<Lid>();
         insertionOrder = new ArrayList<String[]>();
-        Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
+        topInsideLidByCup = new HashMap<>();
         this.maxHeight = nmaxHeight;
         this.maxWidth = nmaxWidth;
 
@@ -115,7 +116,7 @@ public class Tower
             }
         }
  
-        if (Height() + nueva.getHeight() <= maxHeight && i < maxWidth) {
+        if (0 <= maxHeight && i < maxWidth) {
             cups.push(nueva);
             insertionOrder.add(new String[]{"cup", String.valueOf(i)}); // agregar esto
             redraw();
@@ -138,166 +139,255 @@ public class Tower
      * - Finalmente intenta dibujar/posicionar la tapa sobre la copa más alta.
      */
     private void redraw() {
-
         final int CANVAS_WIDTH = 300;
         final int GROSOR = 5;
     
-        for (Cup c : cups) c.makeInvisible();
-        for (Lid l : lids) l.makeInvisible();
+        hideAllElements();
     
-        Cup outer = null;
-        Stack<Cup> insideStack = new Stack<>();
+        LayoutState state = createInitialLayoutState();
     
-        Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
+        for (String[] item : insertionOrder) {
+            String type = item[0];
+            int number = Integer.parseInt(item[1]);
     
-        // ✅ “manda afuera” por tamaño (cup o lid)
-        int outsideTopSize = -1;
-    
-        // ✅ techo visual REAL (incluye piezas inside y outside)
-        int globalTopY = Y;  // se irá volviendo más pequeño (más arriba)
-    
-        int baseStart = Y;
-    
-        for (int i = 0; i < insertionOrder.size(); i++) {
-    
-            String tipo = insertionOrder.get(i)[0];
-            int numero = Integer.parseInt(insertionOrder.get(i)[1]);
-    
-            if (tipo.equals("cup")) {
-    
-                Cup c = findCup(numero);
-                if (c == null) continue;
-    
-                if (outer == null) {
-                    int x = (CANVAS_WIDTH - c.getWidth()) / 2;
-                    c.setPosition(x, baseStart);
-                    c.setInside(false);
-    
-                    outer = c;
-                    insideStack.clear();
-    
-                    // actualizar “manda afuera”
-                    outsideTopSize = c.getNumber();
-    
-                    // actualizar techo visual
-                    globalTopY = Math.min(globalTopY, c.getYpo() - c.getHeight());
-    
-                    c.makeVisible();
-                    continue;
-                }
-    
-                boolean goesOutside = c.getNumber() >= outsideTopSize;
-    
-                if (goesOutside) {
-                    int x = (CANVAS_WIDTH - c.getWidth()) / 2;
-    
-                    // ✅ afuera SIEMPRE va encima del techo visual real
-                    c.setPosition(x, globalTopY);
-                    c.setInside(false);
-    
-                    outer = c;
-                    insideStack.clear();
-    
-                    // actualizar “manda afuera”
-                    outsideTopSize = c.getNumber();
-    
-                    // actualizar techo visual
-                    globalTopY = Math.min(globalTopY, c.getYpo() - c.getHeight());
-    
-                    c.makeVisible();
-                } else {
-                    // --- INSIDE ---
-                    Cup support = null;
-    
-                    while (!insideStack.isEmpty() && c.getNumber() >= insideStack.peek().getNumber()) {
-                        support = insideStack.pop();
-                    }
-    
-                    Cup container = insideStack.isEmpty() ? outer : insideStack.peek();
-    
-                    if (support == null) {
-                        placeInside(c, container);
-                    } else {
-                        placeAboveInContainer(c, support, container);
-                    }
-    
-                    c.setInside(true);
-                    insideStack.push(c);
-    
-                    // ✅ aunque sea inside, igual puede subir el techo visual
-                    globalTopY = Math.min(globalTopY, c.getYpo() - c.getHeight());
-    
-                    c.makeVisible();
-                }
-            }
-    
-            else if (tipo.equals("lid")) {
-    
-                Lid l = findLid(numero);
-                if (l == null) continue;
-    
-                Cup container = (!insideStack.isEmpty()) ? insideStack.peek() : outer;
-    
-                if (container == null) {
-                    int x = (CANVAS_WIDTH - l.getWidth()) / 2;
-                    l.setPosition(x, Y);
-                    l.setInside(false);
-    
-                    outsideTopSize = l.getNumber();
-                    globalTopY = Math.min(globalTopY, l.getYpo() - l.getHeight());
-    
-                    l.makeVisible();
-                    continue;
-                }
-    
-                boolean goesInside = l.getNumber() < container.getNumber();
-    
-                if (goesInside) {
-                    int innerX = container.getXpo() + GROSOR;
-                    int innerW = container.getWidth() - 2 * GROSOR;
-                    int x = innerX + (innerW - l.getWidth()) / 2;
-    
-                    Lid topInside = topInsideLidByCup.get(container);
-    
-                    int y;
-                    if (topInside == null) y = container.getYpo() - GROSOR;
-                    else y = topInside.getYpo() - topInside.getHeight();
-    
-                    l.setPosition(x, y);
-                    l.setInside(true);
-    
-                    topInsideLidByCup.put(container, l);
-    
-                    // ✅ lid inside también puede subir techo visual
-                    globalTopY = Math.min(globalTopY, l.getYpo() - l.getHeight());
-    
-                    l.makeVisible();
-                }
-                else {
-                    // --- OUTSIDE ---
-                    // ✅ regla de tamaño: si es >= outsideTopSize, “manda afuera”
-                    if (l.getNumber() >= outsideTopSize) outsideTopSize = l.getNumber();
-    
-                    // centrar sobre la cup exterior actual (outer)
-                    int x = (outer != null)
-                            ? outer.getXpo() + (outer.getWidth() - l.getWidth()) / 2
-                            : (CANVAS_WIDTH - l.getWidth()) / 2;
-    
-                    // ✅ afuera va encima del techo visual real (incluye inside)
-                    l.setPosition(x, globalTopY);
-                    l.setInside(false);
-    
-                    globalTopY = Math.min(globalTopY, l.getYpo() - l.getHeight());
-    
-                    l.makeVisible();
-                }
+            if (isCup(type)) {
+                redrawCup(number, state, CANVAS_WIDTH);
+            } else if (isLid(type)) {
+                redrawLid(number, state, CANVAS_WIDTH, GROSOR);
             }
         }
     
+        showAllElementsInInsertionOrder();
+    
         isOK = true;
     }
+        
+    private void hideAllElements() {
+        for (Cup c : cups) c.makeInvisible();
+        for (Lid l : lids) l.makeInvisible();
+    }
     
+    private void showAllElementsInInsertionOrder() {
+        for (String[] item : insertionOrder) {
+            int number = Integer.parseInt(item[1]);
+    
+            if (isCup(item[0])) {
+                Cup c = findCup(number);
+                if (c != null) c.makeVisible();
+            } else if (isLid(item[0])) {
+                Lid l = findLid(number);
+                if (l != null) l.makeVisible();
+            }
+        }
+    }
+    
+    private LayoutState createInitialLayoutState() {
+        LayoutState state = new LayoutState();
+        state.outsideBaseY = Y;
+        state.outsideSize = -1;
+        state.highestCupTopY = Y;
+        return state;
+    }
+        
+        private static class LayoutState {
+        Cup outer = null;
+        Stack<Cup> insideStack = new Stack<>();
+        Map<Cup, Lid> topInsideLidByCup = new HashMap<>();
+    
+        int outsideSize;
+        int outsideBaseY;
+        int highestCupTopY;
+    
+        boolean lastOutsideWasLid = false;
+    }
+    
+    private boolean isCup(String type) {
+        return "cup".equals(type);
+    }
+    
+    private boolean isLid(String type) {
+        return "lid".equals(type);
+    }
+    
+    private void redrawCup(int number, LayoutState state, int canvasWidth) {
+        Cup cup = findCup(number);
+        if (cup == null) return;
+    
+        if (isFirstOutsideElement(state)) {
+            placeFirstCupOutside(cup, state, canvasWidth);
+            return;
+        }
+    
+        if (shouldPlaceCupOutside(cup, state)) {
+            placeCupOutside(cup, state, canvasWidth);
+        } else {
+            placeCupInside(cup, state);
+        }
+    }
+    
+    private void redrawLid(int number, LayoutState state, int canvasWidth, int grosor) {
+        Lid lid = findLid(number);
+        if (lid == null) return;
+    
+        if (isFirstOutsideElement(state)) {
+            placeFirstLidOutside(lid, state, canvasWidth);
+            return;
+        }
+    
+        if (shouldPlaceLidOutside(lid, state)) {
+            placeLidOutside(lid, state, canvasWidth);
+        } else {
+            placeLidInside(lid, state, grosor);
+        }
+    }
+    
+    private boolean isFirstOutsideElement(LayoutState state) {
+        return state.outer == null;
+    }
+    
+    private boolean shouldPlaceCupOutside(Cup cup, LayoutState state) {
+        return state.lastOutsideWasLid || cup.getNumber() >= state.outsideSize;
+    }
+    
+    private boolean shouldPlaceLidOutside(Lid lid, LayoutState state) {
+        Cup container = currentContainer(state);
+    
+        boolean doesNotFitInCurrentContainer =
+            container != null && lid.getNumber() >= container.getNumber();
+    
+        boolean biggerThanOrEqualToOutside =
+            lid.getNumber() >= state.outsideSize;
+    
+        return doesNotFitInCurrentContainer || biggerThanOrEqualToOutside;
+    }
+    
+    private void updateHighestCupTop(LayoutState s, Cup c) {
+        int top = c.getYpo() - c.getHeight();
+        s.highestCupTopY = Math.min(s.highestCupTopY, top);
+    }
+    
+    private void dbg(String msg) {
+        System.out.println(msg);
+    }
+    
+    private Cup currentContainer(LayoutState s) {
+        return (!s.insideStack.isEmpty()) ? s.insideStack.peek() : s.outer;
+    }
+    
+    private int outsidePlacementBaseY(LayoutState s) {
+        return s.outsideBaseY; 
+    }
+    
+    private void placeFirstCupOutside(Cup c, LayoutState s, int canvasWidth) {
+        int x = (canvasWidth - c.getWidth()) / 2;
+        c.setPosition(x, Y);
+        c.setInside(false);
+    
+        s.outer = c;
+        s.insideStack.clear();
+    
+        s.outsideSize = c.getNumber();
+        s.outsideBaseY = c.getYpo() - c.getHeight();
+        s.lastOutsideWasLid = false;   // ✅
+    
+        updateHighestCupTop(s, c);
+    }   
+    
+    private void placeCupOutside(Cup c, LayoutState s, int canvasWidth) {
+        int x = (canvasWidth - c.getWidth()) / 2;
+    
+        int baseY = s.highestCupTopY;
+    
+        c.setPosition(x, baseY);
+        c.setInside(false);
+    
+        s.outer = c;
+        s.insideStack.clear();
+    
+        s.outsideSize = c.getNumber();
+        s.outsideBaseY = c.getYpo() - c.getHeight();
+        s.lastOutsideWasLid = false;   // ✅
+    
+        updateHighestCupTop(s, c);
+    }  
 
+    
+    private void placeCupInside(Cup c, LayoutState s) {
+    
+        Cup support = null;
+    
+        while (!s.insideStack.isEmpty() && c.getNumber() >= s.insideStack.peek().getNumber()) {
+            support = s.insideStack.pop();
+        }
+    
+        Cup container = (s.insideStack.isEmpty()) ? s.outer : s.insideStack.peek();
+    
+        if (support == null) placeInside(c, container);
+        else placeAboveInContainer(c, support, container);
+    
+        c.setInside(true);
+        s.insideStack.push(c);
+     
+        updateHighestCupTop(s, c); // ✅
+    }
+    
+    private void placeLidOutside(Lid l, LayoutState s, int canvasWidth) {
+        int x = (canvasWidth - l.getWidth()) / 2;
+    
+        int baseY = Math.min(s.outsideBaseY, s.highestCupTopY);
+    
+        l.setPosition(x, baseY);
+        l.setInside(false);
+    
+        s.insideStack.clear();
+    
+        s.outsideSize = l.getNumber();
+        s.outsideBaseY = l.getYpo() - l.getHeight();
+        s.lastOutsideWasLid = true;   // ← ESTO TE FALTA
+    
+        updateHighestTopWithLid(s, l);
+    }
+    
+    private void placeFirstLidOutside(Lid l, LayoutState s, int canvasWidth) {
+        int x = (canvasWidth - l.getWidth()) / 2;
+        l.setPosition(x, Y);
+        l.setInside(false);
+    
+        s.insideStack.clear();
+    
+        s.outsideSize = l.getNumber();
+        s.outsideBaseY = l.getYpo() - l.getHeight();
+        s.lastOutsideWasLid = true;
+    
+        updateHighestTopWithLid(s, l);
+    }
+
+    private void placeLidInside(Lid l, LayoutState s, int grosor) {
+     
+        Cup container = currentContainer(s);
+        if (container == null) return;
+    
+        int innerX = container.getXpo() + grosor;
+        int innerW = container.getWidth() - 2 * grosor;
+        int x = innerX + (innerW - l.getWidth()) / 2;
+    
+        Lid topInside = s.topInsideLidByCup.get(container);
+    
+        int y;
+        if (topInside == null) y = container.getYpo() - grosor;
+        else y = topInside.getYpo() - topInside.getHeight();
+    
+        l.setPosition(x, y);
+        l.setInside(true);
+    
+        s.topInsideLidByCup.put(container, l);
+    }
+    
+    private void updateHighestTopWithLid(LayoutState s, Lid l) {
+        int top = l.getYpo() - l.getHeight();
+        s.highestCupTopY = Math.min(s.highestCupTopY, top);
+    }
+        
     private void placeAboveInContainer(Cup upper, Cup lower, Cup container) {
         int x = container.getXpo() + (container.getWidth() - upper.getWidth()) / 2;
         int y = lower.getYpo() - lower.getHeight();   // ✅ CORRECTO
@@ -324,20 +414,6 @@ public class Tower
          // refX/refY son la esquina izquierda y la base actual del tope.
         lid.setPosition(refX, refY);
         lid.setInside(false);
-    }
-    
-    private int getTechoPiezaMenor(int numero, HashMap<Integer, Integer> techo) {
-        int mejorNumero = -1;
-        int mejorTecho = Y;
-    
-        for (Map.Entry<Integer, Integer> e : techo.entrySet()) {
-            int n = e.getKey();
-            if (n < numero && n > mejorNumero) {
-                mejorNumero = n;
-                mejorTecho = e.getValue();
-            }
-        }
-        return mejorTecho;
     }
     
     /**
@@ -618,6 +694,8 @@ public class Tower
     public void makeInvisible()
     {
         isVisible = false;
+        for (Cup c: cups){c.makeInvisible();}
+        for (Lid l: lids){l.makeInvisible();}
     }
     
     /**
@@ -641,6 +719,14 @@ public class Tower
         }
         return null;
     }
+
+    public Cup getCupByNumber(int number) {
+        return findCup(number);
+    }
+    
+    public Lid getLidByNumber(int number) {
+        return findLid(number);
+    }
     
     /**
      * Termina el simulador
@@ -654,6 +740,10 @@ public class Tower
         isVisible = false;
     }
 
+    public int getInsertionOrderSize(){
+        return insertionOrder.size();
+    }
+    
     /**
      * Verifica si la última operación fue exitosa
      */
