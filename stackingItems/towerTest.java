@@ -47,6 +47,7 @@ public class towerTest
         assertNotNull(c.getLid());
         assertEquals(5, c.getLid().getNumber());
         assertTrue(t.isOk());
+        t.makeInvisible();
     }
 
     @Test
@@ -72,7 +73,7 @@ public class towerTest
 
         assertTrue(t.isOk());
         assertTrue(y5Before != y5After || y3Before != y3After);
-        
+        t.makeInvisible();
     }
     
     public void shouldSwapCupAndLid() {
@@ -91,6 +92,7 @@ public class towerTest
     
         assertTrue(t.isOk());
         assertTrue(lidYBefore != lidYAfter || cupYBefore != cupYAfter);
+        t.makeInvisible();
     }
     
     @Test
@@ -108,6 +110,7 @@ public class towerTest
         assertFalse(t.isOk());
         assertEquals(y5Before, t.getCupByNumber(5).getYpo());
         assertEquals(y3Before, t.getCupByNumber(3).getYpo());
+        t.makeInvisible();
     }
     
     @Test
@@ -125,6 +128,7 @@ public class towerTest
         assertFalse(t.isOk());
         assertEquals(cupYBefore, t.getCupByNumber(5).getYpo());
         assertEquals(lidYBefore, t.getLidByNumber(6).getYpo());
+        t.makeInvisible();
     }
     
     @Test
@@ -134,6 +138,7 @@ public class towerTest
         assertEquals(0, t.getCupsSize());
         assertEquals(0, t.getLidsSize());
         assertTrue(t.isVisible());
+        t.makeInvisible();
     }
     
     @Test
@@ -148,13 +153,67 @@ public class towerTest
     
         assertNotNull(c);
         assertNull(c.getLid());
+        t.makeInvisible();
     }
     
     @Test
     public void shouldNotAllowTowerWithZeroCups() {
         Tower t = new Tower(0);
     
-        assertFalse(t.isVisible()); // probablemente esta falle con tu implementación actual
+        assertFalse(t.isVisible()); 
+        t.makeInvisible();
+    }
+    
+    @Test
+    public void shouldNotReduceHeightWhenNoBetterSwapExists() {
+        Tower t = new Tower(20, 20);
+
+        t.pushCup(5);
+        t.pushCup(3);
+        t.pushCup(1);
+
+        int initialHeight = t.Height();
+
+        t.swapToReduce();
+
+        int finalHeight = t.Height();
+
+        assertFalse(t.isOk());
+        assertEquals(initialHeight, finalHeight);
+    }
+    
+    @Test
+    public void shouldFailWhenTowerHasOnlyOneElement() {
+        Tower t = new Tower(20, 20);
+    
+        t.pushCup(5);
+    
+        int initialHeight = t.Height();
+    
+        t.swapToReduce();
+    
+        int finalHeight = t.Height();
+    
+        assertFalse(t.isOk());
+        assertEquals(initialHeight, finalHeight);
+    }
+    
+    @Test
+    public void shouldReduceHeightWhenPossible() {
+        Tower t = new Tower(20, 20);
+
+        t.pushCup(3);
+        t.pushCup(5);
+        t.pushCup(1);
+
+        int initialHeight = t.Height();
+
+        t.swapToReduce();
+
+        int finalHeight = t.Height();
+
+        assertTrue(t.isOk());
+        assertTrue(finalHeight < initialHeight);
     }
     
     /**
