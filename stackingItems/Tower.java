@@ -72,11 +72,16 @@ public class Tower
      */
     public Tower(int numCups) {
         this(numCups * 2, numCups * 10);
-        for (int i = 1; i <= numCups; i++) {
-            int size = (2 * i) - 1;  
-            cups.push(new Cup(size, randomColor()));
-            insertionOrder.add(new String[]{"cup", String.valueOf(size)});
-        }
+        if (numCups!= 0){
+            for (int i = 1; i <= numCups; i++) {
+                int size = (2 * i) - 1;  
+                cups.push(new Cup(size, randomColor()));
+                insertionOrder.add(new String[]{"cup", String.valueOf(size)});
+            }
+        }else {
+            this.isVisible = false;
+        }      
+    
         makeVisible();
         redraw();
     }
@@ -839,7 +844,7 @@ public class Tower
      * Verifica si la torre es visible.
      */
     public boolean isVisible() {
-        return isVisible;
+        return this.isVisible;
     }
     
     /**
@@ -993,53 +998,57 @@ public class Tower
     }
     
     /**
-     * Realiza el intercambio de dos elementos en insertionOrder que produzca
-     * la mayor reducción posible de altura en la torre.
+     * Busca dos objetos de insertionOrder cuyo intercambio reduzca la altura
+     * de la torre lo máximo posible.
      *
-     * Si no existe ningún intercambio que reduzca la altura, no hace cambios.
+     * No modifica la torre de forma permanente; solo analiza y retorna
+     * los dos objetos que deberían intercambiarse.
+     *
+     * @return un arreglo de la forma { {tipo1, numero1}, {tipo2, numero2} }.
+     *         Si no existe ningún intercambio que reduzca la altura,
+     *         retorna un arreglo vacío.
      */
-    public void swapToReduce() {
+    public String[][] swapToReduce() {
         if (insertionOrder.size() < 2) {
             isOK = false;
-            return;
+            return new String[0][0];
         }
     
         redraw();
         int originalHeight = Height();
     
-        int bestIndex = -1;
+        int bestI = -1;
+        int bestJ = -1;
         int bestHeight = originalHeight;
     
-        for (int i = 1; i < insertionOrder.size(); i++) {
-            String[] item = insertionOrder.get(i);
+        for (int i = 0; i < insertionOrder.size() - 1; i++) {
+            for (int j = i + 1; j < insertionOrder.size(); j++) {
     
-            // solo intentamos mover cups
-            if (!item[0].equals("cup")) {
-                continue;
+                Collections.swap(insertionOrder, i, j);
+                redraw();
+                int newHeight = Height();
+    
+                if (newHeight < bestHeight) {
+                    bestHeight = newHeight;
+                    bestI = i;
+                    bestJ = j;
+                }
+    
+                Collections.swap(insertionOrder, i, j);
+                redraw();
             }
-    
-            Collections.swap(insertionOrder, i, i - 1);
-            redraw();
-    
-            int newHeight = Height();
-    
-            if (newHeight < bestHeight) {
-                bestHeight = newHeight;
-                bestIndex = i;
-            }
-    
-            // deshacer prueba
-            Collections.swap(insertionOrder, i, i - 1);
-            redraw();
         }
     
-        if (bestIndex != -1) {
-            Collections.swap(insertionOrder, bestIndex, bestIndex - 1);
-            redraw();
-            isOK = true;
-        } else {
-            redraw();
+        if (bestI == -1 || bestJ == -1) {
             isOK = false;
+            return new String[0][0];
         }
+    
+        isOK = true;
+    
+        String[] obj1 = {insertionOrder.get(bestI)[0],insertionOrder.get(bestI)[1]};
+        String[] obj2 = {insertionOrder.get(bestJ)[0],insertionOrder.get(bestJ)[1]};
+    
+        return new String[][] { obj1, obj2 };
     }
 }

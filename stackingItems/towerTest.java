@@ -165,55 +165,49 @@ public class towerTest
     }
     
     @Test
-    public void shouldNotReduceHeightWhenNoBetterSwapExists() {
-        Tower t = new Tower(20, 20);
-
-        t.pushCup(5);
-        t.pushCup(3);
-        t.pushCup(1);
-
-        int initialHeight = t.Height();
-
-        t.swapToReduce();
-
-        int finalHeight = t.Height();
-
-        assertFalse(t.isOk());
-        assertEquals(initialHeight, finalHeight);
-    }
+    public void shouldPassSwapToReduceWhenReductionExists() {
     
-    @Test
-    public void shouldFailWhenTowerHasOnlyOneElement() {
-        Tower t = new Tower(20, 20);
+        Tower t = new Tower(20,20);
     
-        t.pushCup(5);
-    
-        int initialHeight = t.Height();
-    
-        t.swapToReduce();
-    
-        int finalHeight = t.Height();
-    
-        assertFalse(t.isOk());
-        assertEquals(initialHeight, finalHeight);
-    }
-    
-    @Test
-    public void shouldReduceHeightWhenPossible() {
-        Tower t = new Tower(20, 20);
-
         t.pushCup(3);
         t.pushCup(5);
         t.pushCup(1);
-
-        int initialHeight = t.Height();
-
-        t.swapToReduce();
-
-        int finalHeight = t.Height();
-
-        assertTrue(t.isOk());
-        assertTrue(finalHeight < initialHeight);
+    
+        String[][] result = t.swapToReduce();
+    
+        assertEquals(2, result.length);
+    
+        assertNotNull(result[0]);
+        assertNotNull(result[1]);
+        t.makeInvisible();
+    }
+    
+    @Test
+    public void shouldFailSwapToReduceWhenNoReductionExists() {
+    
+        Tower t = new Tower(20,20);
+    
+        t.pushCup(5);
+        t.pushCup(3);
+        t.pushCup(1);
+    
+        String[][] result = t.swapToReduce();
+    
+        assertEquals(0, result.length);
+        t.makeInvisible();
+    }
+    
+    @Test
+    public void shouldFailWhenTowerTooSmall() {
+    
+        Tower t = new Tower(20,20);
+    
+        t.pushCup(5);
+    
+        String[][] result = t.swapToReduce();
+    
+        assertEquals(0, result.length);
+        t.makeInvisible();
     }
     
     /**
