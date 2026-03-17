@@ -1,0 +1,14 @@
+#BlueJ class context
+comment0.target=StackingItems
+comment1.params=n\ h
+comment1.target=java.lang.String\ solve(int,\ long)
+comment2.params=n\ h
+comment2.target=Tower\ simulate(int,\ long)
+comment3.params=n\ h
+comment3.target=java.util.List\ buildSolution(int,\ long)
+comment4.params=m\ target
+comment4.target=java.util.List\ buildSubsetHeights(int,\ long)
+comment4.text=\r\n\ Construye\ un\ subconjunto\ de\ alturas\ impares\:\r\n\ 1,\ 3,\ 5,\ ...,\ 2m-1\r\n\ cuya\ suma\ sea\ exactamente\ target.\r\n\r\n\ Retorna\ las\ alturas\ elegidas\ en\ orden\ ascendente.\r\n
+comment5.params=cupIndex
+comment5.target=int\ sizeOf(int)
+numComments=6

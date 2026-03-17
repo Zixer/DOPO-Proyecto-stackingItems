@@ -153,4 +153,36 @@ public class Lid
     public boolean isVisible(){
         return isVisible;
     }
+    
+    public void placeOutside(int canvasWidth, int baseY) {
+        int x = (canvasWidth - getWidth()) / 2;
+        setPosition(x, baseY);
+        setInside(false);
+    }
+    
+    public void placeInside(Cup container, Lid topInside, int grosor) {
+        if (container == null) return;
+    
+        int innerX = container.getXpo() + grosor;
+        int innerWidth = container.getWidth() - (2 * grosor);
+        int x = innerX + (innerWidth - getWidth()) / 2;
+    
+        int y;
+        if (topInside == null) {
+            y = container.getYpo() - container.getHeight() + getHeight();
+        } else {
+            y = topInside.getYpo();
+        }
+    
+        setPosition(x, y);
+        setInside(true);
+    }
+    
+    public void placeOnCup(Cup cup) {
+        if (cup == null) return;
+        int x = cup.getXpo();
+        int y = cup.getYpo() - cup.getHeight();
+        setPosition(x, y);
+        setInside(cup.isInside());
+    }
 }

@@ -211,4 +211,40 @@ public class Cup{
     public int getWidth(){
         return width;
     }
+    
+    public void placeOutside(int canvasWidth, int baseY) {
+        int x = (canvasWidth - getWidth()) / 2;
+        setPosition(x, baseY);
+        setInside(false);
+    }
+        
+    public void placeInside(Cup container, Lid topInsideLid, int grosor) {
+        if (container == null) return;
+        int innerX = container.getXpo() + grosor;
+        int innerWidth = container.getWidth() - (2 * grosor);
+        int x = innerX + (innerWidth - getWidth()) / 2;
+        int y;
+        if (topInsideLid == null) {
+            y = container.getYpo() - grosor;
+        } else {
+            y = topInsideLid.getYpo() - topInsideLid.getHeight();
+        }
+        setPosition(x, y);
+        setInside(true);
+    }
+    
+        public void placeAbove(Cup support, Cup container, Lid lidOnSupport, int grosor) {
+        if (support == null || container == null) return;
+        int innerX = container.getXpo() + grosor;
+        int innerWidth = container.getWidth() - (2 * grosor);
+        int x = innerX + (innerWidth - getWidth()) / 2;
+        int y;
+        if (lidOnSupport == null) {
+            y = support.getYpo() - support.getHeight();
+        } else {
+            y = lidOnSupport.getYpo() - lidOnSupport.getHeight();
+        }
+        setPosition(x, y);
+        setInside(true);
+    }
 }

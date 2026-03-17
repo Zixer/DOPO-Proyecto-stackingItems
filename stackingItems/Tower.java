@@ -161,53 +161,85 @@ public class Tower
      * - Reubica copas y tapas.
      * - Vuelve visibles los elementos en el orden de inserción.
      */
-    public void redraw() {
-        final int CANVAS_WIDTH = 300;
+    public void redraw() { final int CANVAS_WIDTH = 300; 
         final int GROSOR = 5;
-        hideAllElements();
-        resetLayoutState();
-        for (int i = 0; i < insertionOrder.size(); i++) {
-            String tipo = insertionOrder.get(i)[0];
+        hideAllElements(); resetLayoutState(); 
+        for (int i = 0; i < insertionOrder.size(); i++) { 
+            String tipo = insertionOrder.get(i)[0]; 
             int numero = Integer.parseInt(insertionOrder.get(i)[1]);
-            if (isCup(tipo)) {
-                Cup c = findCup(numero);
+            if (isCup(tipo)) { Cup c = findCup(numero);
                 if (c == null) continue;
-                if (outer == null) {
-                    placeFirstCupOutside(c, CANVAS_WIDTH);
-                } else {
+                if (outer == null) { c.placeOutside(CANVAS_WIDTH, Y);
+                    outer = c; insideStack.clear();
+                    outsideSize = c.getNumber();
+                    outsideBaseY = c.getYpo() - c.getHeight();
+                    lastOutsideWasLid = false; updateHighestCupTop(c);
+                } else { 
                     boolean goesOutside = lastOutsideWasLid || (c.getNumber() >= outsideSize);
-                    if (goesOutside) {
-                        placeCupOutside(c, CANVAS_WIDTH);
-                    } else {
-                        placeCupInside(c);
+                    if (goesOutside) { c.placeOutside(CANVAS_WIDTH, highestCupTopY);
+                        outer = c; insideStack.clear(); outsideSize = c.getNumber(); 
+                        outsideBaseY = c.getYpo() - c.getHeight(); 
+                        lastOutsideWasLid = false; updateHighestCupTop(c);
+                    } else { Cup container = currentContainer(); 
+                        Cup support = findSupportForCup(c); 
+                        if (container == null) continue;
+                        if (support == null) { 
+                            c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
+                        } else { c.placeAbove(support, container, topInsideLidByCup.get(support), GROSOR); } 
+                        c.setInside(true); 
+                        insideStack.push(c);
+                        updateHighestCupTop(c);
+                    
+                    }
+                } 
+            } else if (isLid(tipo)) {
+                Lid l = findLid(numero);
+                if (l == null) continue; 
+                if (outer == null) { 
+                    l.placeOutside(CANVAS_WIDTH, Y);
+                    insideStack.clear();
+                    outsideSize = l.getNumber();
+                    outsideBaseY = l.getYpo() - l.getHeight();
+                    lastOutsideWasLid = true;
+                    updateHighestTopWithLid(l);
+                } else { Cup container = currentContainer();
+                    boolean forceOutsideBecauseDoesNotFit =(container != null && l.getNumber() > container.getNumber());
+                    
+                    boolean goesOutside =forceOutsideBecauseDoesNotFit || (l.getNumber() > outsideSize);                    
+                    if (goesOutside) { 
+                        int baseY = Math.min(outsideBaseY, highestCupTopY);
+                        l.placeOutside(CANVAS_WIDTH, baseY);
+                        insideStack.clear();
+                        outsideSize = l.getNumber(); 
+                        outsideBaseY = l.getYpo() - l.getHeight();
+                        lastOutsideWasLid = true; updateHighestTopWithLid(l);
+                    } else { 
+                        if (container == null) continue;
+                        Lid topInside = topInsideLidByCup.get(container);
+                        l.placeInside(container, topInside, GROSOR); l.setInside(true);
+                        topInsideLidByCup.put(container, l);
                     }
                 }
             }
-            else if (isLid(tipo)) {
-                Lid l = findLid(numero);
-                if (l == null) continue;
-                if (outer == null) {
-                    placeFirstLidOutside(l, CANVAS_WIDTH);
-                } else {
-                    Cup container = currentContainer();
+        } 
+        showAllElementsInInsertionOrder(); 
+        isOK = true; 
+    }
+        
+    private Cup findSupportForCup(Cup c) {
+        Cup support = null;
     
-                    boolean forceOutsideBecauseDoesNotFit =(container != null && l.getNumber() >= container.getNumber());
-    
-                    boolean goesOutside =forceOutsideBecauseDoesNotFit || (l.getNumber() >= outsideSize);
-    
-                    if (goesOutside) {
-                        placeLidOutside(l, CANVAS_WIDTH);
-                    } else {
-                        placeLidInside(l, GROSOR);
-                    }
+        for (Cup inside : insideStack) {
+            if (inside.getNumber() < c.getNumber()) {
+                if (support == null || inside.getNumber() > support.getNumber()) {
+                    support = inside;
                 }
             }
         }
     
-        showAllElementsInInsertionOrder();
-        isOK = true;
+        return support;
     }
-        
+    
     /**
      * Oculta visualmente todas las copas y tapas de la torre.
      */
@@ -289,214 +321,6 @@ public class Tower
     }
     
     /**
-     * Ubica la primera copa externa de la torre, centrada horizontalmente.
-     *
-     * @param c copa a posicionar.
-     * @param canvasWidth ancho del canvas de dibujo.
-     */
-    private void placeFirstCupOutside(Cup c, int canvasWidth) {
-        int x = (canvasWidth - c.getWidth()) / 2;
-        c.setPosition(x, Y);
-        c.setInside(false);
-    
-        outer = c;
-        insideStack.clear();
-    
-        outsideSize = c.getNumber();
-        outsideBaseY = c.getYpo() - c.getHeight();
-        lastOutsideWasLid = false;
-    
-        updateHighestCupTop(c);
-    }
-
-    /**
-     * Ubica una copa externamente sobre la parte más alta ocupada hasta el momento.
-     *
-     * @param c copa a posicionar.
-     * @param canvasWidth ancho del canvas.
-     */
-    private void placeCupOutside(Cup c, int canvasWidth) {
-        int x = (canvasWidth - c.getWidth()) / 2;
-        int baseY = highestCupTopY;
-    
-        c.setPosition(x, baseY);
-        c.setInside(false);
-    
-        outer = c;
-        insideStack.clear();
-    
-        outsideSize = c.getNumber();
-        outsideBaseY = c.getYpo() - c.getHeight();
-        lastOutsideWasLid = false;
-    
-        updateHighestCupTop(c);
-    }
-    
-    /**
-     * Ubica una copa dentro del contenedor actual.
-     *
-     * Si existe una copa de soporte apropiada, la nueva copa se coloca sobre ella;
-     * en caso contrario, se coloca directamente dentro del contenedor.
-     *
-     * @param c copa a posicionar.
-     */
-    private void placeCupInside(Cup c) {
-        Cup support = null;
-    
-        while (!insideStack.isEmpty() && c.getNumber() >= insideStack.peek().getNumber()) {
-            support = insideStack.pop();
-        }
-    
-        Cup container = currentContainer();
-    
-        if (container == null) return;
-    
-        if (support == null) {
-            placeInside(c, container);
-        } else {
-            placeAboveInContainer(c, support, container);
-        }
-    
-        c.setInside(true);
-        insideStack.push(c);
-    
-        updateHighestCupTop(c);
-    }
-    
-    /**
-     * Ubica una copa directamente dentro de otra copa contenedora.
-     *
-     * La copa se centra horizontalmente dentro del espacio interno del contenedor.
-     * En el eje vertical se apoya sobre el borde interno del contenedor o,
-     * si ya existe una tapa dentro de este, sobre la parte superior de esa tapa.
-     *
-     * @param c copa que se desea posicionar.
-     * @param container copa que actúa como contenedor.
-     */
-    private void placeInside(Cup c, Cup container) {
-        if (c == null || container == null) return;
-    
-        int grosor = 5;
-    
-        int innerX = container.getXpo() + grosor;
-        int innerWidth = container.getWidth() - (2 * grosor);
-        int x = innerX + (innerWidth - c.getWidth()) / 2;
-    
-        Lid topInsideLid = topInsideLidByCup.get(container);
-    
-        int y;
-        if (topInsideLid == null) {
-            y = container.getYpo() - grosor;
-        } else {
-            y = topInsideLid.getYpo() - topInsideLid.getHeight();
-        }
-    
-        c.setPosition(x, y);
-    }
-    
-    /**
-     * Ubica una copa dentro de un contenedor, apoyándola sobre otra copa interna.
-     *
-     * La copa se centra horizontalmente dentro del contenedor y se coloca
-     * verticalmente encima de la copa de soporte. Si existe una tapa interna
-     * más alta dentro del mismo contenedor, se respeta esa posición límite.
-     *
-     * @param c copa que se desea posicionar.
-     * @param support copa interna que sirve de soporte.
-     * @param container copa contenedora principal.
-     */
-    private void placeAboveInContainer(Cup c, Cup support, Cup container) {
-        if (c == null || support == null || container == null) return;
-    
-        int grosor = 5;
-    
-        int innerX = container.getXpo() + grosor;
-        int innerWidth = container.getWidth() - (2 * grosor);
-        int x = innerX + (innerWidth - c.getWidth()) / 2;
-    
-        int y = support.getYpo() - support.getHeight();
-    
-        Lid topInsideLid = topInsideLidByCup.get(container);
-        if (topInsideLid != null) {
-            int lidTop = topInsideLid.getYpo() - topInsideLid.getHeight();
-            y = Math.min(y, lidTop);
-        }
-    
-        c.setPosition(x, y);
-    }
-    
-    /**
-     * Ubica una tapa externamente en la torre.
-     *
-     * @param l tapa a posicionar.
-     * @param canvasWidth ancho del canvas.
-     */
-    private void placeLidOutside(Lid l, int canvasWidth) {
-        int x = (canvasWidth - l.getWidth()) / 2;
-        int baseY = Math.min(outsideBaseY, highestCupTopY);
-    
-        l.setPosition(x, baseY);
-        l.setInside(false);
-    
-        insideStack.clear();
-    
-        outsideSize = l.getNumber();
-        outsideBaseY = l.getYpo() - l.getHeight();
-        lastOutsideWasLid = true;
-    
-        updateHighestTopWithLid(l);
-    }
-    
-    /**
-     * Ubica la primera tapa externa de la torre.
-     *
-     * @param l tapa a posicionar.
-     * @param canvasWidth ancho del canvas.
-     */
-    private void placeFirstLidOutside(Lid l, int canvasWidth) {
-        int x = (canvasWidth - l.getWidth()) / 2;
-        l.setPosition(x, Y);
-        l.setInside(false);
-    
-        insideStack.clear();
-    
-        outsideSize = l.getNumber();
-        outsideBaseY = l.getYpo() - l.getHeight();
-        lastOutsideWasLid = true;
-    
-        updateHighestTopWithLid(l);
-    }
-
-    /**
-     * Ubica una tapa dentro de la copa contenedora actual.
-     *
-     * @param l tapa a posicionar.
-     * @param grosor grosor usado como margen interno de la copa.
-     */
-    private void placeLidInside(Lid l, int grosor) {
-        Cup container = currentContainer();
-        if (container == null) return;
-    
-        int innerX = container.getXpo() + grosor;
-        int innerW = container.getWidth() - 2 * grosor;
-        int x = innerX + (innerW - l.getWidth()) / 2;
-    
-        Lid topInside = topInsideLidByCup.get(container);
-    
-        int y;
-        if (topInside == null) {
-            y = container.getYpo() - container.getHeight() + l.getHeight() + grosor;
-        } else {
-            y = topInside.getYpo() - topInside.getHeight();
-        }
-    
-        l.setPosition(x, y);
-        l.setInside(true);
-    
-        topInsideLidByCup.put(container, l);
-    }
-    
-    /**
      * Actualiza la coordenada más alta ocupada por una tapa en la torre.
      *
      * Calcula la parte superior de la tapa dada y, si está más arriba que la
@@ -508,7 +332,6 @@ public class Tower
         int top = l.getYpo() - l.getHeight();
         highestCupTopY = Math.min(highestCupTopY, top);
     }
-     
     
     /**
      * Verifica si ya existe una copa con el tamaño indicado.
@@ -1048,7 +871,6 @@ public class Tower
     
         String[] obj1 = {insertionOrder.get(bestI)[0],insertionOrder.get(bestI)[1]};
         String[] obj2 = {insertionOrder.get(bestJ)[0],insertionOrder.get(bestJ)[1]};
-    
         return new String[][] { obj1, obj2 };
     }
 }
