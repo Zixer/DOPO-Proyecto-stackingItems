@@ -181,7 +181,7 @@ public class Lid
     public void placeOnCup(Cup cup) {
         if (cup == null) return;
         int x = cup.getXpo();
-        int y = cup.getYpo() - cup.getHeight();
+        int y = cup.getYpo() - 5;
         setPosition(x, y);
         setInside(cup.isInside());
     }

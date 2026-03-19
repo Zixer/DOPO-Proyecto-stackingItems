@@ -1,10 +1,22 @@
-import java.util.ArrayList;
+ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class StackingItems {
-
+public class TowerContest {
+    /**
+     * Genera una representación en texto de una secuencia válida de copas
+     * que construye una torre cuya altura total sea exactamente h.
+     *
+     * Internamente utiliza buildSolution para calcular el orden de inserción.
+     * Si existe una solución, retorna los tamaños de las copas separados por espacios.
+     * Si no existe, retorna la cadena "impossible".
+     *
+     * @param n número de copas disponibles (1, 3, 5, ..., 2n-1).
+     * @param h altura objetivo que se desea alcanzar.
+     * @return un String con los tamaños de las copas en orden de inserción,
+     *         o "impossible" si no existe solución.
+     */
     public String solve(int n, long h) {
         List<Integer> order = buildSolution(n, h);
     
@@ -24,6 +36,19 @@ public class StackingItems {
         return ans;
     }
     
+    /**
+     * Construye una torre real (objeto Tower) a partir de la solución generada
+     * por el método solve.
+     *
+     * Si solve retorna "impossible", este método retorna null.
+     * En caso contrario, crea una torre, inserta las copas en el orden indicado,
+     * la hace visible y la dibuja.
+     *
+     * @param n número de copas disponibles.
+     * @param h altura objetivo de la torre.
+     * @return una instancia de Tower con la configuración correspondiente,
+     *         o null si no existe solución.
+     */
     public Tower simulate(int n, long h) {
         String solution = solve(n, h);
  
@@ -43,6 +68,21 @@ public class StackingItems {
         return tower;
     }
 
+    /**
+     * Construye una secuencia válida de tamaños de copas (1, 3, 5, ..., 2n-1)
+     * cuya altura total sea exactamente h.
+     *
+     * Este método aplica una estrategia recursiva:
+     * - Define límites mínimos y máximos posibles.
+     * - Maneja casos especiales donde no existe solución.
+     * - Selecciona subconjuntos de copas que aportan la altura requerida.
+     * - Construye la solución combinando copas seleccionadas y restantes.
+     *
+     * @param n número de copas disponibles.
+     * @param h altura objetivo.
+     * @return una lista con los tamaños de copas en orden de inserción,
+     *         o null si no existe solución.
+     */
     private List<Integer> buildSolution(int n, long h) {
         long min = 2L * n - 1;
         long max = 1L * n * n;
@@ -98,7 +138,15 @@ public class StackingItems {
      * 1, 3, 5, ..., 2m-1
      * cuya suma sea exactamente target.
      *
-     * Retorna las alturas elegidas en orden ascendente.
+     * Utiliza un enfoque greedy desde los valores más grandes hacia los más pequeños,
+     * evitando combinaciones inválidas conocidas (como casos que no tienen solución).
+     *
+     * El resultado se devuelve en orden ascendente.
+     *
+     * @param m número máximo de elementos disponibles (genera hasta 2m-1).
+     * @param target suma objetivo que se desea alcanzar.
+     * @return lista de alturas seleccionadas en orden ascendente,
+     *         o null si no es posible construir la suma exacta.
      */
     private List<Integer> buildSubsetHeights(int m, long target) {
         List<Integer> chosenDescending = new ArrayList<>();
@@ -128,6 +176,15 @@ public class StackingItems {
         return chosenAscending;
     }
 
+    /**
+     * Calcula el tamaño (altura) de una copa a partir de su índice.
+     *
+     * La secuencia de tamaños es:
+     * 1, 3, 5, ..., (2n - 1)
+     *
+     * @param cupIndex índice de la copa (1-based).
+     * @return el tamaño correspondiente a la copa.
+     */
     private int sizeOf(int cupIndex) {
         return 2 * cupIndex - 1;
     }
