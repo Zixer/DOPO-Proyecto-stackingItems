@@ -1,3 +1,4 @@
+
 import java.util.Stack;
 import java.util.ArrayList;
 import java.util.Random;
@@ -161,69 +162,93 @@ public class Tower
      * - Reubica copas y tapas.
      * - Vuelve visibles los elementos en el orden de inserción.
      */
-    public void redraw() { final int CANVAS_WIDTH = 300; 
+    public void redraw() {
+        final int CANVAS_WIDTH = 300;
         final int GROSOR = 5;
-        hideAllElements(); resetLayoutState(); 
-        for (int i = 0; i < insertionOrder.size(); i++) { 
-            String tipo = insertionOrder.get(i)[0]; 
+        hideAllElements();
+        resetLayoutState();
+    
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String tipo = insertionOrder.get(i)[0];
             int numero = Integer.parseInt(insertionOrder.get(i)[1]);
-            if (isCup(tipo)) { Cup c = findCup(numero);
+    
+            if (isCup(tipo)) {
+                Cup c = findCup(numero);
                 if (c == null) continue;
-                if (outer == null) { c.placeOutside(CANVAS_WIDTH, Y);
-                    outer = c; insideStack.clear();
+    
+                if (outer == null) {
+                    c.placeOutside(CANVAS_WIDTH, Y);
+                    outer = c;
+                    insideStack.clear();
                     outsideSize = c.getNumber();
                     outsideBaseY = c.getYpo() - c.getHeight();
-                    lastOutsideWasLid = false; updateHighestCupTop(c);
-                } else { 
+                    lastOutsideWasLid = false;
+                    updateHighestCupTop(c);
+    
+                } else {
                     boolean goesOutside = lastOutsideWasLid || (c.getNumber() >= outsideSize);
-                    if (goesOutside) { c.placeOutside(CANVAS_WIDTH, highestCupTopY);
-                        outer = c; insideStack.clear(); outsideSize = c.getNumber(); 
-                        outsideBaseY = c.getYpo() - c.getHeight(); 
-                        lastOutsideWasLid = false; updateHighestCupTop(c);
-                    } else { Cup container = currentContainer(); 
-                        Cup support = findSupportForCup(c); 
-                        if (container == null) continue;
-                        if (support == null) { 
-                            c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
-                        } else { c.placeAbove(support, container, topInsideLidByCup.get(support), GROSOR); } 
-                        c.setInside(true); 
-                        insideStack.push(c);
+                    if (goesOutside) {
+                        c.placeOutside(CANVAS_WIDTH, highestCupTopY);
+                        outer = c;
+                        insideStack.clear();
+                        outsideSize = c.getNumber();
+                        outsideBaseY = c.getYpo() - c.getHeight();
+                        lastOutsideWasLid = false;
                         updateHighestCupTop(c);
-                    
+                    } else {
+                        Cup container = findContainerForCup(c);
+                        if (container == null) continue;
+                        Cup support = findSupportForCup(c, container);
+                        if (support == null) {
+                            
+                            c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
+                        } else {
+                           
+                            c.placeAbove(support, container, topInsideLidByCup.get(container), GROSOR);
+                        }
                     }
-                } 
+                }
+    
             } else if (isLid(tipo)) {
                 Lid l = findLid(numero);
-                if (l == null) continue; 
-                if (outer == null) { 
+                if (l == null) continue;
+    
+                if (outer == null) {
                     l.placeOutside(CANVAS_WIDTH, Y);
                     insideStack.clear();
                     outsideSize = l.getNumber();
                     outsideBaseY = l.getYpo() - l.getHeight();
                     lastOutsideWasLid = true;
                     updateHighestTopWithLid(l);
-                } else { Cup container = currentContainer();
-                    boolean forceOutsideBecauseDoesNotFit =(container != null && l.getNumber() > container.getNumber());
-                    
-                    boolean goesOutside =forceOutsideBecauseDoesNotFit || (l.getNumber() > outsideSize);                    
-                    if (goesOutside) { 
+    
+                } else {
+                    Cup container = findContainerForLid(l);
+    
+                    boolean forceOutsideBecauseDoesNotFit = (container != null && l.getNumber() > container.getNumber());
+                    boolean goesOutside = forceOutsideBecauseDoesNotFit || (l.getNumber() > outsideSize);
+    
+                    if (goesOutside) {
                         int baseY = Math.min(outsideBaseY, highestCupTopY);
                         l.placeOutside(CANVAS_WIDTH, baseY);
                         insideStack.clear();
-                        outsideSize = l.getNumber(); 
+                        outsideSize = l.getNumber();
                         outsideBaseY = l.getYpo() - l.getHeight();
-                        lastOutsideWasLid = true; updateHighestTopWithLid(l);
-                    } else { 
+                        lastOutsideWasLid = true;
+                        updateHighestTopWithLid(l);
+    
+                    } else {
                         if (container == null) continue;
                         Lid topInside = topInsideLidByCup.get(container);
-                        l.placeInside(container, topInside, GROSOR); l.setInside(true);
+                        l.placeInside(container, topInside, GROSOR);
+                        l.setInside(true);
                         topInsideLidByCup.put(container, l);
                     }
                 }
             }
-        } 
-        showAllElementsInInsertionOrder(); 
-        isOK = true; 
+        }
+    
+        showAllElementsInInsertionOrder();
+        isOK = true;
     }
         
     private Cup findSupportForCup(Cup c) {
@@ -872,5 +897,59 @@ public class Tower
         String[] obj1 = {insertionOrder.get(bestI)[0],insertionOrder.get(bestI)[1]};
         String[] obj2 = {insertionOrder.get(bestJ)[0],insertionOrder.get(bestJ)[1]};
         return new String[][] { obj1, obj2 };
+    }
+    
+    /**
+     * Encuentra el contenedor correcto para una cup nueva.
+     * Es la cup más pequeña del insideStack dentro de la cual cabe c,
+     * es decir, insideStack[i].number > c.number.
+     * Si ninguna cup del stack la contiene, usa outer.
+     */
+    private Cup findContainerForCup(Cup c) {
+        Cup best = null;
+        for (Cup inside : insideStack) {
+            if (inside.getNumber() > c.getNumber()) {
+                if (best == null || inside.getNumber() < best.getNumber()) {
+                    best = inside;
+                }
+            }
+        }
+        return (best != null) ? best : outer;
+    }
+    
+    /**
+     * Encuentra el contenedor correcto para una lid nueva.
+     * Es la cup más pequeña del insideStack dentro de la cual cabe la lid,
+     * es decir, insideStack[i].number >= l.number.
+     * Si ninguna cup del stack la contiene, usa outer.
+     */
+    private Cup findContainerForLid(Lid l) {
+        Cup best = null;
+        for (Cup inside : insideStack) {
+            if (inside.getNumber() >= l.getNumber()) {
+                if (best == null || inside.getNumber() < best.getNumber()) {
+                    best = inside;
+                }
+            }
+        }
+        return (best != null) ? best : outer;
+    }
+    
+    /**
+     * Encuentra el soporte para una cup nueva DENTRO de un contenedor dado.
+     * Es la cup más grande del insideStack que esté contenida en 'container'
+     * y cuyo número sea menor que c.number.
+     */
+    private Cup findSupportForCup(Cup c, Cup container) {
+        Cup support = null;
+        for (Cup inside : insideStack) {
+            if (inside == container) continue; // el contenedor no es soporte de sí mismo
+            if (inside.getNumber() < c.getNumber() && inside.getNumber() < container.getNumber()) {
+                if (support == null || inside.getNumber() > support.getNumber()) {
+                    support = inside;
+                }
+            }
+        }
+        return support;
     }
 }

@@ -1,0 +1,18 @@
+#BlueJ class context
+comment0.target=TowerContest
+comment1.params=n\ h
+comment1.target=java.lang.String\ solve(int,\ long)
+comment1.text=\r\n\ Genera\ una\ representaci\u00F3n\ en\ texto\ de\ una\ secuencia\ v\u00E1lida\ de\ copas\r\n\ que\ construye\ una\ torre\ cuya\ altura\ total\ sea\ exactamente\ h.\r\n\r\n\ Internamente\ utiliza\ buildSolution\ para\ calcular\ el\ orden\ de\ inserci\u00F3n.\r\n\ Si\ existe\ una\ soluci\u00F3n,\ retorna\ los\ tama\u00F1os\ de\ las\ copas\ separados\ por\ espacios.\r\n\ Si\ no\ existe,\ retorna\ la\ cadena\ "impossible".\r\n\r\n\ @param\ n\ n\u00FAmero\ de\ copas\ disponibles\ (1,\ 3,\ 5,\ ...,\ 2n-1).\r\n\ @param\ h\ altura\ objetivo\ que\ se\ desea\ alcanzar.\r\n\ @return\ un\ String\ con\ los\ tama\u00F1os\ de\ las\ copas\ en\ orden\ de\ inserci\u00F3n,\r\n\ \ \ \ \ \ \ \ \ o\ "impossible"\ si\ no\ existe\ soluci\u00F3n.\r\n
+comment2.params=n\ h
+comment2.target=Tower\ simulate(int,\ long)
+comment2.text=\r\n\ Construye\ una\ torre\ real\ (objeto\ Tower)\ a\ partir\ de\ la\ soluci\u00F3n\ generada\r\n\ por\ el\ m\u00E9todo\ solve.\r\n\r\n\ Si\ solve\ retorna\ "impossible",\ este\ m\u00E9todo\ retorna\ null.\r\n\ En\ caso\ contrario,\ crea\ una\ torre,\ inserta\ las\ copas\ en\ el\ orden\ indicado,\r\n\ la\ hace\ visible\ y\ la\ dibuja.\r\n\r\n\ @param\ n\ n\u00FAmero\ de\ copas\ disponibles.\r\n\ @param\ h\ altura\ objetivo\ de\ la\ torre.\r\n\ @return\ una\ instancia\ de\ Tower\ con\ la\ configuraci\u00F3n\ correspondiente,\r\n\ \ \ \ \ \ \ \ \ o\ null\ si\ no\ existe\ soluci\u00F3n.\r\n
+comment3.params=n\ h
+comment3.target=java.util.List\ buildSolution(int,\ long)
+comment3.text=\r\n\ Construye\ una\ secuencia\ v\u00E1lida\ de\ tama\u00F1os\ de\ copas\ (1,\ 3,\ 5,\ ...,\ 2n-1)\r\n\ cuya\ altura\ total\ sea\ exactamente\ h.\r\n\r\n\ Este\ m\u00E9todo\ aplica\ una\ estrategia\ recursiva\:\r\n\ -\ Define\ l\u00EDmites\ m\u00EDnimos\ y\ m\u00E1ximos\ posibles.\r\n\ -\ Maneja\ casos\ especiales\ donde\ no\ existe\ soluci\u00F3n.\r\n\ -\ Selecciona\ subconjuntos\ de\ copas\ que\ aportan\ la\ altura\ requerida.\r\n\ -\ Construye\ la\ soluci\u00F3n\ combinando\ copas\ seleccionadas\ y\ restantes.\r\n\r\n\ @param\ n\ n\u00FAmero\ de\ copas\ disponibles.\r\n\ @param\ h\ altura\ objetivo.\r\n\ @return\ una\ lista\ con\ los\ tama\u00F1os\ de\ copas\ en\ orden\ de\ inserci\u00F3n,\r\n\ \ \ \ \ \ \ \ \ o\ null\ si\ no\ existe\ soluci\u00F3n.\r\n
+comment4.params=m\ target
+comment4.target=java.util.List\ buildSubsetHeights(int,\ long)
+comment4.text=\r\n\ Construye\ un\ subconjunto\ de\ alturas\ impares\:\r\n\ 1,\ 3,\ 5,\ ...,\ 2m-1\r\n\ cuya\ suma\ sea\ exactamente\ target.\r\n\r\n\ Utiliza\ un\ enfoque\ greedy\ desde\ los\ valores\ m\u00E1s\ grandes\ hacia\ los\ m\u00E1s\ peque\u00F1os,\r\n\ evitando\ combinaciones\ inv\u00E1lidas\ conocidas\ (como\ casos\ que\ no\ tienen\ soluci\u00F3n).\r\n\r\n\ El\ resultado\ se\ devuelve\ en\ orden\ ascendente.\r\n\r\n\ @param\ m\ n\u00FAmero\ m\u00E1ximo\ de\ elementos\ disponibles\ (genera\ hasta\ 2m-1).\r\n\ @param\ target\ suma\ objetivo\ que\ se\ desea\ alcanzar.\r\n\ @return\ lista\ de\ alturas\ seleccionadas\ en\ orden\ ascendente,\r\n\ \ \ \ \ \ \ \ \ o\ null\ si\ no\ es\ posible\ construir\ la\ suma\ exacta.\r\n
+comment5.params=cupIndex
+comment5.target=int\ sizeOf(int)
+comment5.text=\r\n\ Calcula\ el\ tama\u00F1o\ (altura)\ de\ una\ copa\ a\ partir\ de\ su\ \u00EDndice.\r\n\r\n\ La\ secuencia\ de\ tama\u00F1os\ es\:\r\n\ 1,\ 3,\ 5,\ ...,\ (2n\ -\ 1)\r\n\r\n\ @param\ cupIndex\ \u00EDndice\ de\ la\ copa\ (1-based).\r\n\ @return\ el\ tama\u00F1o\ correspondiente\ a\ la\ copa.\r\n
+numComments=6
