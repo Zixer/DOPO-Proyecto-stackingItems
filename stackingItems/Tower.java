@@ -34,6 +34,8 @@ public class Tower
     private int outsideBaseY;
     private int highestCupTopY;    
     private boolean lastOutsideWasLid;
+    private List<String> availableColors;
+    private int colorCounter = 0;
     
     /**
      * Construye una torre vacía con límites máximos de altura y ancho.
@@ -46,6 +48,8 @@ public class Tower
         lids = new Stack<Lid>();
         ListLid = new HashMap<String, Lid>();
         random = new Random();
+        availableColors = new ArrayList<>(List.of("magenta", "green", "yellow", "blue", "black","red", "orange", "cyan", "pink", "grey"));
+        
         insertionOrder = new ArrayList<String[]>();
         maxWidth = nmaxWidth;
         maxHeight = nmaxHeight;
@@ -62,6 +66,16 @@ public class Tower
         lastOutsideWasLid = false;
     }
     
+    private String getUniqueColor() {
+        if (availableColors != null && !availableColors.isEmpty()) {
+            int index = random.nextInt(availableColors.size());
+            return availableColors.remove(index);
+        }
+    
+        colorCounter++;
+        return "color" + colorCounter;
+    }
+    
     /**
      * Construye una torre inicial con una cantidad dada de copas.
      *
@@ -73,6 +87,7 @@ public class Tower
      */
     public Tower(int numCups) {
         this(numCups * 2, numCups * 10);
+        availableColors = new ArrayList<>(List.of("magenta", "green", "yellow", "blue", "black","red", "orange", "cyan", "pink", "grey"));
         if (numCups!= 0){
             for (int i = 1; i <= numCups; i++) {
                 int size = (2 * i) - 1;  
@@ -86,6 +101,8 @@ public class Tower
         makeVisible();
         redraw();
     }
+    
+    
     
     /**
      * Genera y retorna un color aleatorio de una lista predefinida.
@@ -116,20 +133,13 @@ public class Tower
      * @param i tamaño o número de la copa a insertar.
      */
     public void pushCup(int i){
-        String color = randomColor();
+        String color = getUniqueColor();
         Cup nueva = new Cup(i, color);
 
         if (ListLid.get(color) != null) {
             Lid lid = ListLid.get(color);
-            if (lid.getNumber() != i){
-                JOptionPane.showMessageDialog(null, "No se puede añadir una copa con tamaño distinto a su tapa");
-                isOK = false;
-                return;
-            }
             nueva.addLid(lid);
         }
-
-        makeVisible();
         
         if (i > maxWidth || duplicatedSize(i)) {
             JOptionPane.showMessageDialog(null, "No se puede hacer la operacion");
@@ -147,6 +157,8 @@ public class Tower
             JOptionPane.showMessageDialog(null, "No se pudo realizar la operacion");
             isOK = false;
         }
+        
+        nueva.makeVisible();
     }
 
     /**
@@ -195,6 +207,7 @@ public class Tower
                         outsideBaseY = c.getYpo() - c.getHeight();
                         lastOutsideWasLid = false;
                         updateHighestCupTop(c);
+                        c.makeVisible();
                     } else {
                         Cup container = findContainerForCup(c);
                         if (container == null) continue;
@@ -202,13 +215,19 @@ public class Tower
                         if (support == null) {
                             
                             c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
+                            
                         } else {
                            
                             c.placeAbove(support, container, topInsideLidByCup.get(container), GROSOR);
+                            
                         }
+                        c.setInside(true);
+                        insideStack.push(c);
+                        updateHighestCupTop(c);
+                        
                     }
                 }
-    
+                c.makeVisible();
             } else if (isLid(tipo)) {
                 Lid l = findLid(numero);
                 if (l == null) continue;
@@ -220,36 +239,36 @@ public class Tower
                     outsideBaseY = l.getYpo() - l.getHeight();
                     lastOutsideWasLid = true;
                     updateHighestTopWithLid(l);
-    
+                    l.makeVisible();
                 } else {
                     Cup container = findContainerForLid(l);
-    
-                    boolean forceOutsideBecauseDoesNotFit = (container != null && l.getNumber() > container.getNumber());
-                    boolean goesOutside = forceOutsideBecauseDoesNotFit || (l.getNumber() > outsideSize);
-    
+                    boolean forceOutsideBecauseDoesNotFit = (container == null);
+                    boolean goesOutside = forceOutsideBecauseDoesNotFit || (l.getNumber() >= outsideSize);
                     if (goesOutside) {
-                        int baseY = Math.min(outsideBaseY, highestCupTopY);
-                        l.placeOutside(CANVAS_WIDTH, baseY);
-                        insideStack.clear();
-                        outsideSize = l.getNumber();
-                        outsideBaseY = l.getYpo() - l.getHeight();
-                        lastOutsideWasLid = true;
-                        updateHighestTopWithLid(l);
-    
+                        if (goesOutside) {
+                            l.placeOutside(CANVAS_WIDTH, highestCupTopY);
+                            insideStack.clear();
+                            outsideSize = l.getNumber();
+                            outsideBaseY = l.getYpo() - l.getHeight();
+                            lastOutsideWasLid = true;
+                            updateHighestTopWithLid(l);
+                            
+                        }
                     } else {
                         if (container == null) continue;
                         Lid topInside = topInsideLidByCup.get(container);
                         l.placeInside(container, topInside, GROSOR);
                         l.setInside(true);
                         topInsideLidByCup.put(container, l);
+                        
                     }
                 }
+                l.makeVisible();
             }
         }
-    
-        showAllElementsInInsertionOrder();
         isOK = true;
     }
+
         
     private Cup findSupportForCup(Cup c) {
         Cup support = null;
@@ -300,12 +319,16 @@ public class Tower
      */
     private void showAllElementsInInsertionOrder() {
         for (String[] item : insertionOrder) {
-            int number = Integer.parseInt(item[1]);
-    
             if (isCup(item[0])) {
+                int number = Integer.parseInt(item[1]);
                 Cup c = findCup(number);
                 if (c != null) c.makeVisible();
-            } else if (isLid(item[0])) {
+            }
+        }
+    
+        for (String[] item : insertionOrder) {
+            if (isLid(item[0])) {
+                int number = Integer.parseInt(item[1]);
                 Lid l = findLid(number);
                 if (l != null) l.makeVisible();
             }
@@ -461,7 +484,13 @@ public class Tower
      * @param i tamaño o número de la tapa.
      * @param color color de la tapa.
      */
-    public void pushLid(int i, String color) {
+    public void pushLid(int i) {
+        String color = findCupColorBySize(i);
+    
+        if (color == null) {
+            color = randomColor();
+        }
+    
         Lid nueva = new Lid(i, color);
     
         if (i > maxWidth || duplicatedLidSize(i)) {
@@ -470,15 +499,9 @@ public class Tower
             return;
         }
     
-        for (Cup c : cups) {
-            if (c.getColor().equals(color)) {
-                if (c.getNumber() != i) {
-                    JOptionPane.showMessageDialog(null, "No se puede añadir una tapa con tamaño distinto a su copa");
-                    isOK = false;
-                    return;
-                }
-                c.addLid(nueva);
-            }
+        Cup cup = findCup(i);
+        if (cup != null) {
+            cup.addLid(nueva);
         }
     
         ListLid.put(color, nueva);
@@ -487,6 +510,14 @@ public class Tower
         makeVisible();
         redraw();
         isOK = true;
+    }
+    
+    private String findCupColorBySize(int number) {
+        Cup cup = findCup(number);
+        if (cup != null) {
+            return cup.getColor();
+        }
+        return null;
     }
     
     /**
@@ -925,14 +956,24 @@ public class Tower
      */
     private Cup findContainerForLid(Lid l) {
         Cup best = null;
+    
         for (Cup inside : insideStack) {
-            if (inside.getNumber() >= l.getNumber()) {
+            if (inside.getNumber() > l.getNumber()) {
                 if (best == null || inside.getNumber() < best.getNumber()) {
                     best = inside;
                 }
             }
         }
-        return (best != null) ? best : outer;
+    
+        if (best != null) {
+            return best;
+        }
+    
+        if (outer != null && outer.getNumber() > l.getNumber()) {
+            return outer;
+        }
+    
+        return null;
     }
     
     /**

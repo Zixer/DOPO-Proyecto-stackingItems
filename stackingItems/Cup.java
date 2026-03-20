@@ -118,6 +118,7 @@ public class Cup{
         number = number/2;
         return number;
     }
+    
     /**
      * Establece directamente la posición del objeto sin redibujarlo.
      *
@@ -135,19 +136,6 @@ public class Cup{
     
     public String getColor(){
         return this.color;
-    }
-    
-    public int getInnerBaseY() {
-        // base interior = ySuperiorInterior + alturaInterior
-        return interior.getYpo() + interior.getHeight();
-    }
-    
-    public int getInnerX() {
-        return interior.getXpo();
-    }
-    
-    public int getInnerWidth() {
-        return interior.getWidth();
     }
     
     /**

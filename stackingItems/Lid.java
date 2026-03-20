@@ -169,19 +169,19 @@ public class Lid
     
         int y;
         if (topInside == null) {
-            y = container.getYpo() - container.getHeight() + getHeight();
+            y = container.getYpo() - grosor;
         } else {
-            y = topInside.getYpo();
+            y = topInside.getYpo() - topInside.getHeight();
         }
     
         setPosition(x, y);
         setInside(true);
-    }
+    }    
     
     public void placeOnCup(Cup cup) {
         if (cup == null) return;
         int x = cup.getXpo();
-        int y = cup.getYpo() - 5;
+        int y = cup.getYpo() - cup.getHeight();
         setPosition(x, y);
         setInside(cup.isInside());
     }

@@ -24,12 +24,13 @@ public class towerTest
 
     @Test
     public void shouldCreateTowerWithOddSizedCups() {
-        Tower t = new Tower(4); // debería crear 1,3,5,7
+        Tower t = new Tower(4); 
 
         assertEquals(4, t.getCupsSize());
         assertEquals(0, t.getLidsSize());
         assertTrue(t.isVisible());
         assertTrue(t.isOk());
+        
         t.makeInvisible();
     }
 
@@ -38,7 +39,7 @@ public class towerTest
         Tower t = new Tower(20, 20);
 
         t.pushCup(5);
-        t.pushLid(5, "blue");
+        t.pushLid(5);
         t.cover();
 
         Cup c = t.popCup();
@@ -80,7 +81,7 @@ public class towerTest
         Tower t = new Tower(30, 30);
     
         t.pushCup(5);
-        t.pushLid(6, "red");
+        t.pushLid(6);
     
         int lidYBefore = t.getLidByNumber(6).getYpo();
         int cupYBefore = t.getCupByNumber(5).getYpo();
@@ -118,7 +119,7 @@ public class towerTest
         Tower t = new Tower(30, 30);
     
         t.pushCup(5);
-        t.pushLid(6, "red");
+        t.pushLid(6);
     
         int cupYBefore = t.getCupByNumber(5).getYpo();
         int lidYBefore = t.getLidByNumber(6).getYpo();
@@ -146,7 +147,7 @@ public class towerTest
         Tower t = new Tower(30, 30);
     
         t.pushCup(5);
-        t.pushLid(3, "red");
+        t.pushLid(3);
         t.cover();
     
         Cup c = t.getCupByNumber(5);
