@@ -137,19 +137,6 @@ public class Cup{
         return this.color;
     }
     
-    public int getInnerBaseY() {
-        // base interior = ySuperiorInterior + alturaInterior
-        return interior.getYpo() + interior.getHeight();
-    }
-    
-    public int getInnerX() {
-        return interior.getXpo();
-    }
-    
-    public int getInnerWidth() {
-        return interior.getWidth();
-    }
-    
     /**
      * Dibuja visualmente la copa en el canvas si el objeto está marcado como visible.
      *
