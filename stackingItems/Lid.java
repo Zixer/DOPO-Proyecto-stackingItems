@@ -131,10 +131,11 @@ public class Lid
     public void draw() {
         if (!isVisible) return;
     
+        erase();
+    
         lid = new Rectangle();
         lid.changeSize(height, width);
         lid.changeColor(color);
-    
         lid.changeP(xPosition, yPosition - height);
         lid.makeVisible();
     }

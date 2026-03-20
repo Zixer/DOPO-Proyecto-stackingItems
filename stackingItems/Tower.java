@@ -150,15 +150,12 @@ public class Tower
         if (0 <= maxHeight && i < maxWidth) {
             cups.push(nueva);
             insertionOrder.add(new String[]{"cup", String.valueOf(i)});
-            redraw();
             isOK = true;
         }
         else {
             JOptionPane.showMessageDialog(null, "No se pudo realizar la operacion");
             isOK = false;
         }
-        
-        nueva.makeVisible();
     }
 
     /**
@@ -260,7 +257,6 @@ public class Tower
                         l.placeInside(container, topInside, GROSOR);
                         l.setInside(true);
                         topInsideLidByCup.put(container, l);
-                        
                     }
                 }
                 l.makeVisible();
@@ -507,8 +503,6 @@ public class Tower
         ListLid.put(color, nueva);
         lids.push(nueva);
         insertionOrder.add(new String[]{"lid", String.valueOf(i)});
-        makeVisible();
-        redraw();
         isOK = true;
     }
     
@@ -617,24 +611,38 @@ public class Tower
      * al reconstruir la torre, las copas se crean otra vez y pueden cambiar de color.
      */
     public void orderTower() {
-        ArrayList<Integer> sizes = new ArrayList<Integer>();
-        ArrayList<String> colors = new ArrayList<String>();
+        ArrayList<Cup> orderedCups = new ArrayList<Cup>();
+        this.makeInvisible();
         for (Cup c : cups) {
-            sizes.add(c.getNumber());
-            colors.add(c.getColor());
-            c.makeInvisible();
+            orderedCups.add(c);
         }
-
-        Collections.sort(sizes, Collections.reverseOrder());
+    
+        for (int i = 0; i < orderedCups.size() - 1; i++) {
+            for (int j = i + 1; j < orderedCups.size(); j++) {
+                if (orderedCups.get(i).getNumber() < orderedCups.get(j).getNumber()) {
+                    Cup temp = orderedCups.get(i);
+                    orderedCups.set(i, orderedCups.get(j));
+                    orderedCups.set(j, temp);
+                }
+            }
+        }
+    
         cups.clear();
         insertionOrder.clear();
-
-        for (Integer size : sizes) {
-            pushCup(size);
+    
+        for (Cup c : orderedCups) {
+            cups.push(c);
+            insertionOrder.add(new String[]{"cup", String.valueOf(c.getNumber())});
+        }
+    
+        for (Lid l : lids) {
+            insertionOrder.add(new String[]{"lid", String.valueOf(l.getNumber())});
         }
         
         redraw();
+        isOK = true;
     }
+
     
     /**
      * Invierte el orden actual de las copas en la torre.
@@ -704,6 +712,7 @@ public class Tower
      */
     public void makeVisible() {
         isVisible = true;
+        redraw();
     }
     
     /**
@@ -715,8 +724,18 @@ public class Tower
      */
     public void makeInvisible() {
         isVisible = false;
-        for (Cup c: cups) c.makeInvisible();
-        for (Lid l: lids) l.makeInvisible();
+    
+        for (Cup c : cups) {
+            if (c != null) {
+                c.makeInvisible();
+            }
+        }
+    
+        for (Lid l : lids) {
+            if (l != null) {
+                l.makeInvisible();
+            }
+        }
     }
     
     /**

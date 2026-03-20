@@ -73,7 +73,7 @@ public class towerTest
         int y3After = cup3After.getYpo();
 
         assertTrue(t.isOk());
-        assertTrue(y5Before != y5After || y3Before != y3After);
+        assertTrue(y3Before == y5After || y5Before == y3After);
         t.makeInvisible();
     }
     

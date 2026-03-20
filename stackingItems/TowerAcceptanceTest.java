@@ -95,7 +95,6 @@ public class TowerAcceptanceTest {
     public void pushCupStep(Tower tower, int size) {
         System.out.println(">>> pushCup(" + size + ")");
         tower.pushCup(size);
-        waitMillis(defaultDelay);
     }
 
     /**
@@ -108,7 +107,6 @@ public class TowerAcceptanceTest {
     public void pushCupStep(Tower tower, int size, long delay) {
         System.out.println(">>> pushCup(" + size + ")");
         tower.pushCup(size);
-        waitMillis(delay);
     }
 
     /**
@@ -244,21 +242,23 @@ public class TowerAcceptanceTest {
      */
     public Tower demoOnlyCups() {
         Tower tower = createTower(100, 50);
-
-        observe("Inicio de prueba solo con copas");
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 9);
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 5);
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 3);
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 7);
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 11);
+        tower.makeVisible();
         waitMillis(defaultDelay);
-
-        observe("Fin de demoOnlyCups", 2000);
         tower.makeInvisible();
         return tower;
     }
@@ -275,20 +275,27 @@ public class TowerAcceptanceTest {
 
         observe("Insertando copas");
         pushCupStep(tower, 9);
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 5);
+        tower.makeVisible();
         waitMillis(defaultDelay);
         pushCupStep(tower, 3);
+        tower.makeVisible();
         waitMillis(defaultDelay);
 
         observe("Insertando tapas");
         waitMillis(defaultDelay);
+        tower.makeVisible();
         pushLidStep(tower, 3, "red");
         waitMillis(defaultDelay);
+        tower.makeVisible();
         pushLidStep(tower, 5, "blue");
         waitMillis(defaultDelay);
+        tower.makeVisible();
         pushLidStep(tower, 9, "green");
         waitMillis(defaultDelay);
+        
 
         observe("Agregando más elementos para forzar nuevos redraw");
         pushCupStep(tower, 7);

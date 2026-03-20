@@ -159,10 +159,12 @@ public class Cup{
     public void draw() {
         if (!isVisible) return;
     
+        erase();
+    
         int grosor = 5;
     
-        int esquinaX = xPosition;        
-        int esquinaY = yPosition - height; 
+        int esquinaX = xPosition;
+        int esquinaY = yPosition - height;
     
         body = new Rectangle();
         body.changeSize(height, width);
