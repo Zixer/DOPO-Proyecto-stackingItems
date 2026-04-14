@@ -256,13 +256,13 @@ public class Tower
                         if (container == null) continue;
                     
                         Cup support = findSupportForCup(c, container);
-                    
+
                         if (support == null) {
                             c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
                         } else {
-                            c.placeAbove(support, container, topInsideLidByCup.get(container), GROSOR);
+                            c.placeAbove(support, container, topInsideLidByCup.get(support), GROSOR);
                         }
-                    
+                        
                         c.setInside(true);
                         parentByCup.put(c, container);
                         insideStack.push(c);
@@ -311,12 +311,25 @@ public class Tower
                         updateHighestTopWithLid(l);
                         l.makeVisible();
                     } else {
+                        Cup support = findSupportForLid(l, container);
                         Lid topInside = topInsideLidByCup.get(container);
-                        l.placeInside(container, topInside, GROSOR);
+                        
+                        if (container.getNumber() == l.getNumber()) {
+                            l.placeOnCup(container, topInsideLidByCup.get(container));
+                            topInsideLidByCup.put(container, l);
+                        
+                        } else if (support == null) {
+                            l.placeInside(container, topInside, GROSOR);
+                            topInsideLidByCup.put(container, l);
+                        
+                        } else {
+                            l.placeAboveCup(support, container, topInsideLidByCup.get(support), GROSOR);
+                            topInsideLidByCup.put(support, l);
+                        }
+                        
                         l.setInside(true);
-                        topInsideLidByCup.put(container, l);
                         l.makeVisible();
-                    }
+                        }
                 }
     
                 isOK = true;
@@ -414,6 +427,26 @@ public class Tower
         highestCupTopY = Math.min(highestCupTopY, top);
     }
 
+    private Cup findSupportForLid(Lid l, Cup container) {
+        Cup bestSupport = null;
+    
+        for (Cup inside : insideStack) {
+            if (inside == container) {
+                continue;
+            }
+    
+            Cup parent = parentByCup.get(inside);
+    
+            if (parent == container && inside.getNumber() < l.getNumber()) {
+                if (bestSupport == null || inside.getNumber() > bestSupport.getNumber()) {
+                    bestSupport = inside;
+                }
+            }
+        }
+    
+        return bestSupport;
+    }
+    
     /**
      * Retorna el contenedor actual en el que debe ubicarse un elemento interno.
      *
@@ -513,14 +546,11 @@ public class Tower
             isOK = false;
             return;
         }
-    
         Cup target = findCup(number);
         if (target == null) {
             isOK = false;
             return;
         }
-    
-        // Si la cup tiene lid, se borra sí o sí
         Lid lid = target.getLid();
         if (lid != null) {
             removeLidForced(lid.getNumber());
@@ -530,10 +560,8 @@ public class Tower
             isOK = false;
             return;
         }
-    
         Stack<Cup> temp = new Stack<>();
         boolean removed = false;
-    
         while (!cups.isEmpty()) {
             Cup c = cups.pop();
     
@@ -557,9 +585,7 @@ public class Tower
                 break;
             }
         }
-    
         isOK = removed;
-    
         if (this.isVisible) {
             redraw();
         }
@@ -998,7 +1024,7 @@ public class Tower
                     String[] posibleLid = insertionOrder.get(j);
                     if (posibleLid[0].equals("lid") && posibleLid[1].equals(numero)) {
                         insertionOrder.remove(j);
-                        insertionOrder.add(i + 1, posibleLid);
+                        insertionOrder.add(i, posibleLid);
                         break;
                     }
                 }
@@ -1125,7 +1151,7 @@ public class Tower
         Cup best = null;
     
         for (Cup inside : insideStack) {
-            if (inside.getNumber() > l.getNumber()) {
+            if (inside.getNumber() >= l.getNumber()) {
                 if (best == null || inside.getNumber() < best.getNumber()) {
                     best = inside;
                 }
@@ -1136,7 +1162,7 @@ public class Tower
             return best;
         }
     
-        if (outer != null && outer.getNumber() > l.getNumber()) {
+        if (outer != null && outer.getNumber() >= l.getNumber()) {
             return outer;
         }
     

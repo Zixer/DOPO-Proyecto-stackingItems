@@ -199,12 +199,22 @@ public abstract class Lid
         setInside(true);
     }    
     
-    public void placeOnCup(Cup cup) {
-        if (cup == null) return;
-        int x = cup.getXpo();
-        int y = cup.getYpo() - cup.getHeight();
+    public void placeAboveCup(Cup support, Cup container, Lid lidOnSupport, int grosor) {
+        if (support == null || container == null) return;
+    
+        int innerX = container.getXpo() + grosor;
+        int innerWidth = container.getWidth() - (2 * grosor);
+        int x = innerX + (innerWidth - getWidth()) / 2;
+    
+        int y;
+        if (lidOnSupport == null) {
+            y = support.getYpo() - support.getHeight();
+        } else {
+            y = lidOnSupport.getYpo() - lidOnSupport.getHeight();
+        }
+    
         setPosition(x, y);
-        setInside(cup.isInside());
+        setInside(true);
     }
     
     public void placeAboveLid(Lid support) {
@@ -215,6 +225,21 @@ public abstract class Lid
         setInside(false);
     }
     
+    public void placeOnCup(Cup cup, Lid lidOnCup) {
+        if (cup == null) return;
+    
+        int x = cup.getXpo() + (cup.getWidth() - getWidth()) / 2;
+        int y;
+    
+        if (lidOnCup == null) {
+            y = cup.getYpo() - cup.getHeight();
+        } else {
+            y = lidOnCup.getYpo() - lidOnCup.getHeight();
+        }
+    
+        setPosition(x, y);
+        setInside(true);
+    }
     public boolean canEnter(Tower tower) {
         return true;
     }
