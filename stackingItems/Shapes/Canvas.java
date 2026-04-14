@@ -137,9 +137,38 @@ public class Canvas{
             graphic.setColor(Color.gray);
         else if (colorString.equals("pink"))
             graphic.setColor(Color.pink);
+        else if(colorString.equals("brown"))
+            graphic.setColor(new Color(139, 69, 19));
+        else if(colorString.equals("purple"))
+            graphic.setColor(new Color(128, 0, 128));
+        else if(colorString.equals("violet"))
+            graphic.setColor(new Color(238, 130, 238));
+        else if(colorString.equals("indigo"))
+            graphic.setColor(new Color(75, 0, 130));
+        else if(colorString.equals("turquoise"))
+            graphic.setColor(new Color(64, 224, 208));
+        else if(colorString.equals("gold"))
+            graphic.setColor(new Color(255, 215, 0));
+        else if(colorString.equals("silver"))
+            graphic.setColor(new Color(192, 192, 192));
+        else if(colorString.equals("lightYellow"))
+            graphic.setColor(new Color(255, 255, 153));
+        else if(colorString.equals("lightBlue"))
+            graphic.setColor(new Color(173, 216, 230));
+        else if(colorString.equals("lightGreen"))
+            graphic.setColor(new Color(144, 238, 144));
+        else if(colorString.equals("lightPink"))
+            graphic.setColor(new Color(255, 182, 193));
+        else if(colorString.equals("lightOrange"))
+            graphic.setColor(new Color(255, 213, 170));
+        else if(colorString.equals("lavender"))
+            graphic.setColor(new Color(230, 190, 255));
+        else if(colorString.equals("mint"))
+            graphic.setColor(new Color(152, 255, 152));
+        else if(colorString.equals("peach"))
+            graphic.setColor(new Color(255, 218, 185));
         else
             graphic.setColor(Color.black);
-        
     }
 
     /**

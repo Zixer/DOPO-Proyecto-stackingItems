@@ -1,5 +1,6 @@
-package Shapes;
-import java.awt.*;
+package tower;
+import Shapes.*;
+
 
 public abstract class Lid
 {
@@ -11,8 +12,10 @@ public abstract class Lid
     private String color;
     private boolean isVisible;
     private static final int cm = 5;
-    private Rectangle lid;
+    protected Rectangle lid;
     private boolean inside;
+    private Cup partnerCup;
+    
     /**
      * Constructor for objects of class Lid
      */
@@ -28,6 +31,10 @@ public abstract class Lid
 
     public int getHeight() {
         return height;
+    }
+    
+    public int getwidth() {
+        return width;
     }
     
     public int getXpo(){
@@ -102,6 +109,18 @@ public abstract class Lid
     
     public int getSize() {
         return number;
+    }
+    
+    public void setPartnerCup(Cup cup) {
+        this.partnerCup = cup;
+    }
+    
+    public Cup getPartnerCup() {
+        return this.partnerCup;
+    }
+    
+    public boolean hasPartnerCup() {
+        return partnerCup != null;
     }
     
     /**
@@ -186,5 +205,37 @@ public abstract class Lid
         int y = cup.getYpo() - cup.getHeight();
         setPosition(x, y);
         setInside(cup.isInside());
+    }
+    
+    public void placeAboveLid(Lid support) {
+        if (support == null) return;
+        int x = support.getXpo() + (support.getWidth() - getWidth()) / 2;
+        int y = support.getYpo() - support.getHeight();
+        setPosition(x, y);
+        setInside(false);
+    }
+    
+    public boolean canEnter(Tower tower) {
+        return true;
+    }
+
+    public boolean canExit(Tower tower) {
+        return true;
+    }
+
+    public boolean shouldBeBeforeCup() {
+        return false;
+    }
+    
+    public void reorderInTower(Tower tower) {
+        // comportamiento por defecto: no hace nada
+    }
+    
+    public boolean hasDecoration() {
+        return false;
+    }
+    
+    public String getSecondaryColor() {
+        return null;
     }
 }

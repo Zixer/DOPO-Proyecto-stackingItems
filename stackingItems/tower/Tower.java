@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import java.util.HashSet;
 
 /**
  * Write a description of class Tower here.
@@ -24,7 +25,6 @@ public class Tower
     private boolean isVisible;
     private Stack<Cup> cups;
     private Stack<Lid> lids; 
-    private HashMap<String, Lid> ListLid;
     private boolean isOK;
     private Random random;
     private ArrayList<String[]> insertionOrder;
@@ -36,7 +36,9 @@ public class Tower
     private int highestCupTopY;    
     private boolean lastOutsideWasLid;
     private List<String> availableColors;
-    private int colorCounter = 0;
+    private HashSet<String> usedColors;
+    private Lid topOutsideLid;
+    
     
     /**
      * Construye una torre vacía con límites máximos de altura y ancho.
@@ -47,9 +49,13 @@ public class Tower
     public Tower(int nmaxHeight, int nmaxWidth) {
         cups = new Stack<Cup>();
         lids = new Stack<Lid>();
-        ListLid = new HashMap<String, Lid>();
         random = new Random();
-        availableColors = new ArrayList<>(List.of("magenta", "green", "yellow", "blue", "black","red", "orange", "cyan", "pink", "grey"));
+        availableColors = new ArrayList<>(List.of("red","black","blue","yellow","green",
+                                                  "magenta","orange","cyan",
+                                                  "gray","pink","brown","purple","violet",
+                                                  "indigo","gold","silver","lightYellow",
+                                                  "lightBlue","lavender","mint","peach"));
+        usedColors = new HashSet<>();
         
         insertionOrder = new ArrayList<String[]>();
         maxWidth = nmaxWidth;
@@ -68,13 +74,17 @@ public class Tower
     }
     
     private String getUniqueColor() {
-        if (availableColors != null && !availableColors.isEmpty()) {
-            int index = random.nextInt(availableColors.size());
-            return availableColors.remove(index);
+        for (String color : availableColors) {
+            if (!usedColors.contains(color)) {
+                usedColors.add(color);
+                return color;
+            }
         }
+        return null;
+    }
     
-        colorCounter++;
-        return "color" + colorCounter;
+    private void releaseColor(String color) {
+        usedColors.remove(color);
     }
     
     /**
@@ -102,9 +112,7 @@ public class Tower
         makeVisible();
         redraw();
     }
-    
-    
-    
+
     /**
      * Genera y retorna un color aleatorio de una lista predefinida.
      *
@@ -133,33 +141,45 @@ public class Tower
      *
      * @param i tamaño o número de la copa a insertar.
      */
-    public void pushCup(int i){
-        String color = getUniqueColor();
-        Cup nueva = new NormalCup(i, color);
-
-        if (ListLid.get(color) != null) {
-            Lid lid = ListLid.get(color);
-            nueva.addLid(lid);
-        }
-        
+    public void pushCup(int i) {
         if (i > maxWidth || duplicatedSize(i)) {
-            //throw new towerException(towerException.DUPLICATED_SIZE);
             isOK = false;
             return;
         }
- 
-        if (0 <= maxHeight && i < maxWidth) {
-            cups.push(nueva);
-            insertionOrder.add(new String[]{"cup", String.valueOf(i)});
-            isOK = true;
+    
+        Lid existingLid = null;
+        for (Lid l : lids) {
+            if (l.getNumber() == i && !l.hasPartnerCup()) {
+                existingLid = l;
+                break;
+            }
         }
-        else {
-            //throw new towerException(towerException.INVALID_SIZE);
-            isOK = false;
+    
+        Cup nueva;
+        String color;
+    
+        if (existingLid != null) {
+            color = existingLid.getColor();
+            nueva = new NormalCup(i, color);
+            nueva.addLid(existingLid);
+        } else {
+            color = getUniqueColor();
+            if (color == null) {
+                isOK = false;
+                return;
+            }
+    
+            nueva = new NormalCup(i, color);
+            Lid partner = new NormalLid(i, color);
+            nueva.addLid(partner);
         }
-        
-        if (this.isVisible){
-            this.redraw();
+    
+        cups.push(nueva);
+        insertionOrder.add(new String[]{"cup", String.valueOf(i)});
+        isOK = true;
+    
+        if (this.isVisible) {
+            redraw();
         }
     }
 
@@ -179,6 +199,8 @@ public class Tower
     public void redraw() {
         final int CANVAS_WIDTH = 300;
         final int GROSOR = 5;
+        prepareCupsBeforeLayout();
+        reorderSpecialLidsInPlace();
         hideAllElements();
         resetLayoutState();
     
@@ -191,86 +213,111 @@ public class Tower
                 if (c == null) continue;
     
                 if (outer == null) {
-                    c.placeOutside(CANVAS_WIDTH, Y);
+                    if (topOutsideLid != null) {
+                        c.placeAboveLid(topOutsideLid);
+                    } else {
+                        c.placeOutside(CANVAS_WIDTH, Y);
+                    }
+    
                     outer = c;
                     insideStack.clear();
                     outsideSize = c.getNumber();
                     outsideBaseY = c.getYpo() - c.getHeight();
                     lastOutsideWasLid = false;
+                    topOutsideLid = null;
                     updateHighestCupTop(c);
+                    c.makeVisible();
     
                 } else {
                     boolean goesOutside = lastOutsideWasLid || (c.getNumber() >= outsideSize);
+    
                     if (goesOutside) {
-                        c.placeOutside(CANVAS_WIDTH, highestCupTopY);
+                        if (lastOutsideWasLid && topOutsideLid != null) {
+                            c.placeAboveLid(topOutsideLid);
+                        } else {
+                            c.placeOutside(CANVAS_WIDTH, highestCupTopY);
+                        }
+    
                         outer = c;
                         insideStack.clear();
                         outsideSize = c.getNumber();
                         outsideBaseY = c.getYpo() - c.getHeight();
                         lastOutsideWasLid = false;
+                        topOutsideLid = null;
                         updateHighestCupTop(c);
                         c.makeVisible();
                     } else {
                         Cup container = findContainerForCup(c);
                         if (container == null) continue;
+    
                         Cup support = findSupportForCup(c, container);
+    
                         if (support == null) {
-                            
                             c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
-                            
                         } else {
-                           
                             c.placeAbove(support, container, topInsideLidByCup.get(container), GROSOR);
-                            
                         }
+    
                         c.setInside(true);
                         insideStack.push(c);
                         updateHighestCupTop(c);
-                        
                     }
                 }
+    
                 c.makeVisible();
+    
             } else if (isLid(tipo)) {
                 Lid l = findLid(numero);
                 if (l == null) continue;
     
                 if (outer == null) {
-                    l.placeOutside(CANVAS_WIDTH, Y);
+                    if (lastOutsideWasLid && topOutsideLid != null) {
+                        l.placeAboveLid(topOutsideLid);
+                    } else {
+                        l.placeOutside(CANVAS_WIDTH, highestCupTopY);
+                    }
+    
+                    l.setInside(false);
                     insideStack.clear();
                     outsideSize = l.getNumber();
                     outsideBaseY = l.getYpo() - l.getHeight();
                     lastOutsideWasLid = true;
+                    topOutsideLid = l;
                     updateHighestTopWithLid(l);
                     l.makeVisible();
                 } else {
                     Cup container = findContainerForLid(l);
-                    boolean forceOutsideBecauseDoesNotFit = (container == null);
-                    boolean goesOutside = forceOutsideBecauseDoesNotFit || (l.getNumber() >= outsideSize);
+                    boolean goesOutside = (container == null) || (l.getNumber() >= outsideSize);
+    
                     if (goesOutside) {
-                        if (goesOutside) {
+                        if (topOutsideLid == null) {
                             l.placeOutside(CANVAS_WIDTH, highestCupTopY);
-                            insideStack.clear();
-                            outsideSize = l.getNumber();
-                            outsideBaseY = l.getYpo() - l.getHeight();
-                            lastOutsideWasLid = true;
-                            updateHighestTopWithLid(l);
-                            
+                        } else {
+                            l.placeAboveLid(topOutsideLid);
                         }
+    
+                        l.setInside(false);
+                        insideStack.clear();
+                        outsideSize = l.getNumber();
+                        outsideBaseY = l.getYpo() - l.getHeight();
+                        lastOutsideWasLid = true;
+                        topOutsideLid = l;
+                        updateHighestTopWithLid(l);
+                        l.makeVisible();
                     } else {
-                        if (container == null) continue;
                         Lid topInside = topInsideLidByCup.get(container);
                         l.placeInside(container, topInside, GROSOR);
                         l.setInside(true);
                         topInsideLidByCup.put(container, l);
+                        l.makeVisible();
                     }
                 }
-                l.makeVisible();
+    
+                isOK = true;
             }
         }
-        isOK = true;
     }
-
-        
+            
     private Cup findSupportForCup(Cup c) {
         Cup support = null;
     
@@ -308,10 +355,13 @@ public class Tower
         insideStack.clear();
         topInsideLidByCup.clear();
     
-        outsideSize = -1;
-        outsideBaseY = Y;
-        highestCupTopY = Y;
         lastOutsideWasLid = false;
+        topOutsideLid = null;
+    
+        outsideSize = 0;
+        outsideBaseY = 0;
+    
+        highestCupTopY = Y;
     }
     
     /**
@@ -408,20 +458,38 @@ public class Tower
      *
      * @return la copa removida, o null si no había copas.
      */
-    public Cup popCup(){
-        if (!cups.isEmpty()) {
-            Cup removida = cups.pop();
-            removida.makeInvisible();
-            insertionOrder.removeIf(e -> e[0].equals("cup") &&
-                e[1].equals(String.valueOf(removida.getNumber())));
-            redraw();
-            isOK = true;
-            return removida;
+    public Cup popCup() {
+        if (cups.isEmpty()) {
+            isOK = false;
+            return null;
         }
-        isOK = false;
-        return null;
-    }
+        Cup removida = cups.peek();
+        Lid lid = removida.getLid();    
+        if (lid != null && isCoveringPartner(lid)) {
+            removeLidForced(removida.getNumber());
+        }
     
+        if (!removida.canBeRemoved()) {
+            isOK = false;
+            return null;
+        }
+        removida = cups.pop();
+        removida.makeInvisible();
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("cup") &&
+                elem[1].equals(String.valueOf(removida.getNumber()))) {
+                insertionOrder.remove(i);
+                break;
+            }
+        }
+        isOK = true;
+        if (this.isVisible) {
+            redraw();
+        }
+        return removida;
+    }
+        
     /**
      * Elimina la primera copa encontrada cuyo número coincida con el indicado.
      *
@@ -435,36 +503,59 @@ public class Tower
      */
     public void removeCup(int number) {
         if (cups.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No existe ninguna copa");
+            isOK = false;
             return;
         }
     
-        Stack<Cup> temp = new Stack<Cup>();
-        boolean found = false;
+        Cup target = findCup(number);
+        if (target == null) {
+            isOK = false;
+            return;
+        }
+    
+        // Si la cup tiene lid, se borra sí o sí
+        Lid lid = target.getLid();
+        if (lid != null) {
+            removeLidForced(lid.getNumber());
+        }
+    
+        if (!target.canBeRemoved()) {
+            isOK = false;
+            return;
+        }
+    
+        Stack<Cup> temp = new Stack<>();
+        boolean removed = false;
     
         while (!cups.isEmpty()) {
             Cup c = cups.pop();
-            if (!found && c.getNumber() == number) {
-                found = true;
+    
+            if (!removed && c.getNumber() == number) {
                 c.makeInvisible();
-                insertionOrder.removeIf(e -> e[0].equals("cup") &&
-                    e[1].equals(String.valueOf(number)));
+                removed = true;
             } else {
                 temp.push(c);
             }
-        }
-        
-        cups.clear();
-       
-        if (!found) {
-            JOptionPane.showMessageDialog(null, "No existe la copa indicada");
         }
     
         while (!temp.isEmpty()) {
             cups.push(temp.pop());
         }
     
-        redraw();
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("cup") &&
+                elem[1].equals(String.valueOf(number))) {
+                insertionOrder.remove(i);
+                break;
+            }
+        }
+    
+        isOK = removed;
+    
+        if (this.isVisible) {
+            redraw();
+        }
     }
     
     /**
@@ -486,41 +577,45 @@ public class Tower
      * @param color color de la tapa.
      */
     public void pushLid(int i) {
-        String color = findCupColorBySize(i);
-    
-        if (color == null) {
-            color = randomColor();
-        }
-    
-        Lid nueva = new NormalLid(i, color);
-    
         if (i > maxWidth || duplicatedLidSize(i)) {
-            //throw new towerException(towerException.DUPLICATED_SIZE);
             isOK = false;
             return;
         }
     
         Cup cup = findCup(i);
-        if (cup != null) {
-            cup.addLid(nueva);
-        }
+        Lid nueva;
     
-        ListLid.put(color, nueva);
+        if (cup != null) {
+            nueva = cup.getLid();
+    
+            if (nueva == null) {
+                nueva = new NormalLid(i, cup.getColor());
+                cup.addLid(nueva);
+            }
+    
+
+            if (lids.contains(nueva)) {
+                isOK = false;
+                return;
+            }
+    
+        } else {
+            String color = getUniqueColor();
+            if (color == null) {
+                isOK = false;
+                return;
+            }
+    
+            nueva = new NormalLid(i, color);
+            Cup partner = new NormalCup(i, color);
+            partner.addLid(nueva);
+        }
         lids.push(nueva);
         insertionOrder.add(new String[]{"lid", String.valueOf(i)});
         isOK = true;
-        
-        if (this.isVisible){
-            this.redraw();
+        if (this.isVisible) {
+            redraw();
         }
-    }
-    
-    private String findCupColorBySize(int number) {
-        Cup cup = findCup(number);
-        if (cup != null) {
-            return cup.getColor();
-        }
-        return null;
     }
     
     /**
@@ -534,17 +629,30 @@ public class Tower
      * @return la tapa removida, o null si no había tapas.
      */
     public Lid popLid() {
-        if (!lids.isEmpty()) {
-            Lid removida = lids.pop();
-            removida.makeInvisible();
-            insertionOrder.removeIf(e -> e[0].equals("lid") &&
-                e[1].equals(String.valueOf(removida.getNumber())));
-            redraw();
-            isOK = true;
-            return removida;
+        if (lids.isEmpty()) {
+            isOK = false;
+            return null;
+        }    
+        Lid removida = lids.peek();
+        if (!removida.canExit(this)) {
+            isOK = false;
+            return null;
         }
-        isOK = false;
-        return null;
+        removida = lids.pop();
+        removida.makeInvisible();
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("lid") &&
+                elem[1].equals(String.valueOf(removida.getNumber()))) {
+                insertionOrder.remove(i);
+                break;
+            }
+        }
+        isOK = true;
+        if (this.isVisible) {
+            redraw();
+        }
+        return removida;
     }
     
     /**
@@ -574,37 +682,57 @@ public class Tower
      *
      * @param number número de la tapa que se desea eliminar.
      */
-    public void removeLid(int number){
+    public void removeLid(int number) {
         if (lids.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No existe ninguna tapa");
+            isOK = false;
             return;
         }
-    
-        Stack<Lid> temp = new Stack<Lid>();
+        Stack<Lid> temp = new Stack<>();
         boolean found = false;
-    
+        Lid target = null;
         while (!lids.isEmpty()) {
             Lid l = lids.pop();
             if (!found && l.getNumber() == number) {
+                target = l;
                 found = true;
-                l.makeInvisible();
-                ListLid.remove(l.getColor());
-                insertionOrder.removeIf(e -> e[0].equals("lid") &&
-                    e[1].equals(String.valueOf(number)));
+                break;
             } else {
                 temp.push(l);
             }
         }
-    
+        
         if (!found) {
-            JOptionPane.showMessageDialog(null, "No existe la tapa indicada");
+            while (!temp.isEmpty()) {
+                lids.push(temp.pop());
+            }
+            isOK = false;
+            return;
+        }
+    
+        if (!target.canExit(this)) {
+            lids.push(target);
+            while (!temp.isEmpty()) {
+                lids.push(temp.pop());
+            }
+            isOK = false;
+            return;
+        }
+        target.makeInvisible();
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("lid") &&elem[1].equals(String.valueOf(number))) {
+                insertionOrder.remove(i);
+                break;
+            }
         }
     
         while (!temp.isEmpty()) {
             lids.push(temp.pop());
         }
-    
-        redraw();
+        isOK = true;
+        if (this.isVisible) {
+            redraw();
+        }
     }
     
     /**
@@ -1014,7 +1142,9 @@ public class Tower
      * y cuyo número sea menor que c.number.
      */
     private Cup findSupportForCup(Cup c, Cup container) {
-        for (int i = insideStack.size() - 1; i >= 0; i--) {
+        Cup bestSupport = null;
+    
+        for (int i = 0; i < insideStack.size(); i++) {
             Cup inside = insideStack.get(i);
     
             if (inside == container) {
@@ -1023,17 +1153,27 @@ public class Tower
     
             if (inside.getNumber() < c.getNumber() &&
                 inside.getNumber() < container.getNumber()) {
-                return inside;
+    
+                if (bestSupport == null ||
+                    inside.getNumber() > bestSupport.getNumber()) {
+                    bestSupport = inside;
+                }
             }
         }
     
-        return null;
+        return bestSupport;
     }
     
     public void pushCup(String type, int i) throws towerException {
+        if (i > maxWidth || duplicatedSize(i)) {
+            throw new towerException(towerException.DUPLICATED_SIZE);
+        }
         String color = getUniqueColor();
+        if (color == null) {
+            isOK = false;
+            return;
+        }
         Cup nueva;
-    
         if (type.equalsIgnoreCase("normal")) {
             nueva = new NormalCup(i, color);
         } else if (type.equalsIgnoreCase("opener")) {
@@ -1043,74 +1183,126 @@ public class Tower
         } else {
             throw new towerException(towerException.NON_EXISTENT_TYPE);
         }
-    
-        if (ListLid.get(color) != null) {
-            Lid lid = ListLid.get(color);
-            nueva.addLid(lid);
-        }
-        
-        if (i > maxWidth || duplicatedSize(i)) {
-            throw new towerException(towerException.DUPLICATED_SIZE);
+        Lid partner = null;
+        for (Lid l : lids) {
+            if (l.getNumber() == i && !l.hasPartnerCup()) {
+                partner = l;
+                break;
+            }
         }
     
+        if (partner != null) {
+            nueva.addLid(partner);
+        }
         cups.push(nueva);
         insertionOrder.add(new String[]{"cup", String.valueOf(i)});
-        nueva.beforeEnter(this);
         isOK = true;
-        if (this.isVisible){
-            this.redraw();
+        if (this.isVisible) {
+            redraw();
         }
-    }
-    
-    public void removeBlockingLids(Cup cup) {
-        redraw();
-    
-        boolean goesOutside = (outer == null) || lastOutsideWasLid || (cup.getNumber() >= outsideSize);
-    
-        if (goesOutside) {
-            removeOutsideLids(cup);
-        } else {
-            removeInsideLidsUntilCup();
-        }
-    
-        redraw();
     }
 
-    private void removeOutsideLids(Cup cup) {
-        for (int i = insertionOrder.size() - 1; i >= 0; i--) {
-            String[] elemento = insertionOrder.get(i);
+    private void removeLidsBetween(int containerNumber, int cupIndex) {
+        boolean started = false;
+        ArrayList<Lid> toRemove = new ArrayList<>();
     
-            if (elemento[0].equals("lid")) {
-                int lidNumber = Integer.parseInt(elemento[1]);
-                Lid lid = findLid(lidNumber);
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
     
-                if (lid != null && !lid.isInside()) {
-                    removeSpecificLid(lid);
-                } else {
-                    break;
-                }
-            } else if (elemento[0].equals("cup")) {
-                break;
+            if (elem[0].equals("cup") && 
+                elem[1].equals(String.valueOf(containerNumber))) {
+                started = true;
+                continue;
             }
-        }
-    }
     
-    private void removeInsideLidsUntilCup() {
-        for (int i = insertionOrder.size() - 1; i >= 0; i--) {
-            String[] elemento = insertionOrder.get(i);
+            if (i >= cupIndex) break;
     
-            if (elemento[0].equals("lid")) {
-                int lidNumber = Integer.parseInt(elemento[1]);
-                Lid lid = findLid(lidNumber);
-    
+            if (started && elem[0].equals("lid")) {
+                Lid lid = findLid(Integer.parseInt(elem[1]));
                 if (lid != null) {
-                    removeSpecificLid(lid);
+                    toRemove.add(lid);
                 }
-            } else if (elemento[0].equals("cup")) {
+            }
+        }
+    
+        for (Lid lid : toRemove) {
+            removeSpecificLid(lid);
+        }
+    }
+    
+    private void removeOutsideLidsBefore(int cupIndex, int cupNumber) {
+        ArrayList<Lid> toRemove = new ArrayList<>();
+    
+        int previousCupNumber = -1;
+    
+        for (int i = cupIndex - 1; i >= 0; i--) {
+            String[] elem = insertionOrder.get(i);
+    
+            if (elem[0].equals("cup")) {
+                previousCupNumber = Integer.parseInt(elem[1]);
                 break;
             }
         }
+    
+        if (previousCupNumber == -1) {
+            return;
+        }
+    
+        for (int i = cupIndex - 1; i >= 0; i--) {
+            String[] elem = insertionOrder.get(i);
+    
+            if (elem[0].equals("cup")) {
+                break;
+            }
+    
+            if (elem[0].equals("lid")) {
+                int lidNum = Integer.parseInt(elem[1]);
+                Lid lid = findLid(lidNum);
+    
+                if (lid != null && lidNum > previousCupNumber) {
+                    toRemove.add(lid);
+                }
+            }
+        }
+    
+        for (Lid lid : toRemove) {
+            removeSpecificLid(lid);
+        }
     }
+    
+    public Cup findContainerBefore(int cupIndex, Cup cup) {
+        Cup best = null;
+    
+        for (int i = cupIndex - 1; i >= 0; i--) {
+            String[] elem = insertionOrder.get(i);
+    
+            if (elem[0].equals("cup")) {
+                int num = Integer.parseInt(elem[1]);
+    
+                if (num > cup.getNumber()) {
+                    Cup candidate = findCup(num);
+    
+                    if (best == null || num < best.getNumber()) {
+                        best = candidate; // el más cercano que la contiene
+                    }
+                }
+            }
+        }
+    
+        return best;
+    }
+    
+    private int findPreviousCupIndex(int fromIndex) {
+        for (int i = fromIndex - 1; i >= 0; i--) {
+            String[] element = insertionOrder.get(i);
+    
+            if (element[0].equals("cup")) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
     
     private void removeSpecificLid(Lid lid) {
         Stack<Lid> temp = new Stack<Lid>();
@@ -1138,10 +1330,15 @@ public class Tower
                 break;
             }
         }
+    
+        Cup partner = lid.getPartnerCup();
+        if (partner != null && partner.getLid() == lid) {
+            partner.addLid(null);
+        }
     }
     
     public void repositionForHierarchical(HierarchicalCup cup) {
-        int currentIndex = findCupIndexInInsertionOrder(cup.getNumber());
+        int currentIndex = findCupIndex(cup.getNumber());
     
         if (!isValidIndex(currentIndex)) {
             return;
@@ -1150,17 +1347,6 @@ public class Tower
         int targetIndex = findTargetIndexForHierarchical(cup.getNumber(), currentIndex);
         moveCupInInsertionOrder(currentIndex, targetIndex);
         lockCupIfNeeded(cup, targetIndex);
-    }
-    
-    private int findCupIndexInInsertionOrder(int cupNumber) {
-        for (int i = 0; i < insertionOrder.size(); i++) {
-            String[] element = insertionOrder.get(i);
-    
-            if (isCupElement(element, cupNumber)) {
-                return i;
-            }
-        }
-        return -1;
     }
     
     private int findTargetIndexForHierarchical(int cupNumber, int currentIndex) {
@@ -1198,12 +1384,233 @@ public class Tower
         return index != -1;
     }
     
-    private boolean isCupElement(String[] element, int cupNumber) {
-        return element[0].equals("cup") && Integer.parseInt(element[1]) == cupNumber;
-    }
-    
     private boolean isSmallerObject(String[] element, int cupNumber) {
         int number = Integer.parseInt(element[1]);
         return number < cupNumber;
+    }
+    
+    public boolean containsCup(Cup cup) {
+        return cups.contains(cup);
+    }
+    
+    public boolean isCoveringPartner(Lid lid) {
+        if (lid == null || !lid.hasPartnerCup()) {
+            return false;
+        }
+        Cup cup = lid.getPartnerCup();
+        if (!cups.contains(cup) || !lids.contains(lid)) {
+            return false;
+        }
+        int cupIndex = -1;
+        int lidIndex = -1;
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("cup") &&
+                elem[1].equals(String.valueOf(cup.getNumber()))) {
+                cupIndex = i;
+            }
+    
+            if (elem[0].equals("lid") &&
+                elem[1].equals(String.valueOf(lid.getNumber()))) {
+                lidIndex = i;
+            }
+        }
+    
+        if (cupIndex == -1 || lidIndex == -1) {
+            return false;
+        }
+        return lidIndex == cupIndex + 1;
+    }
+    
+    public void pushLid(String type, int i) throws towerException {
+        if (i > maxWidth || duplicatedLidSize(i)) {
+            throw new towerException(towerException.DUPLICATED_SIZE);
+        }
+        Cup cup = findCup(i);
+        String color;
+        if (cup != null) {
+            color = cup.getColor();
+        } else {
+            color = getUniqueColor();
+            if (color == null) {
+                isOK = false;
+                return;
+            }
+        }
+        Lid nueva;
+        if (type.equalsIgnoreCase("normal")) {
+            nueva = new NormalLid(i, color);
+        } else if (type.equalsIgnoreCase("fearful")) {
+            nueva = new FearfulLid(i, color);
+        } else if (type.equalsIgnoreCase("crazy")) {
+            nueva = new CrazyLid(i, color);
+        } else {
+            throw new towerException(towerException.NON_EXISTENT_TYPE);
+        }
+    
+        if (cup != null) {
+            cup.addLid(nueva);
+        }
+    
+        if (!nueva.canEnter(this)) {
+            isOK = false;
+            return;
+        }
+        lids.push(nueva);
+        insertionOrder.add(new String[]{"lid", String.valueOf(i)});
+        reorderSpecialLidsInPlace();
+        isOK = true;
+        if (this.isVisible) {
+            this.redraw();
+        }
+    }
+    
+    private void removeLidForced(int number) {
+        Stack<Lid> temp = new Stack<>();
+        Lid removed = null;
+    
+        while (!lids.isEmpty()) {
+            Lid current = lids.pop();
+    
+            if (removed == null && current.getNumber() == number) {
+                removed = current;
+                current.makeInvisible();
+            } else {
+                temp.push(current);
+            }
+        }
+    
+        while (!temp.isEmpty()) {
+            lids.push(temp.pop());
+        }
+    
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("lid") &&
+                elem[1].equals(String.valueOf(number))) {
+                insertionOrder.remove(i);
+                break;
+            }
+        }
+    }
+    
+    private void reorderSpecialLidsInPlace() {
+        for (Lid l : lids) {
+            if (!l.shouldBeBeforeCup()) continue;
+    
+            int lidIndex = -1;
+            int cupIndex = -1;
+    
+            for (int i = 0; i < insertionOrder.size(); i++) {
+                String[] e = insertionOrder.get(i);
+    
+                if (e[0].equals("lid") && e[1].equals(String.valueOf(l.getNumber()))) {
+                    lidIndex = i;
+                }
+    
+                Cup partner = l.getPartnerCup();
+                if (partner != null &&
+                    e[0].equals("cup") &&
+                    e[1].equals(String.valueOf(partner.getNumber()))) {
+                    cupIndex = i;
+                }
+            }
+    
+            if (lidIndex == -1 || cupIndex == -1) continue;
+            if (lidIndex < cupIndex) continue;
+    
+            String[] lidElem = insertionOrder.remove(lidIndex);
+            insertionOrder.add(cupIndex, lidElem);
+        }
+    }
+    
+    private void prepareCupsBeforeLayout() {
+        ArrayList<String[]> snapshot = new ArrayList<>(insertionOrder);
+    
+        for (String[] elem : snapshot) {
+            if (elem[0].equals("cup")) {
+                int numero = Integer.parseInt(elem[1]);
+                Cup c = findCup(numero);
+    
+                if (c != null) {
+                    c.beforeEnter(this);
+                }
+            }
+        }
+    }
+    
+        public int findCupIndex(int number) {
+        for (int i = 0; i < insertionOrder.size(); i++) {
+            String[] elem = insertionOrder.get(i);
+            if (elem[0].equals("cup") && 
+                elem[1].equals(String.valueOf(number))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public List<Lid> getLidsBetween(Cup container, Cup target) {
+        List<Lid> result = new ArrayList<>();
+    
+        int containerIndex = findCupIndex(container.getNumber());
+        int targetIndex = findCupIndex(target.getNumber());
+    
+        for (int i = containerIndex + 1; i < targetIndex; i++) {
+            String[] elem = insertionOrder.get(i);
+    
+            if (elem[0].equals("lid")) {
+                Lid lid = findLid(Integer.parseInt(elem[1]));
+                if (lid != null) {
+                    result.add(lid);
+                }
+            }
+        }
+    
+        return result;
+    }
+    
+    public List<Lid> getOutsideBlockingLids(Cup cup, int cupIndex) {
+        List<Lid> result = new ArrayList<>();
+    
+        int previousCupNumber = -1;
+    
+        // encontrar la cup anterior
+        for (int i = cupIndex - 1; i >= 0; i--) {
+            String[] elem = insertionOrder.get(i);
+    
+            if (elem[0].equals("cup")) {
+                previousCupNumber = Integer.parseInt(elem[1]);
+                break;
+            }
+        }
+    
+        if (previousCupNumber == -1) return result;
+    
+        // buscar lids que están afuera
+        for (int i = cupIndex - 1; i >= 0; i--) {
+            String[] elem = insertionOrder.get(i);
+    
+            if (elem[0].equals("cup")) break;
+    
+            if (elem[0].equals("lid")) {
+                int lidNum = Integer.parseInt(elem[1]);
+    
+                if (lidNum > previousCupNumber) {
+                    Lid lid = findLid(lidNum);
+                    if (lid != null) {
+                        result.add(lid);
+                    }
+                }
+            }
+        }
+    
+        return result;
+    }
+    
+    public void removeLids(List<Lid> lidsToRemove) {
+        for (Lid lid : lidsToRemove) {
+            removeSpecificLid(lid);
+        }
     }
 }

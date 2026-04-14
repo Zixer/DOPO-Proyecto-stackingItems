@@ -1,5 +1,6 @@
-package Shapes;
-import tower.*;
+package tower;
+import Shapes.*;
+
 
 /**
  * Write a description of class Hierarchical here.
@@ -10,6 +11,7 @@ import tower.*;
 public class HierarchicalCup extends Cup
 {
     
+    private Rectangle decoration1;
     private boolean deadlocked;
     
     /**
@@ -36,5 +38,14 @@ public class HierarchicalCup extends Cup
     @Override
     public boolean canBeRemoved() {
         return !deadlocked;
+    }
+    
+    @Override
+    public void drawDecoration() {
+        decoration1 = new Rectangle();
+        decoration1.changeSize(3, getWidth()); 
+        decoration1.changeColor("turquoise");     
+        decoration1.changeP(getXpo(), getYpo() - 3); 
+        decoration1.makeVisible();
     }
 }

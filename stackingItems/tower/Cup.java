@@ -1,5 +1,5 @@
-package Shapes;
-import tower.*;
+package tower;
+import Shapes.*;
 import java.util.*;
 
 /**
@@ -51,6 +51,9 @@ public abstract class Cup{
 
     public void addLid(Lid lid){
         this.lid = lid;
+        if (lid != null) {
+            lid.setPartnerCup(this);
+        }
     }
     
     public Lid getLid(){
@@ -178,6 +181,11 @@ public abstract class Cup{
         interior.changeColor("white");
         interior.changeP(esquinaX + grosor, esquinaY);
         interior.makeVisible();
+        drawDecoration();
+    }
+    
+    public void drawDecoration() {
+        // por defecto no hace nada
     }
     
     /**
@@ -238,6 +246,16 @@ public abstract class Cup{
         }
         setPosition(x, y);
         setInside(true);
+    }
+    
+    public void placeAboveLid(Lid support) {
+        if (support == null) return;
+    
+        int x = support.getXpo() + (support.getWidth() - getWidth()) / 2;
+        int y = support.getYpo() - support.getHeight();
+    
+        setPosition(x, y);
+        setInside(false);
     }
     
     public void beforeEnter(Tower tower){
