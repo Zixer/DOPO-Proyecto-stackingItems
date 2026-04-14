@@ -38,7 +38,7 @@ public class Tower
     private List<String> availableColors;
     private HashSet<String> usedColors;
     private Lid topOutsideLid;
-    
+    private Map<Cup, Cup> parentByCup;
     
     /**
      * Construye una torre vacía con límites máximos de altura y ancho.
@@ -63,9 +63,11 @@ public class Tower
         isVisible = false;
         isOK = true;
     
+        parentByCup = new HashMap<Cup, Cup>();
         insideStack = new Stack<Cup>();
         topInsideLidByCup = new HashMap<Cup, Lid>();
     
+        
         outer = null;
         outsideSize = -1;
         outsideBaseY = Y;
@@ -237,7 +239,10 @@ public class Tower
                         } else {
                             c.placeOutside(CANVAS_WIDTH, highestCupTopY);
                         }
-    
+                    
+                        c.setInside(false);
+                        parentByCup.remove(c);
+                    
                         outer = c;
                         insideStack.clear();
                         outsideSize = c.getNumber();
@@ -249,16 +254,17 @@ public class Tower
                     } else {
                         Cup container = findContainerForCup(c);
                         if (container == null) continue;
-    
+                    
                         Cup support = findSupportForCup(c, container);
-    
+                    
                         if (support == null) {
                             c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
                         } else {
                             c.placeAbove(support, container, topInsideLidByCup.get(container), GROSOR);
                         }
-    
+                    
                         c.setInside(true);
+                        parentByCup.put(c, container);
                         insideStack.push(c);
                         updateHighestCupTop(c);
                     }
@@ -362,6 +368,7 @@ public class Tower
         outsideBaseY = 0;
     
         highestCupTopY = Y;
+        parentByCup.clear();
     }
     
     /**
@@ -1144,18 +1151,15 @@ public class Tower
     private Cup findSupportForCup(Cup c, Cup container) {
         Cup bestSupport = null;
     
-        for (int i = 0; i < insideStack.size(); i++) {
-            Cup inside = insideStack.get(i);
-    
+        for (Cup inside : insideStack) {
             if (inside == container) {
                 continue;
             }
     
-            if (inside.getNumber() < c.getNumber() &&
-                inside.getNumber() < container.getNumber()) {
+            Cup parent = parentByCup.get(inside);
     
-                if (bestSupport == null ||
-                    inside.getNumber() > bestSupport.getNumber()) {
+            if (parent == container && inside.getNumber() < c.getNumber()) {
+                if (bestSupport == null || inside.getNumber() > bestSupport.getNumber()) {
                     bestSupport = inside;
                 }
             }
