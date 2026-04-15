@@ -267,4 +267,8 @@ public abstract class Cup{
     
     public void lock() {
     }
+    
+    public boolean shouldIgnoreSupport() {
+        return false;
+    }
 }

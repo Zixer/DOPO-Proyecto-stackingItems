@@ -54,7 +54,7 @@ public class Tower
                                                   "magenta","orange","cyan",
                                                   "gray","pink","brown","purple","violet",
                                                   "indigo","gold","silver","lightYellow",
-                                                  "lightBlue","lavender","mint","peach"));
+                                                  "lightBlue","lavender","peach"));
         usedColors = new HashSet<>();
         
         insertionOrder = new ArrayList<String[]>();
@@ -254,15 +254,12 @@ public class Tower
                     } else {
                         Cup container = findContainerForCup(c);
                         if (container == null) continue;
-                    
                         Cup support = findSupportForCup(c, container);
-
                         if (support == null) {
                             c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
                         } else {
                             c.placeAbove(support, container, topInsideLidByCup.get(support), GROSOR);
                         }
-                        
                         c.setInside(true);
                         parentByCup.put(c, container);
                         insideStack.push(c);
@@ -445,18 +442,6 @@ public class Tower
         }
     
         return bestSupport;
-    }
-    
-    /**
-     * Retorna el contenedor actual en el que debe ubicarse un elemento interno.
-     *
-     * Si existen copas dentro de la torre, retorna la más interna actual.
-     * En caso contrario, retorna la copa externa.
-     *
-     * @return la copa contenedora actual.
-     */
-    private Cup currentContainer() {
-        return (!insideStack.isEmpty()) ? insideStack.peek() : outer;
     }
     
     /**
@@ -1210,6 +1195,8 @@ public class Tower
             nueva = new OpenerCup(i, color);
         } else if (type.equalsIgnoreCase("hierarchical")) {
             nueva = new HierarchicalCup(i, color);
+        }else if (type.equalsIgnoreCase("bottom")) {
+            nueva = new BottomCup(i, color);
         } else {
             throw new towerException(towerException.NON_EXISTENT_TYPE);
         }
@@ -1602,10 +1589,7 @@ public class Tower
     
     public List<Lid> getOutsideBlockingLids(Cup cup, int cupIndex) {
         List<Lid> result = new ArrayList<>();
-    
         int previousCupNumber = -1;
-    
-        // encontrar la cup anterior
         for (int i = cupIndex - 1; i >= 0; i--) {
             String[] elem = insertionOrder.get(i);
     
@@ -1617,7 +1601,6 @@ public class Tower
     
         if (previousCupNumber == -1) return result;
     
-        // buscar lids que están afuera
         for (int i = cupIndex - 1; i >= 0; i--) {
             String[] elem = insertionOrder.get(i);
     
@@ -1634,7 +1617,6 @@ public class Tower
                 }
             }
         }
-    
         return result;
     }
     
@@ -1642,5 +1624,15 @@ public class Tower
         for (Lid lid : lidsToRemove) {
             removeSpecificLid(lid);
         }
+    }
+    
+    public void moveCupToBottom(Cup cup) {
+        int currentIndex = findCupIndex(cup.getNumber());
+        if (currentIndex <= 0) {
+            return;
+        }
+    
+        String[] cupData = insertionOrder.remove(currentIndex);
+        insertionOrder.add(0, cupData);
     }
 }

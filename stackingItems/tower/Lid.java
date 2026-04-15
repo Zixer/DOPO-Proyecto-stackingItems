@@ -169,6 +169,7 @@ public abstract class Lid
      */
     public void erase() {
         if (lid != null) lid.makeInvisible();
+        
     }
     
     public boolean isVisible(){

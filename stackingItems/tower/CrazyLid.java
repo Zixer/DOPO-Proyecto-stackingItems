@@ -11,12 +11,18 @@ import java.util.ArrayList;
  */
 public class CrazyLid extends Lid
 {
-
+    private Rectangle mark; 
     /**
      * Constructor for objects of class Crazy
      */
     public CrazyLid(int number, String color){
         super(number,color);
+        mark = new Rectangle();
+    }
+    
+    public void erase() {
+        if (lid != null) lid.makeInvisible();  
+        if (hasDecoration()) mark.makeInvisible();
     }
     
     @Override
@@ -50,10 +56,8 @@ public class CrazyLid extends Lid
     
         if (lidIndex == -1 || cupIndex == -1) return;
     
-        // si ya está antes, no hacemos nada
         if (lidIndex < cupIndex) return;
     
-        // mover la lid antes de la cup
         String[] lidElem = order.remove(lidIndex);
         order.add(cupIndex, lidElem);
     }
@@ -80,7 +84,6 @@ public class CrazyLid extends Lid
         lid.makeVisible();
     
         if (hasDecoration()) {
-            Rectangle mark = new Rectangle();
             mark.changeSize(2, getWidth() / 2);
             mark.changeColor(getSecondaryColor());
             mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);

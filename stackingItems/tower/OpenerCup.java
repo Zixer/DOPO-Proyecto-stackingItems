@@ -26,14 +26,19 @@ public class OpenerCup extends Cup{
         Cup container = tower.findContainerBefore(index, this);
     
         if (container != null) {
-            // 🔹 INSIDE
             List<Lid> lids = tower.getLidsBetween(container, this);
             tower.removeLids(lids);
         } else {
-            // 🔹 OUTSIDE
-            List<Lid> lids = tower.getOutsideBlockingLids(this, index);
+                       List<Lid> lids = tower.getOutsideBlockingLids(this, index);
             tower.removeLids(lids);
         }
+    }
+    
+    public void erase() {
+        if (body != null) body.makeInvisible();
+        if (interior != null) interior.makeInvisible();
+        if (decoration1 != null) decoration1.makeInvisible();
+        if (decoration2 != null) decoration2.makeInvisible();
     }
     
     @Override
