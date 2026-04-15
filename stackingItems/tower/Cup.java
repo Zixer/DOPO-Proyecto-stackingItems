@@ -214,36 +214,43 @@ public abstract class Cup{
     
     public void placeOutside(int canvasWidth, int baseY) {
         int x = (canvasWidth - getWidth()) / 2;
-        setPosition(x, baseY);
+        int y = baseY;
+    
+        setPosition(x, y);
         setInside(false);
     }
         
-    public void placeInside(Cup container, Lid topInsideLid, int grosor) {
+    public void placeInside(Cup container, Lid lidOnContainer, int grosor) {
         if (container == null) return;
+    
         int innerX = container.getXpo() + grosor;
         int innerWidth = container.getWidth() - (2 * grosor);
         int x = innerX + (innerWidth - getWidth()) / 2;
+    
         int y;
-        if (topInsideLid == null) {
+    
+        if (lidOnContainer == null) {
             y = container.getYpo() - grosor;
         } else {
-            y = topInsideLid.getYpo() - topInsideLid.getHeight();
+            y = lidOnContainer.getYpo() - lidOnContainer.getHeight();
         }
+    
         setPosition(x, y);
         setInside(true);
-    }
+    }   
     
-        public void placeAbove(Cup support, Cup container, Lid lidOnSupport, int grosor) {
-        if (support == null || container == null) return;
-        int innerX = container.getXpo() + grosor;
-        int innerWidth = container.getWidth() - (2 * grosor);
-        int x = innerX + (innerWidth - getWidth()) / 2;
+    public void placeAbove(Cup support, Cup container, Lid lidOnSupport, int grosor) {
+        if (support == null) return;
+    
+        int x = support.getXpo() + (support.getWidth() - getWidth()) / 2;
+    
         int y;
         if (lidOnSupport == null) {
             y = support.getYpo() - support.getHeight();
         } else {
             y = lidOnSupport.getYpo() - lidOnSupport.getHeight();
         }
+    
         setPosition(x, y);
         setInside(true);
     }

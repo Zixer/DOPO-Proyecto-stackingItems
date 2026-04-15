@@ -14,4 +14,6 @@ comment5.params=
 comment5.target=boolean\ canBeRemoved()
 comment6.params=
 comment6.target=void\ drawDecoration()
-numComments=7
+comment7.params=
+comment7.target=void\ erase()
+numComments=8

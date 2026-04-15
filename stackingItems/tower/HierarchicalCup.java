@@ -48,4 +48,10 @@ public class HierarchicalCup extends Cup
         decoration1.changeP(getXpo(), getYpo() - 3); 
         decoration1.makeVisible();
     }
+    
+    public void erase() {
+        if (body != null) body.makeInvisible();
+        if (interior != null) interior.makeInvisible();
+        if (decoration1 != null) decoration1.makeInvisible();
+    }
 }
