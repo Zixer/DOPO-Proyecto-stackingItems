@@ -271,4 +271,12 @@ public abstract class Cup{
     public boolean shouldIgnoreSupport() {
         return false;
     }
+    
+    public void placeInTower(Cup container, Cup support, Lid lidOnContainer, Lid lidOnSupport, int grosor) {
+        if (support == null) {
+            placeInside(container, lidOnContainer, grosor);
+        } else {
+            placeAbove(support, container, lidOnSupport, grosor);
+        }
+    }
 }

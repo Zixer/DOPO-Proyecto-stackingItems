@@ -29,6 +29,7 @@ public class Tower
     private Random random;
     private ArrayList<String[]> insertionOrder;
     private Map<Cup, Lid> topInsideLidByCup;
+    private Map<Cup, Lid> topLidInContainer;
     private Cup outer;
     private Stack<Cup> insideStack;
     private int outsideSize;
@@ -66,6 +67,7 @@ public class Tower
         parentByCup = new HashMap<Cup, Cup>();
         insideStack = new Stack<Cup>();
         topInsideLidByCup = new HashMap<Cup, Lid>();
+        topLidInContainer = new HashMap<Cup, Lid>();
     
         
         outer = null;
@@ -184,7 +186,7 @@ public class Tower
             redraw();
         }
     }
-
+    //--------------------------
     /**
      * Recalcula completamente la disposición visual de copas y tapas.
      *
@@ -201,137 +203,9 @@ public class Tower
     public void redraw() {
         final int CANVAS_WIDTH = 300;
         final int GROSOR = 5;
-        prepareCupsBeforeLayout();
-        reorderSpecialLidsInPlace();
-        hideAllElements();
-        resetLayoutState();
     
-        for (int i = 0; i < insertionOrder.size(); i++) {
-            String tipo = insertionOrder.get(i)[0];
-            int numero = Integer.parseInt(insertionOrder.get(i)[1]);
-    
-            if (isCup(tipo)) {
-                Cup c = findCup(numero);
-                if (c == null) continue;
-    
-                if (outer == null) {
-                    if (topOutsideLid != null) {
-                        c.placeAboveLid(topOutsideLid);
-                    } else {
-                        c.placeOutside(CANVAS_WIDTH, Y);
-                    }
-    
-                    outer = c;
-                    insideStack.clear();
-                    outsideSize = c.getNumber();
-                    outsideBaseY = c.getYpo() - c.getHeight();
-                    lastOutsideWasLid = false;
-                    topOutsideLid = null;
-                    updateHighestCupTop(c);
-                    c.makeVisible();
-    
-                } else {
-                    boolean goesOutside = lastOutsideWasLid || (c.getNumber() >= outsideSize);
-    
-                    if (goesOutside) {
-                        if (lastOutsideWasLid && topOutsideLid != null) {
-                            c.placeAboveLid(topOutsideLid);
-                        } else {
-                            c.placeOutside(CANVAS_WIDTH, highestCupTopY);
-                        }
-                    
-                        c.setInside(false);
-                        parentByCup.remove(c);
-                    
-                        outer = c;
-                        insideStack.clear();
-                        outsideSize = c.getNumber();
-                        outsideBaseY = c.getYpo() - c.getHeight();
-                        lastOutsideWasLid = false;
-                        topOutsideLid = null;
-                        updateHighestCupTop(c);
-                        c.makeVisible();
-                    } else {
-                        Cup container = findContainerForCup(c);
-                        if (container == null) continue;
-                        Cup support = findSupportForCup(c, container);
-                        if (support == null) {
-                            c.placeInside(container, topInsideLidByCup.get(container), GROSOR);
-                        } else {
-                            c.placeAbove(support, container, topInsideLidByCup.get(support), GROSOR);
-                        }
-                        c.setInside(true);
-                        parentByCup.put(c, container);
-                        insideStack.push(c);
-                        updateHighestCupTop(c);
-                    }
-                }
-    
-                c.makeVisible();
-    
-            } else if (isLid(tipo)) {
-                Lid l = findLid(numero);
-                if (l == null) continue;
-    
-                if (outer == null) {
-                    if (lastOutsideWasLid && topOutsideLid != null) {
-                        l.placeAboveLid(topOutsideLid);
-                    } else {
-                        l.placeOutside(CANVAS_WIDTH, highestCupTopY);
-                    }
-    
-                    l.setInside(false);
-                    insideStack.clear();
-                    outsideSize = l.getNumber();
-                    outsideBaseY = l.getYpo() - l.getHeight();
-                    lastOutsideWasLid = true;
-                    topOutsideLid = l;
-                    updateHighestTopWithLid(l);
-                    l.makeVisible();
-                } else {
-                    Cup container = findContainerForLid(l);
-                    boolean goesOutside = (container == null) || (l.getNumber() >= outsideSize);
-    
-                    if (goesOutside) {
-                        if (topOutsideLid == null) {
-                            l.placeOutside(CANVAS_WIDTH, highestCupTopY);
-                        } else {
-                            l.placeAboveLid(topOutsideLid);
-                        }
-    
-                        l.setInside(false);
-                        insideStack.clear();
-                        outsideSize = l.getNumber();
-                        outsideBaseY = l.getYpo() - l.getHeight();
-                        lastOutsideWasLid = true;
-                        topOutsideLid = l;
-                        updateHighestTopWithLid(l);
-                        l.makeVisible();
-                    } else {
-                        Cup support = findSupportForLid(l, container);
-                        Lid topInside = topInsideLidByCup.get(container);
-                        
-                        if (container.getNumber() == l.getNumber()) {
-                            l.placeOnCup(container, topInsideLidByCup.get(container));
-                            topInsideLidByCup.put(container, l);
-                        
-                        } else if (support == null) {
-                            l.placeInside(container, topInside, GROSOR);
-                            topInsideLidByCup.put(container, l);
-                        
-                        } else {
-                            l.placeAboveCup(support, container, topInsideLidByCup.get(support), GROSOR);
-                            topInsideLidByCup.put(support, l);
-                        }
-                        
-                        l.setInside(true);
-                        l.makeVisible();
-                        }
-                }
-    
-                isOK = true;
-            }
-        }
+        prepareLayout();
+        layoutElements(CANVAS_WIDTH, GROSOR);
     }
             
     private Cup findSupportForCup(Cup c) {
@@ -370,17 +244,191 @@ public class Tower
         outer = null;
         insideStack.clear();
         topInsideLidByCup.clear();
+        topLidInContainer.clear();
+        parentByCup.clear();
     
         lastOutsideWasLid = false;
         topOutsideLid = null;
     
         outsideSize = 0;
         outsideBaseY = 0;
-    
         highestCupTopY = Y;
-        parentByCup.clear();
     }
     
+    private void prepareLayout() {
+        prepareCupsBeforeLayout();
+        reorderSpecialLidsInPlace();
+        hideAllElements();
+        resetLayoutState();
+    }
+    
+    private void layoutElements(int canvasWidth, int grosor) {
+        for (String[] item : insertionOrder) {
+            String type = item[0];
+            int number = Integer.parseInt(item[1]);
+    
+            if (isCup(type)) {
+                layoutCup(number, canvasWidth, grosor);
+            } else if (isLid(type)) {
+                layoutLid(number, canvasWidth, grosor);
+            }
+        }
+    }
+
+    private void layoutCup(int number, int canvasWidth, int grosor) {
+        Cup c = findCup(number);
+        if (c == null) return;
+    
+        if (outer == null) {
+            placeFirstCup(c, canvasWidth);
+        } else {
+            placeNextCup(c, canvasWidth, grosor);
+        }
+    
+        c.makeVisible();
+    }
+    
+    private void placeFirstCup(Cup c, int canvasWidth) {
+        if (topOutsideLid != null) {
+            c.placeAboveLid(topOutsideLid);
+        } else {
+            c.placeOutside(canvasWidth, Y);
+        }
+    
+        c.setInside(false);
+        parentByCup.remove(c);
+    
+        outer = c;
+        insideStack.clear();
+        outsideSize = c.getNumber();
+        outsideBaseY = c.getYpo() - c.getHeight();
+        lastOutsideWasLid = false;
+        topOutsideLid = null;
+        updateHighestCupTop(c);
+    }
+    
+    private void placeNextCup(Cup c, int canvasWidth, int grosor) {
+        boolean goesOutside = lastOutsideWasLid || (c.getNumber() >= outsideSize);
+    
+        if (goesOutside) {
+            placeCupOutside(c, canvasWidth);
+        } else {
+            placeCupInside(c, grosor);
+        }
+    }
+    
+    private void placeCupOutside(Cup c, int canvasWidth) {
+        if (lastOutsideWasLid && topOutsideLid != null) {
+            c.placeAboveLid(topOutsideLid);
+        } else {
+            c.placeOutside(canvasWidth, highestCupTopY);
+        }
+    
+        c.setInside(false);
+        parentByCup.remove(c);
+    
+        outer = c;
+        insideStack.clear();
+        outsideSize = c.getNumber();
+        outsideBaseY = c.getYpo() - c.getHeight();
+        lastOutsideWasLid = false;
+        topOutsideLid = null;
+        updateHighestCupTop(c);
+    }
+    
+    private void placeCupInside(Cup c, int grosor) {
+        Cup container = findContainerForCup(c);
+        if (container == null) return;
+    
+        Cup support = findSupportForCup(c, container);
+    
+        Lid lidOnContainer = topInsideLidByCup.get(container);
+        Lid lidOnSupport = (support == null) ? null : topInsideLidByCup.get(support);
+    
+        c.placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);
+    
+        c.setInside(true);
+        parentByCup.put(c, container);
+        insideStack.push(c);
+        updateHighestCupTop(c);
+    }
+    
+    private void layoutLid(int number, int canvasWidth, int grosor) {
+        Lid l = findLid(number);
+        if (l == null) return;
+    
+        if (outer == null) {
+            placeFirstLid(l, canvasWidth);
+        } else {
+            placeNextLid(l, canvasWidth, grosor);
+        }
+    
+        l.makeVisible();
+        isOK = true;
+    }
+    
+    private void placeFirstLid(Lid l, int canvasWidth) {
+        if (lastOutsideWasLid && topOutsideLid != null) {
+            l.placeAboveLid(topOutsideLid);
+        } else {
+            l.placeOutside(canvasWidth, highestCupTopY);
+        }
+    
+        l.setInside(false);
+        insideStack.clear();
+        outsideSize = l.getNumber();
+        outsideBaseY = l.getYpo() - l.getHeight();
+        lastOutsideWasLid = true;
+        topOutsideLid = l;
+        updateHighestTopWithLid(l);
+    }
+    
+    private void placeNextLid(Lid l, int canvasWidth, int grosor) {
+        Cup container = findContainerForLid(l);
+        boolean goesOutside = lastOutsideWasLid || (container == null) || (l.getNumber() >= outsideSize);
+    
+        if (goesOutside) {
+            placeLidOutside(l, canvasWidth);
+        } else {
+            placeLidInside(l, container, grosor);
+        }
+    }
+    
+    private void placeLidOutside(Lid l, int canvasWidth) {
+        if (topOutsideLid == null) {
+            l.placeOutside(canvasWidth, highestCupTopY);
+        } else {
+            l.placeAboveLid(topOutsideLid);
+        }
+    
+        l.setInside(false);
+        insideStack.clear();
+        outsideSize = l.getNumber();
+        outsideBaseY = l.getYpo() - l.getHeight();
+        lastOutsideWasLid = true;
+        topOutsideLid = l;
+        updateHighestTopWithLid(l);
+    }
+    
+    private void placeLidInside(Lid l, Cup container, int grosor) {
+        Cup support = findSupportForLid(l, container);
+    
+        if (container.getNumber() == l.getNumber()) {
+            l.placeOnCup(container, topInsideLidByCup.get(container));
+            topInsideLidByCup.put(container, l);
+    
+        } else if (support == null) {
+            l.placeInside(container, topLidInContainer.get(container), grosor);
+            topLidInContainer.put(container, l);
+    
+        } else {
+            l.placeAboveCup(support, container, topInsideLidByCup.get(support), grosor);
+            topInsideLidByCup.put(support, l);
+        }
+    
+        l.setInside(true);
+    }
+    //-----Redraw fin ---------------------------
     /**
      * Hace visibles las copas y tapas siguiendo el orden definido
      * en insertionOrder.
@@ -434,7 +482,11 @@ public class Tower
     
             Cup parent = parentByCup.get(inside);
     
-            if (parent == container && inside.getNumber() < l.getNumber()) {
+            if (parent != container) {
+                continue;
+            }
+    
+            if (inside.getNumber() <= l.getNumber()) {
                 if (bestSupport == null || inside.getNumber() > bestSupport.getNumber()) {
                     bestSupport = inside;
                 }
@@ -705,9 +757,11 @@ public class Tower
             isOK = false;
             return;
         }
+    
         Stack<Lid> temp = new Stack<>();
         boolean found = false;
         Lid target = null;
+    
         while (!lids.isEmpty()) {
             Lid l = lids.pop();
             if (!found && l.getNumber() == number) {
@@ -718,7 +772,7 @@ public class Tower
                 temp.push(l);
             }
         }
-        
+    
         if (!found) {
             while (!temp.isEmpty()) {
                 lids.push(temp.pop());
@@ -735,10 +789,17 @@ public class Tower
             isOK = false;
             return;
         }
+    
+        Cup partner = target.getPartnerCup();
+        if (partner != null && partner.getLid() == target) {
+            partner.addLid(null);
+        }
+    
         target.makeInvisible();
+    
         for (int i = 0; i < insertionOrder.size(); i++) {
             String[] elem = insertionOrder.get(i);
-            if (elem[0].equals("lid") &&elem[1].equals(String.valueOf(number))) {
+            if (elem[0].equals("lid") && elem[1].equals(String.valueOf(number))) {
                 insertionOrder.remove(i);
                 break;
             }
@@ -747,7 +808,9 @@ public class Tower
         while (!temp.isEmpty()) {
             lids.push(temp.pop());
         }
+    
         isOK = true;
+    
         if (this.isVisible) {
             redraw();
         }
@@ -1001,20 +1064,23 @@ public class Tower
      * - Redibuja la torre.
      */
     public void cover() {
-        for (int i = 0; i < insertionOrder.size(); i++) {
-            String[] actual = insertionOrder.get(i);
-            if (actual[0].equals("cup")) {
-                String numero = actual[1];
-                for (int j = 0; j < insertionOrder.size(); j++) {
-                    String[] posibleLid = insertionOrder.get(j);
-                    if (posibleLid[0].equals("lid") && posibleLid[1].equals(numero)) {
-                        insertionOrder.remove(j);
-                        insertionOrder.add(i, posibleLid);
-                        break;
-                    }
-                }
+        ArrayList<String[]> cupsInOrder = new ArrayList<>();
+        ArrayList<String[]> lidsInOrder = new ArrayList<>();
+    
+        for (String[] elem : insertionOrder) {
+            if (elem[0].equals("cup")) {
+                cupsInOrder.add(elem);
+            } else if (elem[0].equals("lid")) {
+                lidsInOrder.add(elem);
             }
         }
+    
+        lidsInOrder.sort((a, b) -> Integer.parseInt(a[1]) - Integer.parseInt(b[1]));
+    
+        insertionOrder.clear();
+        insertionOrder.addAll(cupsInOrder);
+        insertionOrder.addAll(lidsInOrder);
+    
         redraw();
         isOK = true;
     }
@@ -1133,18 +1199,12 @@ public class Tower
      * Si ninguna cup del stack la contiene, usa outer.
      */
     private Cup findContainerForLid(Lid l) {
-        Cup best = null;
+        for (int i = insideStack.size() - 1; i >= 0; i--) {
+            Cup inside = insideStack.get(i);
     
-        for (Cup inside : insideStack) {
             if (inside.getNumber() >= l.getNumber()) {
-                if (best == null || inside.getNumber() < best.getNumber()) {
-                    best = inside;
-                }
+                return inside;
             }
-        }
-    
-        if (best != null) {
-            return best;
         }
     
         if (outer != null && outer.getNumber() >= l.getNumber()) {
