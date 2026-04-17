@@ -264,4 +264,8 @@ public abstract class Lid
     public String getSecondaryColor() {
         return null;
     }
+    
+    public boolean actsAsBaseForPartner() {
+        return false;
+    }
 }

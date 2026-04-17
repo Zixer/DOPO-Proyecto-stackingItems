@@ -90,4 +90,9 @@ public class CrazyLid extends Lid
             mark.makeVisible();
         }
     }
+    
+    @Override
+    public boolean actsAsBaseForPartner() {
+        return true;
+    }
 }

@@ -203,9 +203,10 @@ public class Tower
     public void redraw() {
         final int CANVAS_WIDTH = 300;
         final int GROSOR = 5;
-    
-        prepareLayout();
-        layoutElements(CANVAS_WIDTH, GROSOR);
+        if (isVisible){
+            prepareLayout();
+            layoutElements(CANVAS_WIDTH, GROSOR);
+        }
     }
             
     private Cup findSupportForCup(Cup c) {
@@ -281,6 +282,17 @@ public class Tower
     private void layoutCup(int number, int currentIndex, int canvasWidth, int grosor) {
         Cup c = findCup(number);
         if (c == null) return;
+    
+        Lid partnerLid = c.getLid();
+    
+        if (partnerLid != null && partnerLid.actsAsBaseForPartner() && partnerLid.isVisible()) {
+            c.placeAboveLid(partnerLid);
+            c.setInside(partnerLid.isInside());
+            parentByCup.remove(c);
+            c.makeVisible();
+            updateHighestCupTop(c);
+            return;
+        }
     
         if (outer == null) {
             placeFirstCup(c, canvasWidth);

@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=TowerCC4test
+comment1.params=
+comment1.target=void\ shouldBuildTowerWithMultipleTypes()
+comment2.params=
+comment2.target=void\ shouldMaintainOrderConsistency()
+comment3.params=
+comment3.target=void\ shouldSwapElements()
+numComments=4
