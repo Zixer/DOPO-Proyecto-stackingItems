@@ -34,6 +34,12 @@ public class FearfulLid extends Lid
         return tower.isCoveringPartner(this);
     }
     
+    @Override
+    public void makeVisible() {
+        super.makeVisible();
+        draw();
+    }
+    
     public void draw() {
         if (!isVisible()) return;
         erase();
@@ -44,11 +50,11 @@ public class FearfulLid extends Lid
         lid.changeP(getXpo(), getYpo() - getHeight());
         lid.makeVisible();
     
-        if (hasDecoration()) {
-            mark.changeSize(2, getWidth() / 2);
-            mark.changeColor(getSecondaryColor());
-            mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);
-            mark.makeVisible();
-        }
+        
+        mark.changeSize(2, getWidth() / 2);
+        mark.changeColor("lightYellow");
+        mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);
+        mark.makeVisible();
+        
     }
 }

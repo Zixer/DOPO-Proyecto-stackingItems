@@ -56,7 +56,6 @@ public class TowerContestAcceptanceTest {
             "¿La simulación del caso pequeño se ejecutó correctamente y se vio coherente?",
             "Aceptación - simulate caso pequeño"
         );
-
         System.out.println(accepted ? "Prueba aceptada" : "Prueba rechazada");
     }
 

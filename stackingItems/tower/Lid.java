@@ -260,4 +260,62 @@ public  class Lid
     public boolean actsAsBaseForPartner() {
         return false;
     }
+    
+    public boolean matchesNumber(int number) {
+        return this.getNumber() == number;
+    }
+    
+    public boolean isPartnerOf(Cup cup) {
+        return partnerCup != null && partnerCup == cup;
+    }
+    
+    public void detachFromPartner() {
+        if (partnerCup != null) {
+            Cup temp = partnerCup;
+            partnerCup = null;
+            if (temp.getLid() == this) {
+                temp.detachLid();
+            }
+        }
+    }
+    
+    public boolean isCoveringPartnerIn(Tower tower) {
+        return tower.isCoveringPartner(this);
+    }
+    
+    public boolean shouldGoOutside(boolean lastOutsideWasLid, Cup container, int outsideSize) {
+        return lastOutsideWasLid || container == null || this.getNumber() >= outsideSize;
+    }
+    
+    public void placeAsFirst(int canvasWidth, int highestCupTopY, Lid topOutsideLid, boolean lastOutsideWasLid) {
+        if (lastOutsideWasLid && topOutsideLid != null) {
+            placeAboveLid(topOutsideLid);
+        } else {
+            placeOutside(canvasWidth, highestCupTopY);
+        }
+        setInside(false);
+    }
+    
+    public void placeAsOutside(int canvasWidth, int highestCupTopY, Lid topOutsideLid) {
+        if (topOutsideLid == null) {
+            placeOutside(canvasWidth, highestCupTopY);
+        } else {
+            placeAboveLid(topOutsideLid);
+        }
+        setInside(false);
+    }
+    
+    public void placeAsInside(Cup container,Cup support,Lid lidOnContainer,Lid lidOnSupport,int grosor) {
+        if (container == null) return;
+    
+        if (container.getNumber() == this.getNumber()) {
+            placeOnCup(container, lidOnContainer);
+        } else if (support == null) {
+            placeInside(container, lidOnContainer, grosor);
+        } else {
+            placeAboveCup(support, container, lidOnSupport, grosor);
+        }
+    
+        setInside(true);
+    }
 }

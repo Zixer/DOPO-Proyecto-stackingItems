@@ -61,7 +61,7 @@ public class CrazyLid extends Lid
         String[] lidElem = order.remove(lidIndex);
         order.add(cupIndex, lidElem);
     }
-
+    
     public void draw() {
         if (!isVisible()) return;
     
@@ -73,13 +73,10 @@ public class CrazyLid extends Lid
         lid.changeP(getXpo(), getYpo() - getHeight());
         lid.makeVisible();
     
-        if (hasDecoration()) {
-            mark.changeSize(2, getWidth() / 2);
-            mark.changeColor(getSecondaryColor());
-            mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);
-            mark.makeVisible();
-        }
+        mark.changeSize(2, getWidth() / 2);
+        mark.changeColor("lightOrange");
+        mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);
+        mark.makeVisible();
+    }
     }
     
-
-}

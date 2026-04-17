@@ -286,4 +286,51 @@ public  class Cup{
             placeAbove(support, container, lidOnSupport, grosor);
         }
     }
+    
+    public boolean shouldGoOutside(boolean lastOutsideWasLid, int outsideSize) {
+            return lastOutsideWasLid || this.getNumber() >= outsideSize;
+    }
+    
+    public void placeAsFirst(int canvasWidth, int baseY, Lid topOutsideLid) {
+        if (topOutsideLid != null) {
+            placeAboveLid(topOutsideLid);
+        } else {
+            placeOutside(canvasWidth, baseY);
+        }
+        setInside(false);
+    }
+    
+    public void placeAsOutside(int canvasWidth, int highestCupTopY, Lid topOutsideLid, boolean lastOutsideWasLid) {
+        if (lastOutsideWasLid && topOutsideLid != null) {
+            placeAboveLid(topOutsideLid);
+        } else {
+            placeOutside(canvasWidth, highestCupTopY);
+        }
+        setInside(false);
+    }
+    
+    public void detachLid() {
+        if (lid != null) {
+            lid.setPartnerCup(null);
+            lid = null;
+        }
+    }
+    
+    public boolean matchesNumber(int number) {
+        return this.getNumber() == number;
+    }
+    
+    public boolean shouldBePlacedOnBaseLid() {
+        return lid != null && lid.actsAsBaseForPartner() && lid.isVisible();
+    }
+    
+    public void placeOnBaseLid() {
+        placeAboveLid(lid);
+        setInside(lid.isInside());
+    }
+    
+    public void placeAsInside(Cup container,Cup support,Lid lidOnContainer,Lid lidOnSupport,int grosor) {
+        placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);
+        setInside(true);
+    }
 }

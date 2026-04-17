@@ -67,6 +67,7 @@ public class TowerContest {
 
         tower.makeVisible();
         tower.redraw();
+        tower.exit();
         return tower;
     }
 
