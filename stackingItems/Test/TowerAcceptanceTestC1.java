@@ -1,5 +1,5 @@
-package tower;
-
+package Test;
+import tower.*;
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
 
@@ -264,6 +264,7 @@ public class TowerAcceptanceTestC1 {
                 ? "Prueba aceptada"
                 : "Prueba rechazada"
         );
+        
         tower.makeInvisible();
         return tower;
     }

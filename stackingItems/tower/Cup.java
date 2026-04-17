@@ -8,7 +8,7 @@ import java.util.*;
  * @author (your name)
  * @version (a version number or a date)
  */
-public abstract class Cup{
+public  class Cup{
     // instance variables - replace the example below with your own
     private int number;
     private int height;
@@ -185,7 +185,7 @@ public abstract class Cup{
     }
     
     public void drawDecoration() {
-        // por defecto no hace nada
+        
     }
     
     /**

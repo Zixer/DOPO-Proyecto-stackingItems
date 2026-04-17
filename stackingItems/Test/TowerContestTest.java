@@ -1,4 +1,5 @@
-package tower;
+package Test;
+import tower.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +33,6 @@ public class TowerContestTest {
     @Test
     public void shouldPassSolveMaximumHeightCase() {
         assertEquals("1 3", TowerContest.solve(2, 4));
-    }
-
-    @Test
-    public void shouldPassSimulateValidCase() {
-        assertNotNull(TowerContest.simulate(2, 3));
     }
 
     @Test

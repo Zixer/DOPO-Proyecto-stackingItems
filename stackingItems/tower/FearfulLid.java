@@ -36,7 +36,6 @@ public class FearfulLid extends Lid
     
     public void draw() {
         if (!isVisible()) return;
-    
         erase();
     
         lid = new Rectangle();
