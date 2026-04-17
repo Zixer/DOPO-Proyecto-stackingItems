@@ -61,7 +61,7 @@ public class CrazyLid extends Lid
         String[] lidElem = order.remove(lidIndex);
         order.add(cupIndex, lidElem);
     }
-    
+
     public void draw() {
         if (!isVisible()) return;
     
@@ -78,5 +78,5 @@ public class CrazyLid extends Lid
         mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);
         mark.makeVisible();
     }
-    }
-    
+
+}
