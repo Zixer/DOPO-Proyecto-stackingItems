@@ -106,10 +106,6 @@ public  class Lid
         return number;
     }
     
-    public int getSize() {
-        return number;
-    }
-    
     public void setPartnerCup(Cup cup) {
         this.partnerCup = cup;
     }
@@ -219,20 +215,18 @@ public  class Lid
     }
     
     public void placeOnCup(Cup cup, Lid lidOnCup) {
-        if (cup == null) return;
-    
+        if (cup == null) return;    
         int x = cup.getXpo() + (cup.getWidth() - getWidth()) / 2;
         int y;
-    
         if (lidOnCup == null) {
             y = cup.getYpo() - cup.getHeight();
         } else {
             y = lidOnCup.getYpo() - lidOnCup.getHeight();
         }
-    
         setPosition(x, y);
         setInside(true);
     }
+    
     public boolean canEnter(Tower tower) {
         return true;
     }
@@ -249,24 +243,8 @@ public  class Lid
         // comportamiento por defecto: no hace nada
     }
     
-    public boolean hasDecoration() {
-        return false;
-    }
-    
-    public String getSecondaryColor() {
-        return null;
-    }
-    
     public boolean actsAsBaseForPartner() {
         return false;
-    }
-    
-    public boolean matchesNumber(int number) {
-        return this.getNumber() == number;
-    }
-    
-    public boolean isPartnerOf(Cup cup) {
-        return partnerCup != null && partnerCup == cup;
     }
     
     public void detachFromPartner() {
@@ -277,10 +255,6 @@ public  class Lid
                 temp.detachLid();
             }
         }
-    }
-    
-    public boolean isCoveringPartnerIn(Tower tower) {
-        return tower.isCoveringPartner(this);
     }
     
     public boolean shouldGoOutside(boolean lastOutsideWasLid, Cup container, int outsideSize) {

@@ -22,7 +22,7 @@ public class CrazyLid extends Lid
     
     public void erase() {
         if (lid != null) lid.makeInvisible();  
-        if (hasDecoration()) mark.makeInvisible();
+        if (mark != null) mark.makeInvisible();
     }
     
     @Override

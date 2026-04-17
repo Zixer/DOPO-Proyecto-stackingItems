@@ -292,7 +292,7 @@ public class Tower
             Cup support = findSupportForCup(c, container, currentIndex);
             Lid lidOnContainer = topInsideLidByCup.get(container);
             Lid lidOnSupport = (support == null) ? null : topInsideLidByCup.get(support);
-            c.placeAsInside(container, support, lidOnContainer, lidOnSupport, grosor);
+            c.placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);
             parentByCup.put(c, container);
             insideStack.push(c);
         }
@@ -316,7 +316,7 @@ public class Tower
             Cup support = findSupportForCup(c, container, currentIndex);
             Lid lidOnContainer = topInsideLidByCup.get(container);
             Lid lidOnSupport = (support == null) ? null : topInsideLidByCup.get(support);
-            c.placeAsInside(container, support, lidOnContainer, lidOnSupport, grosor);
+            c.placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);
             parentByCup.put(c, container);
             insideStack.push(c);
         }

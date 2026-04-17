@@ -297,7 +297,6 @@ public  class Cup{
         } else {
             placeOutside(canvasWidth, baseY);
         }
-        setInside(false);
     }
     
     public void placeAsOutside(int canvasWidth, int highestCupTopY, Lid topOutsideLid, boolean lastOutsideWasLid) {
@@ -306,7 +305,6 @@ public  class Cup{
         } else {
             placeOutside(canvasWidth, highestCupTopY);
         }
-        setInside(false);
     }
     
     public void detachLid() {
@@ -314,10 +312,6 @@ public  class Cup{
             lid.setPartnerCup(null);
             lid = null;
         }
-    }
-    
-    public boolean matchesNumber(int number) {
-        return this.getNumber() == number;
     }
     
     public boolean shouldBePlacedOnBaseLid() {
@@ -328,9 +322,5 @@ public  class Cup{
         placeAboveLid(lid);
         setInside(lid.isInside());
     }
-    
-    public void placeAsInside(Cup container,Cup support,Lid lidOnContainer,Lid lidOnSupport,int grosor) {
-        placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);
-        setInside(true);
-    }
+
 }
