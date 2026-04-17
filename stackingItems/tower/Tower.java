@@ -1257,69 +1257,6 @@ public class Tower
             redraw();
         }
     }
-
-    private void removeLidsBetween(int containerNumber, int cupIndex) {
-        boolean started = false;
-        ArrayList<Lid> toRemove = new ArrayList<>();
-    
-        for (int i = 0; i < insertionOrder.size(); i++) {
-            String[] elem = insertionOrder.get(i);
-    
-            if (elem[0].equals("cup") && 
-                elem[1].equals(String.valueOf(containerNumber))) {
-                started = true;
-                continue;
-            }
-    
-            if (i >= cupIndex) break;
-    
-            if (started && elem[0].equals("lid")) {
-                Lid lid = findLid(Integer.parseInt(elem[1]));
-                if (lid != null) {
-                    toRemove.add(lid);
-                }
-            }
-        }
-    
-        for (Lid lid : toRemove) {
-            removeSpecificLid(lid);
-        }
-    }
-    
-    private void removeOutsideLidsBefore(int cupIndex, int cupNumber) {
-        ArrayList<Lid> toRemove = new ArrayList<>();
-        int previousCupNumber = -1;
-        for (int i = cupIndex - 1; i >= 0; i--) {
-            String[] elem = insertionOrder.get(i);    
-            if (elem[0].equals("cup")) {
-                previousCupNumber = Integer.parseInt(elem[1]);
-                break;
-            }
-        }
-    
-        if (previousCupNumber == -1) {
-            return;
-        }
-
-        for (int i = cupIndex - 1; i >= 0; i--) {
-            String[] elem = insertionOrder.get(i);
-            if (elem[0].equals("cup")) {
-                break;
-            }
-    
-            if (elem[0].equals("lid")) {
-                int lidNum = Integer.parseInt(elem[1]);
-                Lid lid = findLid(lidNum);
-                if (lid != null && lidNum > previousCupNumber) {
-                    toRemove.add(lid);
-                }
-            }
-        }
-    
-        for (Lid lid : toRemove) {
-            removeSpecificLid(lid);
-        }
-    }
     
     public Cup findContainerBefore(int cupIndex, Cup cup) {
         Cup best = null;
@@ -1635,23 +1572,4 @@ public class Tower
         insertionOrder.add(0, cupData);
     }
     
-    private void cleanStackForContainer(Cup container) {
-        Stack<Cup> newStack = new Stack<>();
-        for (Cup cup : insideStack) {
-            Cup parent = parentByCup.get(cup);
-    
-            if (cup == container || parent == container) {
-                newStack.push(cup);
-            }
-        }
-        insideStack = newStack;
-    }
-    
-    private Cup findContainerFromSupport(Cup support) {
-        if (support == null) {
-            return null;
-        }
-        Cup parent = parentByCup.get(support);
-        return (parent != null) ? parent : outer;
-    }
 }

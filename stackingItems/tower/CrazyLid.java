@@ -62,6 +62,11 @@ public class CrazyLid extends Lid
         order.add(cupIndex, lidElem);
     }
 
+    @Override
+    public boolean actsAsBaseForPartner() {
+        return true;
+    }
+    
     public void draw() {
         if (!isVisible()) return;
     
