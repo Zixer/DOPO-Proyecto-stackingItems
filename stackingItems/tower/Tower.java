@@ -182,7 +182,7 @@ public class Tower
             redraw();
         }
     }
-    //--------------------------
+
     /**
      * Recalcula completamente la disposición visual de copas y tapas.
      *
