@@ -206,7 +206,15 @@ public class Tower
     }
     
     /**
-     * Oculta visualmente todas las copas y tapas de la torre.
+     * Recalcula por completo la disposición visual de todos los elementos de la torre.
+     *
+     * Si la torre está visible, este método reinicia el estado auxiliar del layout,
+     * prepara los elementos antes del reposicionamiento y recorre el orden de inserción
+     * para decidir, en cada caso, si una copa o tapa debe ubicarse por fuera o por dentro
+     * de la torre.
+     *
+     * La reconstrucción visual se hace desde cero, por lo que este método centraliza
+     * el comportamiento gráfico global del simulador.
      */
     private void hideAllElements() {
         for (Cup c : cups) c.makeInvisible();
@@ -258,6 +266,21 @@ public class Tower
         }
     }
 
+    /**
+     * Ubica visualmente una copa específica dentro de la torre según el estado
+     * actual del layout y las reglas de posicionamiento.
+     *
+     * El método contempla varios escenarios: copas que deben apoyarse sobre una
+     * tapa base especial, copas que se convierten en el elemento exterior principal,
+     * y copas que deben entrar dentro de otra copa como parte de la estructura
+     * interna. Después de posicionarla, la vuelve visible y actualiza la altura
+     * máxima ocupada por la torre.
+     *
+     * @param number número de la copa a ubicar.
+     * @param currentIndex posición actual de la copa dentro del orden de inserción.
+     * @param canvasWidth ancho disponible del lienzo.
+     * @param grosor grosor visual usado para cálculos internos de posición.
+     */
     private void layoutCup(int number, int currentIndex, int canvasWidth, int grosor) {
         Cup c = findCup(number);
         if (c == null) return;
@@ -300,6 +323,19 @@ public class Tower
         updateHighestCupTop(c);
     }
     
+    /**
+     * Posiciona una copa que no es la primera del layout actual.
+     *
+     * Dependiendo del tamaño de la copa y del estado de la torre, decide si esta
+     * debe quedar como nuevo elemento exterior o si debe ingresar dentro de una
+     * copa contenedora ya existente. En ambos casos actualiza las estructuras
+     * auxiliares del layout para reflejar la nueva posición.
+     *
+     * @param c copa a posicionar.
+     * @param currentIndex posición actual de la copa dentro de {@code insertionOrder}.
+     * @param canvasWidth ancho del lienzo de dibujo.
+     * @param grosor grosor visual de referencia para cálculos internos.
+     */
     private void placeNextCup(Cup c, int currentIndex, int canvasWidth, int grosor) {
         if (c.shouldGoOutside(lastOutsideWasLid, outsideSize)) {
             c.placeAsOutside(canvasWidth, highestCupTopY, topOutsideLid, lastOutsideWasLid);
@@ -322,6 +358,20 @@ public class Tower
         }
     }
     
+    /**
+     * Ubica visualmente una tapa específica dentro de la torre según las reglas
+     * del layout actual.
+     *
+     * El método determina si la tapa debe quedar por fuera de la torre o dentro
+     * de una copa contenedora. En caso de ubicarse internamente, identifica si
+     * debe quedar directamente sobre su copa pareja, dentro del contenedor o
+     * sobre otra copa interna. Finalmente la hace visible y actualiza la altura
+     * máxima ocupada.
+     *
+     * @param number número de la tapa a ubicar.
+     * @param canvasWidth ancho disponible del lienzo.
+     * @param grosor grosor visual usado para cálculos de ubicación interna.
+     */
     private void layoutLid(int number, int canvasWidth, int grosor) {
         Lid l = findLid(number);
         if (l == null) return;
@@ -360,6 +410,17 @@ public class Tower
         isOK = true;
     }
     
+    /**
+     * Posiciona una tapa que no es la primera del layout actual.
+     *
+     * Si la tapa debe quedar por fuera, la ubica como nuevo elemento exterior.
+     * En caso contrario, la coloca dentro del contenedor apropiado y actualiza
+     * las referencias de tapas superiores internas según el caso correspondiente.
+     *
+     * @param l tapa a posicionar.
+     * @param canvasWidth ancho del lienzo de dibujo.
+     * @param grosor grosor visual usado como margen interno.
+     */
     private void placeNextLid(Lid l, int canvasWidth, int grosor) {
         Cup container = findContainerForLid(l);
         if (l.shouldGoOutside(lastOutsideWasLid, container, outsideSize)) {
@@ -406,6 +467,18 @@ public class Tower
         highestCupTopY = Math.min(highestCupTopY, top);
     }
 
+    /**
+     * Busca la mejor copa de soporte para ubicar una tapa dentro de un contenedor.
+     *
+     * El soporte elegido debe ser una copa interna hija del contenedor indicado
+     * cuyo tamaño sea menor o igual al de la tapa y, entre todas las candidatas
+     * válidas, se selecciona la de mayor tamaño.
+     *
+     * @param l tapa que se desea ubicar.
+     * @param container copa contenedora dentro de la cual se busca soporte.
+     * @return la mejor copa de soporte encontrada, o null si la tapa debe
+     *         ubicarse directamente dentro del contenedor.
+     */
     private Cup findSupportForLid(Lid l, Cup container) {
         Cup bestSupport = null;
         for (Cup inside : insideStack) {
@@ -1131,6 +1204,20 @@ public class Tower
         return best;
     }
     
+    /**
+     * Agrega una nueva copa del tipo indicado a la torre.
+     *
+     * Valida que el tamaño solicitado sea admisible, obtiene un color único libre
+     * y crea la subclase correspondiente según el tipo recibido. Si existe una tapa
+     * previa del mismo tamaño sin pareja, la nueva copa se asocia con ella antes
+     * de ser insertada. Finalmente registra la copa en la torre y actualiza el
+     * layout si el simulador se encuentra visible.
+     *
+     * @param type tipo de copa que se desea crear.
+     * @param i número o tamaño de la copa.
+     * @throws towerException si el tamaño está duplicado o si el tipo solicitado
+     *                        no existe en la implementación.
+     */
     public void pushCup(String type, int i) throws towerException {
         if (i > maxWidth || duplicatedSize(i)) {
             throw new towerException(towerException.DUPLICATED_SIZE);
