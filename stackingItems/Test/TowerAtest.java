@@ -1,8 +1,8 @@
-package tower;
+package Test;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
-
+import tower.*;
 public class TowerAtest {
 
     private long defaultDelay;

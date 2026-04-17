@@ -2,7 +2,7 @@ package tower;
 import Shapes.*;
 
 
-public abstract class Lid
+public  class Lid
 {
     private int number;
     private int height;
@@ -60,7 +60,6 @@ public abstract class Lid
     public boolean isInside() {
         return this.inside;
     }
-    
     
     /**
      * Hace invisible la tapa en pantalla.
@@ -169,7 +168,6 @@ public abstract class Lid
      */
     public void erase() {
         if (lid != null) lid.makeInvisible();
-        
     }
     
     public boolean isVisible(){
@@ -184,36 +182,30 @@ public abstract class Lid
     
     public void placeInside(Cup container, Lid topInside, int grosor) {
         if (container == null) return;
-    
         int innerX = container.getXpo() + grosor;
         int innerWidth = container.getWidth() - (2 * grosor);
         int x = innerX + (innerWidth - getWidth()) / 2;
-    
         int y;
         if (topInside == null) {
             y = container.getYpo() - grosor;
         } else {
             y = topInside.getYpo() - topInside.getHeight();
         }
-    
         setPosition(x, y);
         setInside(true);
     }    
     
     public void placeAboveCup(Cup support, Cup container, Lid lidOnSupport, int grosor) {
         if (support == null || container == null) return;
-    
         int innerX = container.getXpo() + grosor;
         int innerWidth = container.getWidth() - (2 * grosor);
         int x = innerX + (innerWidth - getWidth()) / 2;
-    
         int y;
         if (lidOnSupport == null) {
             y = support.getYpo() - support.getHeight();
         } else {
             y = lidOnSupport.getYpo() - lidOnSupport.getHeight();
         }
-    
         setPosition(x, y);
         setInside(true);
     }

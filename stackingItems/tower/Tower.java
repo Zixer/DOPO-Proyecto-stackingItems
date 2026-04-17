@@ -106,7 +106,7 @@ public class Tower
         if (numCups!= 0){
             for (int i = 1; i <= numCups; i++) {
                 int size = (2 * i) - 1;  
-                cups.push(new NormalCup(size, randomColor()));
+                cups.push(new Cup(size, randomColor()));
                 insertionOrder.add(new String[]{"cup", String.valueOf(size)});
             }
         }else {
@@ -164,7 +164,7 @@ public class Tower
     
         if (existingLid != null) {
             color = existingLid.getColor();
-            nueva = new NormalCup(i, color);
+            nueva = new Cup(i, color);
             nueva.addLid(existingLid);
         } else {
             color = getUniqueColor();
@@ -173,8 +173,8 @@ public class Tower
                 return;
             }
     
-            nueva = new NormalCup(i, color);
-            Lid partner = new NormalLid(i, color);
+            nueva = new Cup(i, color);
+            Lid partner = new Lid(i, color);
             nueva.addLid(partner);
         }
     
@@ -207,22 +207,6 @@ public class Tower
             prepareLayout();
             layoutElements(CANVAS_WIDTH, GROSOR);
         }
-    }
-            
-    private Cup findSupportForCup(Cup c) {
-        for (int i = insideStack.size() - 1; i >= 0; i--) {
-            Cup candidate = insideStack.get(i);
-    
-            if (candidate.getNumber() > c.getNumber()) {
-                return candidate;
-            }
-        }
-    
-        if (outer != null && outer.getNumber() > c.getNumber()) {
-            return outer;
-        }
-    
-        return null;
     }
     
     /**
@@ -270,7 +254,6 @@ public class Tower
             String[] item = insertionOrder.get(i);
             String type = item[0];
             int number = Integer.parseInt(item[1]);
-    
             if (isCup(type)) {
                 layoutCup(number, i, canvasWidth, grosor);
             } else if (isLid(type)) {
@@ -282,9 +265,7 @@ public class Tower
     private void layoutCup(int number, int currentIndex, int canvasWidth, int grosor) {
         Cup c = findCup(number);
         if (c == null) return;
-    
         Lid partnerLid = c.getLid();
-    
         if (partnerLid != null && partnerLid.actsAsBaseForPartner() && partnerLid.isVisible()) {
             c.placeAboveLid(partnerLid);
             c.setInside(partnerLid.isInside());
@@ -299,13 +280,11 @@ public class Tower
         } else {
             placeNextCup(c, currentIndex, canvasWidth, grosor);
         }
-    
         c.makeVisible();
     }
     
     private void placeNextCup(Cup c, int currentIndex, int canvasWidth, int grosor) {
         boolean goesOutside = lastOutsideWasLid || (c.getNumber() >= outsideSize);
-    
         if (goesOutside) {
             placeCupOutside(c, canvasWidth);
         } else {
@@ -318,11 +297,9 @@ public class Tower
             c.placeAboveLid(topOutsideLid);
         } else {
             c.placeOutside(canvasWidth, Y);
-        }
-    
+        }    
         c.setInside(false);
         parentByCup.remove(c);
-    
         outer = c;
         insideStack.clear();
         outsideSize = c.getNumber();
@@ -338,10 +315,8 @@ public class Tower
         } else {
             c.placeOutside(canvasWidth, highestCupTopY);
         }
-    
         c.setInside(false);
         parentByCup.remove(c);
-    
         outer = c;
         insideStack.clear();
         outsideSize = c.getNumber();
@@ -354,14 +329,10 @@ public class Tower
     private void placeCupInside(Cup c, int currentIndex, int grosor) {
         Cup container = findContainerForCup(c, currentIndex);
         if (container == null) return;
-    
         Cup support = findSupportForCup(c, container, currentIndex);
-    
         Lid lidOnContainer = topInsideLidByCup.get(container);
         Lid lidOnSupport = (support == null) ? null : topInsideLidByCup.get(support);
-    
         c.placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);
-    
         c.setInside(true);
         parentByCup.put(c, container);
         insideStack.push(c);
@@ -377,7 +348,6 @@ public class Tower
         } else {
             placeNextLid(l, canvasWidth, grosor);
         }
-    
         l.makeVisible();
         isOK = true;
     }
@@ -415,7 +385,6 @@ public class Tower
         } else {
             l.placeAboveLid(topOutsideLid);
         }
-    
         l.setInside(false);
         insideStack.clear();
         outsideSize = l.getNumber();
@@ -427,7 +396,6 @@ public class Tower
     
     private void placeLidInside(Lid l, Cup container, int grosor) {
         Cup support = findSupportForLid(l, container);
-    
         if (container.getNumber() == l.getNumber()) {
             l.placeOnCup(container, topInsideLidByCup.get(container));
             topInsideLidByCup.put(container, l);
@@ -440,31 +408,9 @@ public class Tower
             l.placeAboveCup(support, container, topInsideLidByCup.get(support), grosor);
             topInsideLidByCup.put(support, l);
         }
-    
         l.setInside(true);
     }
     //-----Redraw fin ---------------------------
-    /**
-     * Hace visibles las copas y tapas siguiendo el orden definido
-     * en insertionOrder.
-     */
-    private void showAllElementsInInsertionOrder() {
-        for (String[] item : insertionOrder) {
-            if (isCup(item[0])) {
-                int number = Integer.parseInt(item[1]);
-                Cup c = findCup(number);
-                if (c != null) c.makeVisible();
-            }
-        }
-    
-        for (String[] item : insertionOrder) {
-            if (isLid(item[0])) {
-                int number = Integer.parseInt(item[1]);
-                Lid l = findLid(number);
-                if (l != null) l.makeVisible();
-            }
-        }
-    }
     
     private boolean isCup(String type) {
         return "cup".equals(type);
@@ -489,14 +435,11 @@ public class Tower
 
     private Cup findSupportForLid(Lid l, Cup container) {
         Cup bestSupport = null;
-    
         for (Cup inside : insideStack) {
             if (inside == container) {
                 continue;
             }
-    
             Cup parent = parentByCup.get(inside);
-    
             if (parent != container) {
                 continue;
             }
@@ -507,7 +450,6 @@ public class Tower
                 }
             }
         }
-    
         return bestSupport;
     }
     
@@ -666,33 +608,26 @@ public class Tower
             isOK = false;
             return;
         }
-    
         Cup cup = findCup(i);
         Lid nueva;
-    
         if (cup != null) {
             nueva = cup.getLid();
-    
             if (nueva == null) {
-                nueva = new NormalLid(i, cup.getColor());
+                nueva = new Lid(i, cup.getColor());
                 cup.addLid(nueva);
             }
-    
-
             if (lids.contains(nueva)) {
                 isOK = false;
                 return;
             }
-    
         } else {
             String color = getUniqueColor();
             if (color == null) {
                 isOK = false;
                 return;
             }
-    
-            nueva = new NormalLid(i, color);
-            Cup partner = new NormalCup(i, color);
+            nueva = new Lid(i, color);
+            Cup partner = new Cup(i, color);
             partner.addLid(nueva);
         }
         lids.push(nueva);
@@ -772,11 +707,9 @@ public class Tower
             isOK = false;
             return;
         }
-    
         Stack<Lid> temp = new Stack<>();
         boolean found = false;
         Lid target = null;
-    
         while (!lids.isEmpty()) {
             Lid l = lids.pop();
             if (!found && l.getNumber() == number) {
@@ -804,14 +737,11 @@ public class Tower
             isOK = false;
             return;
         }
-    
         Cup partner = target.getPartnerCup();
         if (partner != null && partner.getLid() == target) {
             partner.addLid(null);
         }
-    
         target.makeInvisible();
-    
         for (int i = 0; i < insertionOrder.size(); i++) {
             String[] elem = insertionOrder.get(i);
             if (elem[0].equals("lid") && elem[1].equals(String.valueOf(number))) {
@@ -823,9 +753,7 @@ public class Tower
         while (!temp.isEmpty()) {
             lids.push(temp.pop());
         }
-    
         isOK = true;
-    
         if (this.isVisible) {
             redraw();
         }
@@ -859,10 +787,8 @@ public class Tower
                 }
             }
         }
-    
         cups.clear();
         insertionOrder.clear();
-    
         for (Cup c : orderedCups) {
             cups.push(c);
             insertionOrder.add(new String[]{"cup", String.valueOf(c.getNumber())});
@@ -871,7 +797,6 @@ public class Tower
         for (Lid l : lids) {
             insertionOrder.add(new String[]{"lid", String.valueOf(l.getNumber())});
         }
-        
         redraw();
         isOK = true;
     }
@@ -888,11 +813,9 @@ public class Tower
      */
     public void reverseTower() {
         Stack<Cup> temp = new Stack<Cup>();
-    
         while (!cups.isEmpty()) {
             temp.push(cups.pop());
         }
-        
         Collections.reverse(insertionOrder);
         cups = temp;
         redraw();
@@ -915,7 +838,6 @@ public class Tower
         int top = Integer.MAX_VALUE;
         int bottom = Integer.MIN_VALUE;
         boolean hasElements = false;
-    
         for (Cup c : cups) {
             int elementTop = c.getYpo() - c.getHeight();
             int elementBottom = c.getYpo();
@@ -937,7 +859,6 @@ public class Tower
         if (!hasElements) {
             return 0;
         }
-    
         return bottom - top;
     }
     
@@ -961,7 +882,6 @@ public class Tower
      */
     public void makeInvisible() {
         isVisible = false;
-    
         for (Cup c : cups) {
             if (c != null) {
                 c.makeInvisible();
@@ -1007,14 +927,6 @@ public class Tower
         }
         return null;
     }
-
-    public Cup getCupByNumber(int number) {
-        return findCup(number);
-    }
-    
-    public Lid getLidByNumber(int number) {
-        return findLid(number);
-    }
     
     /**
      * Finaliza la simulación de la torre.
@@ -1041,18 +953,20 @@ public class Tower
         return isOK;
     }
     
-    /**
-     * Retorna el tamaño del stack de tazas.
-     */
     public int getCupsSize() {
         return cups.size();
     }
     
-    /**
-     * Retorna el tamaño del stack de tapas.
-     */
     public int getLidsSize() {
         return lids.size();
+    }
+    
+    public Cup getCupByNumber(int number) {
+        return findCup(number);
+    }
+    
+    public Lid getLidByNumber(int number) {
+        return findLid(number);
     }
     
     /**
@@ -1081,7 +995,6 @@ public class Tower
     public void cover() {
         ArrayList<String[]> cupsInOrder = new ArrayList<>();
         ArrayList<String[]> lidsInOrder = new ArrayList<>();
-    
         for (String[] elem : insertionOrder) {
             if (elem[0].equals("cup")) {
                 cupsInOrder.add(elem);
@@ -1089,13 +1002,10 @@ public class Tower
                 lidsInOrder.add(elem);
             }
         }
-    
         lidsInOrder.sort((a, b) -> Integer.parseInt(a[1]) - Integer.parseInt(b[1]));
-    
         insertionOrder.clear();
         insertionOrder.addAll(cupsInOrder);
         insertionOrder.addAll(lidsInOrder);
-    
         redraw();
         isOK = true;
     }
@@ -1117,7 +1027,6 @@ public class Tower
      */
     public void swap(String[] o1, String[] o2) {
         int idx1 = -1, idx2 = -1;
-    
         for (int i = 0; i < insertionOrder.size(); i++) {
             String[] item = insertionOrder.get(i);
             if (item[0].equals(o1[0]) && item[1].equals(o1[1])) idx1 = i;
@@ -1129,7 +1038,6 @@ public class Tower
             isOK = false;
             return;
         }
-    
         Collections.swap(insertionOrder, idx1, idx2);
         redraw();
         isOK = true;
@@ -1151,14 +1059,11 @@ public class Tower
             isOK = false;
             return new String[0][0];
         }
-    
         redraw();
         int originalHeight = Height();
-    
         int bestI = -1;
         int bestJ = -1;
         int bestHeight = originalHeight;
-    
         for (int i = 0; i < insertionOrder.size() - 1; i++) {
             for (int j = i + 1; j < insertionOrder.size(); j++) {
     
@@ -1181,9 +1086,7 @@ public class Tower
             isOK = false;
             return new String[0][0];
         }
-    
         isOK = true;
-    
         String[] obj1 = {insertionOrder.get(bestI)[0],insertionOrder.get(bestI)[1]};
         String[] obj2 = {insertionOrder.get(bestJ)[0],insertionOrder.get(bestJ)[1]};
         return new String[][] { obj1, obj2 };
@@ -1208,7 +1111,6 @@ public class Tower
                 return candidate;
             }
         }
-    
         return null;
     }
     
@@ -1230,7 +1132,6 @@ public class Tower
         if (outer != null && outer.getNumber() >= l.getNumber()) {
             return outer;
         }
-    
         return null;
     }
     
@@ -1241,28 +1142,22 @@ public class Tower
      */
     private Cup findSupportForCup(Cup c, Cup container, int currentIndex) {
         Cup best = null;
-    
         for (int i = 0; i < currentIndex; i++) {
             String[] elem = insertionOrder.get(i);
-    
             if (!elem[0].equals("cup")) {
                 continue;
             }
-    
             Cup candidate = findCup(Integer.parseInt(elem[1]));
             if (candidate == null || candidate == container) {
                 continue;
             }
-    
             Cup parent = parentByCup.get(candidate);
-    
             if (parent == container && candidate.getNumber() < c.getNumber()) {
                 if (best == null || candidate.getNumber() > best.getNumber()) {
                     best = candidate;
                 }
             }
         }
-    
         return best;
     }
     
@@ -1277,7 +1172,7 @@ public class Tower
         }
         Cup nueva;
         if (type.equalsIgnoreCase("normal")) {
-            nueva = new NormalCup(i, color);
+            nueva = new Cup(i, color);
         } else if (type.equalsIgnoreCase("opener")) {
             nueva = new OpenerCup(i, color);
         } else if (type.equalsIgnoreCase("hierarchical")) {
@@ -1336,12 +1231,9 @@ public class Tower
     
     private void removeOutsideLidsBefore(int cupIndex, int cupNumber) {
         ArrayList<Lid> toRemove = new ArrayList<>();
-    
         int previousCupNumber = -1;
-    
         for (int i = cupIndex - 1; i >= 0; i--) {
-            String[] elem = insertionOrder.get(i);
-    
+            String[] elem = insertionOrder.get(i);    
             if (elem[0].equals("cup")) {
                 previousCupNumber = Integer.parseInt(elem[1]);
                 break;
@@ -1351,10 +1243,9 @@ public class Tower
         if (previousCupNumber == -1) {
             return;
         }
-    
+
         for (int i = cupIndex - 1; i >= 0; i--) {
             String[] elem = insertionOrder.get(i);
-    
             if (elem[0].equals("cup")) {
                 break;
             }
@@ -1362,7 +1253,6 @@ public class Tower
             if (elem[0].equals("lid")) {
                 int lidNum = Integer.parseInt(elem[1]);
                 Lid lid = findLid(lidNum);
-    
                 if (lid != null && lidNum > previousCupNumber) {
                     toRemove.add(lid);
                 }
@@ -1376,30 +1266,24 @@ public class Tower
     
     public Cup findContainerBefore(int cupIndex, Cup cup) {
         Cup best = null;
-    
         for (int i = cupIndex - 1; i >= 0; i--) {
             String[] elem = insertionOrder.get(i);
-    
             if (elem[0].equals("cup")) {
                 int num = Integer.parseInt(elem[1]);
-    
                 if (num > cup.getNumber()) {
                     Cup candidate = findCup(num);
-    
                     if (best == null || num < best.getNumber()) {
-                        best = candidate; // el más cercano que la contiene
+                        best = candidate; 
                     }
                 }
             }
         }
-    
         return best;
     }
     
     private int findPreviousCupIndex(int fromIndex) {
         for (int i = fromIndex - 1; i >= 0; i--) {
             String[] element = insertionOrder.get(i);
-    
             if (element[0].equals("cup")) {
                 return i;
             }
@@ -1407,13 +1291,10 @@ public class Tower
         return -1;
     }
     
-    
     private void removeSpecificLid(Lid lid) {
         Stack<Lid> temp = new Stack<Lid>();
-    
         while (!lids.isEmpty()) {
             Lid actual = lids.pop();
-    
             if (actual != lid) {
                 temp.push(actual);
             } else {
@@ -1427,14 +1308,12 @@ public class Tower
     
         for (int i = 0; i < insertionOrder.size(); i++) {
             String[] elemento = insertionOrder.get(i);
-    
             if (elemento[0].equals("lid") &&
                 elemento[1].equals(String.valueOf(lid.getNumber()))) {
                 insertionOrder.remove(i);
                 break;
             }
         }
-    
         Cup partner = lid.getPartnerCup();
         if (partner != null && partner.getLid() == lid) {
             partner.addLid(null);
@@ -1443,11 +1322,9 @@ public class Tower
     
     public void repositionForHierarchical(HierarchicalCup cup) {
         int currentIndex = findCupIndex(cup.getNumber());
-    
         if (!isValidIndex(currentIndex)) {
             return;
         }
-    
         int targetIndex = findTargetIndexForHierarchical(cup.getNumber(), currentIndex);
         moveCupInInsertionOrder(currentIndex, targetIndex);
         lockCupIfNeeded(cup, targetIndex);
@@ -1455,7 +1332,6 @@ public class Tower
     
     private int findTargetIndexForHierarchical(int cupNumber, int currentIndex) {
         int targetIndex = currentIndex;
-    
         for (int i = currentIndex - 1; i >= 0; i--) {
             String[] element = insertionOrder.get(i);
     
@@ -1465,7 +1341,6 @@ public class Tower
                 break;
             }
         }
-    
         return targetIndex;
     }
     
@@ -1473,7 +1348,6 @@ public class Tower
         if (currentIndex == targetIndex) {
             return;
         }
-    
         String[] cupData = insertionOrder.remove(currentIndex);
         insertionOrder.add(targetIndex, cupData);
     }
@@ -1543,7 +1417,7 @@ public class Tower
         }
         Lid nueva;
         if (type.equalsIgnoreCase("normal")) {
-            nueva = new NormalLid(i, color);
+            nueva = new Lid(i, color);
         } else if (type.equalsIgnoreCase("fearful")) {
             nueva = new FearfulLid(i, color);
         } else if (type.equalsIgnoreCase("crazy")) {
@@ -1572,10 +1446,8 @@ public class Tower
     private void removeLidForced(int number) {
         Stack<Lid> temp = new Stack<>();
         Lid removed = null;
-    
         while (!lids.isEmpty()) {
             Lid current = lids.pop();
-    
             if (removed == null && current.getNumber() == number) {
                 removed = current;
                 current.makeInvisible();
@@ -1601,17 +1473,13 @@ public class Tower
     private void reorderSpecialLidsInPlace() {
         for (Lid l : lids) {
             if (!l.shouldBeBeforeCup()) continue;
-    
             int lidIndex = -1;
             int cupIndex = -1;
-    
             for (int i = 0; i < insertionOrder.size(); i++) {
                 String[] e = insertionOrder.get(i);
-    
                 if (e[0].equals("lid") && e[1].equals(String.valueOf(l.getNumber()))) {
                     lidIndex = i;
                 }
-    
                 Cup partner = l.getPartnerCup();
                 if (partner != null &&
                     e[0].equals("cup") &&
@@ -1619,23 +1487,19 @@ public class Tower
                     cupIndex = i;
                 }
             }
-    
             if (lidIndex == -1 || cupIndex == -1) continue;
             if (lidIndex < cupIndex) continue;
-    
             String[] lidElem = insertionOrder.remove(lidIndex);
             insertionOrder.add(cupIndex, lidElem);
         }
     }
     
     private void prepareCupsBeforeLayout() {
-        ArrayList<String[]> snapshot = new ArrayList<>(insertionOrder);
-    
+        ArrayList<String[]> snapshot = new ArrayList<>(insertionOrder);    
         for (String[] elem : snapshot) {
             if (elem[0].equals("cup")) {
                 int numero = Integer.parseInt(elem[1]);
                 Cup c = findCup(numero);
-    
                 if (c != null) {
                     c.beforeEnter(this);
                 }
@@ -1656,13 +1520,10 @@ public class Tower
     
     public List<Lid> getLidsBetween(Cup container, Cup target) {
         List<Lid> result = new ArrayList<>();
-    
         int containerIndex = findCupIndex(container.getNumber());
         int targetIndex = findCupIndex(target.getNumber());
-    
         for (int i = containerIndex + 1; i < targetIndex; i++) {
             String[] elem = insertionOrder.get(i);
-    
             if (elem[0].equals("lid")) {
                 Lid lid = findLid(Integer.parseInt(elem[1]));
                 if (lid != null) {
@@ -1670,7 +1531,6 @@ public class Tower
                 }
             }
         }
-    
         return result;
     }
     
@@ -1690,7 +1550,6 @@ public class Tower
     
         for (int i = cupIndex - 1; i >= 0; i--) {
             String[] elem = insertionOrder.get(i);
-    
             if (elem[0].equals("cup")) break;
     
             if (elem[0].equals("lid")) {
@@ -1718,14 +1577,12 @@ public class Tower
         if (currentIndex <= 0) {
             return;
         }
-    
         String[] cupData = insertionOrder.remove(currentIndex);
         insertionOrder.add(0, cupData);
     }
     
     private void cleanStackForContainer(Cup container) {
         Stack<Cup> newStack = new Stack<>();
-    
         for (Cup cup : insideStack) {
             Cup parent = parentByCup.get(cup);
     
@@ -1733,7 +1590,6 @@ public class Tower
                 newStack.push(cup);
             }
         }
-    
         insideStack = newStack;
     }
     
@@ -1741,7 +1597,6 @@ public class Tower
         if (support == null) {
             return null;
         }
-    
         Cup parent = parentByCup.get(support);
         return (parent != null) ? parent : outer;
     }

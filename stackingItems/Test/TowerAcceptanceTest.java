@@ -1,7 +1,7 @@
-package tower;
+package Test;
 import java.util.ArrayList;
 import java.util.List;
-
+import tower.*;
 public class TowerAcceptanceTest {
 
     private long defaultDelay;

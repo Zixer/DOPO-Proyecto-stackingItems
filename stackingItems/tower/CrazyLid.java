@@ -61,17 +61,7 @@ public class CrazyLid extends Lid
         String[] lidElem = order.remove(lidIndex);
         order.add(cupIndex, lidElem);
     }
-    
-    @Override
-    public boolean hasDecoration() {
-        return true;
-    }
-    
-    @Override
-    public String getSecondaryColor() {
-        return "lightPink";
-    }
-    
+
     public void draw() {
         if (!isVisible()) return;
     
@@ -91,8 +81,5 @@ public class CrazyLid extends Lid
         }
     }
     
-    @Override
-    public boolean actsAsBaseForPartner() {
-        return true;
-    }
+
 }

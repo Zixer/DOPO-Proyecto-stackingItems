@@ -1,0 +1,29 @@
+#BlueJ class context
+comment0.target=TowerContestAcceptanceTest
+comment1.params=defaultDelay
+comment1.target=TowerContestAcceptanceTest(long)
+comment10.params=
+comment10.target=void\ acceptanceSimulateLargeCase()
+comment10.text=\r\n\ Caso\ 6\:\r\n\ Caso\ m\u00E1s\ grande\ para\ mostrar\ estabilidad.\r\n
+comment2.params=millis
+comment2.target=void\ waitMillis(long)
+comment3.params=message\ title
+comment3.target=boolean\ askUser(java.lang.String,\ java.lang.String)
+comment4.params=title\ n\ h
+comment4.target=void\ printCaseHeader(java.lang.String,\ int,\ int)
+comment5.params=
+comment5.target=void\ acceptanceSimulateSmallCase()
+comment5.text=\r\n\ Caso\ 1\:\r\n\ Caso\ peque\u00F1o\ y\ simple.\r\n
+comment6.params=
+comment6.target=void\ acceptanceSimulateMediumCase()
+comment6.text=\r\n\ Caso\ 2\:\r\n\ Caso\ medio\ para\ una\ demo\ normal.\r\n
+comment7.params=
+comment7.target=void\ acceptanceSimulateZeroCase()
+comment7.text=\r\n\ Caso\ 3\:\r\n\ Caso\ borde\ n\ \=\ 0.\r\n
+comment8.params=
+comment8.target=void\ acceptanceSimulateRestrictedCase()
+comment8.text=\r\n\ Caso\ 4\:\r\n\ Caso\ muy\ restringido\ o\ imposible.\r\n
+comment9.params=
+comment9.target=void\ acceptanceSimulateCompareHeights()
+comment9.text=\r\n\ Caso\ 5\:\r\n\ Comparaci\u00F3n\ visual\ con\ otra\ altura\ para\ el\ mismo\ n\u00FAmero\ de\ tazas.\r\n
+numComments=11

@@ -34,19 +34,8 @@ public class FearfulLid extends Lid
         return tower.isCoveringPartner(this);
     }
     
-    @Override
-    public boolean hasDecoration() {
-        return true;
-    }
-    
-    @Override
-    public String getSecondaryColor() {
-        return "lightGreen";
-    }
-    
     public void draw() {
         if (!isVisible()) return;
-    
         erase();
     
         lid = new Rectangle();
