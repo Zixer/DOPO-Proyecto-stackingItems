@@ -61,7 +61,6 @@ public abstract class Lid
         return this.inside;
     }
     
-    
     /**
      * Hace invisible la tapa en pantalla.
      */

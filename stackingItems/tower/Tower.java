@@ -87,10 +87,6 @@ public class Tower
         return null;
     }
     
-    private void releaseColor(String color) {
-        usedColors.remove(color);
-    }
-    
     /**
      * Construye una torre inicial con una cantidad dada de copas.
      *
