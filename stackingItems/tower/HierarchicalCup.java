@@ -3,11 +3,11 @@ import Shapes.*;
 
 
 /**
- * Write a description of class Hierarchical here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
+* Representa una copa jerárquica que puede cambiar su posición dentro
+* del orden de inserción antes de ser colocada en la torre.
+*
+* Este tipo de copa puede quedar bloqueada (locked), impidiendo que sea removida.
+*/
 public class HierarchicalCup extends Cup
 {
     
@@ -15,31 +15,65 @@ public class HierarchicalCup extends Cup
     private boolean deadlocked;
     
     /**
-     * Constructor for objects of class Hierarchical
+     * Construye una nueva HierarchicalCup.
+     *
+     * Inicializa la copa con su número y color, y establece su estado
+     * como desbloqueado.
+     *
+     * @param number tamaño de la copa
+     * @param color color de la copa
      */
     public HierarchicalCup (int number, String color) {
         super(number, color);
         deadlocked = false;
     }
     
+    /**
+     * Ejecuta la lógica previa a la inserción de la copa en la torre.
+     *
+     * Reposiciona la copa dentro del orden de inserción según las reglas
+     * jerárquicas definidas en la torre.
+     *
+     * @param tower torre donde se inserta la copa
+     */
     @Override
-    public void beforeEnter(Tower tower) {
+    public void beforeEnter(Tower tower){
         tower.repositionForHierarchical(this);
     }
     
+    /**
+     * Indica si la copa se encuentra bloqueada.
+     *
+     * @return true si la copa no puede moverse o eliminarse
+     */
     public boolean isLocked() {
         return deadlocked;
     }
 
-    public void lock() {
+    /**
+     * Bloquea la copa, evitando que pueda ser removida posteriormente.
+     */
+    public void lock(){
         deadlocked = true;
     }
     
+    /**
+     * Determina si la copa puede ser removida de la torre.
+     *
+     * Una copa jerárquica no puede eliminarse si está bloqueada.
+     *
+     * @return true si puede ser removida, false en caso contrario
+     */
     @Override
     public boolean canBeRemoved() {
         return !deadlocked;
     }
     
+    /**
+     * Dibuja la decoración de la copa jerárquica.
+     *
+     * Consiste en una franja horizontal en la parte superior de la copa.
+     */
     @Override
     public void drawDecoration() {
         decoration1 = new Rectangle();
@@ -49,6 +83,11 @@ public class HierarchicalCup extends Cup
         decoration1.makeVisible();
     }
     
+    /**
+     * Elimina la representación visual completa de la copa.
+     *
+     * Oculta tanto el cuerpo como la decoración.
+     */
     public void erase() {
         if (body != null) body.makeInvisible();
         if (interior != null) interior.makeInvisible();

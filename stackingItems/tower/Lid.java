@@ -170,12 +170,18 @@ public  class Lid
         return isVisible;
     }
     
+    /**
+     * Posiciona la tapa fuera de la torre.
+     */
     public void placeOutside(int canvasWidth, int baseY) {
         int x = (canvasWidth - getWidth()) / 2;
         setPosition(x, baseY);
         setInside(false);
     }
     
+    /**
+     * Posiciona la tapa dentro de una copa.
+     */
     public void placeInside(Cup container, Lid topInside, int grosor) {
         if (container == null) return;
         int innerX = container.getXpo() + grosor;
@@ -191,6 +197,9 @@ public  class Lid
         setInside(true);
     }    
     
+    /**
+     * Posiciona la tapa sobre una copa interna.
+     */
     public void placeAboveCup(Cup support, Cup container, Lid lidOnSupport, int grosor) {
         if (support == null || container == null) return;
         int innerX = container.getXpo() + grosor;
@@ -206,6 +215,9 @@ public  class Lid
         setInside(true);
     }
     
+    /**
+     * Posiciona la tapa sobre otra tapa.
+     */
     public void placeAboveLid(Lid support) {
         if (support == null) return;
         int x = support.getXpo() + (support.getWidth() - getWidth()) / 2;
@@ -214,6 +226,9 @@ public  class Lid
         setInside(false);
     }
     
+    /**
+     * Posiciona la tapa directamente sobre su copa asociada.
+     */
     public void placeOnCup(Cup cup, Lid lidOnCup) {
         if (cup == null) return;    
         int x = cup.getXpo() + (cup.getWidth() - getWidth()) / 2;
@@ -247,6 +262,9 @@ public  class Lid
         return false;
     }
     
+    /**
+     * Rompe la relación entre la tapa y su copa asociada.
+     */
     public void detachFromPartner() {
         if (partnerCup != null) {
             Cup temp = partnerCup;
@@ -257,10 +275,16 @@ public  class Lid
         }
     }
     
+    /**
+     * Decide si la tapa debe colocarse fuera de la torre.
+     */
     public boolean shouldGoOutside(boolean lastOutsideWasLid, Cup container, int outsideSize) {
         return lastOutsideWasLid || container == null || this.getNumber() >= outsideSize;
     }
     
+    /**
+     * Posiciona la tapa como primer elemento.
+     */
     public void placeAsFirst(int canvasWidth, int highestCupTopY, Lid topOutsideLid, boolean lastOutsideWasLid) {
         if (lastOutsideWasLid && topOutsideLid != null) {
             placeAboveLid(topOutsideLid);
@@ -270,6 +294,9 @@ public  class Lid
         setInside(false);
     }
     
+    /**
+     * Posiciona la tapa como elemento exterior.
+     */
     public void placeAsOutside(int canvasWidth, int highestCupTopY, Lid topOutsideLid) {
         if (topOutsideLid == null) {
             placeOutside(canvasWidth, highestCupTopY);
@@ -279,6 +306,9 @@ public  class Lid
         setInside(false);
     }
     
+    /**
+     * Posiciona la tapa dentro de la torre.
+     */
     public void placeAsInside(Cup container,Cup support,Lid lidOnContainer,Lid lidOnSupport,int grosor) {
         if (container == null) return;
     

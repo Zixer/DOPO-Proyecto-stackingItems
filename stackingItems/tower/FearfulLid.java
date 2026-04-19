@@ -2,10 +2,8 @@ package tower;
 import Shapes.*;
 
 /**
- * Write a description of class Fearful here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Representa una tapa que depende de su copa asociada para poder entrar
+ * o salir de la torre.
  */
 public class FearfulLid extends Lid
 {
@@ -19,6 +17,11 @@ public class FearfulLid extends Lid
         mark = new Rectangle();
     }
 
+    /**
+     * Determina si la tapa puede entrar en la torre.
+     *
+     * Solo puede hacerlo si su copa asociada existe y está en la torre.
+     */
     @Override
     public boolean canEnter(Tower tower) {
         return getPartnerCup() != null && tower.containsCup(getPartnerCup());
@@ -34,12 +37,18 @@ public class FearfulLid extends Lid
         return tower.isCoveringPartner(this);
     }
     
+    /**
+     * Hace visible la tapa y fuerza su redibujado con decoración.
+     */
     @Override
     public void makeVisible() {
         super.makeVisible();
         draw();
     }
     
+    /**
+     * Dibuja la tapa junto con su marca decorativa.
+     */
     public void draw() {
         if (!isVisible()) return;
         erase();

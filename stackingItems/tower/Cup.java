@@ -9,7 +9,6 @@ import java.util.*;
  * @version (a version number or a date)
  */
 public  class Cup{
-    // instance variables - replace the example below with your own
     private int number;
     private int height;
     private int width;
@@ -23,7 +22,6 @@ public  class Cup{
     public Rectangle interior;
     public Lid lid;
     
-
     /**
      * Constructor for objects of class Cup
      */
@@ -49,6 +47,14 @@ public  class Cup{
         return inside;
     }
 
+    /**
+     * Asocia una tapa a la copa.
+     *
+     * Además de asignar la referencia, establece la relación inversa
+     * en la tapa.
+     *
+     * @param lid tapa asociada
+     */
     public void addLid(Lid lid){
         this.lid = lid;
         if (lid != null) {
@@ -64,11 +70,17 @@ public  class Cup{
         inside = value;
     }
     
+    /**
+     * Hace visible la copa en el canvas y la dibuja.
+     */
     public void makeVisible() {
         isVisible = true;
         draw();
     }
     
+    /**
+     * Hace invisible la copa eliminando su representación gráfica.
+     */
     public void makeInvisible() {
         erase();
         isVisible = false;
@@ -212,6 +224,9 @@ public  class Cup{
         return width;
     }
     
+     /**
+     * Posiciona la copa fuera de la torre, centrada horizontalmente.
+     */
     public void placeOutside(int canvasWidth, int baseY) {
         int x = (canvasWidth - getWidth()) / 2;
         int y = baseY;
@@ -220,6 +235,9 @@ public  class Cup{
         setInside(false);
     }
         
+    /**
+     * Posiciona la copa dentro de otra copa contenedora.
+     */
     public void placeInside(Cup container, Lid lidOnContainer, int grosor) {
         if (container == null) return;
     
@@ -239,6 +257,9 @@ public  class Cup{
         setInside(true);
     }   
     
+    /**
+     * Posiciona la copa sobre otra copa de soporte.
+     */
     public void placeAbove(Cup support, Cup container, Lid lidOnSupport, int grosor) {
         if (support == null) return;
     
@@ -255,6 +276,9 @@ public  class Cup{
         setInside(true);
     }
     
+    /**
+     * Posiciona la copa sobre una tapa.
+     */
     public void placeAboveLid(Lid support) {
         if (support == null) return;
     
@@ -287,10 +311,16 @@ public  class Cup{
         }
     }
     
+    /**
+     * Decide si la copa debe colocarse fuera de la torre.
+     */
     public boolean shouldGoOutside(boolean lastOutsideWasLid, int outsideSize) {
             return lastOutsideWasLid || this.getNumber() >= outsideSize;
     }
     
+    /**
+     * Posiciona la primera copa del layout.
+     */
     public void placeAsFirst(int canvasWidth, int baseY, Lid topOutsideLid) {
         if (topOutsideLid != null) {
             placeAboveLid(topOutsideLid);
@@ -299,6 +329,9 @@ public  class Cup{
         }
     }
     
+    /**
+     * Posiciona la copa como elemento exterior.
+     */
     public void placeAsOutside(int canvasWidth, int highestCupTopY, Lid topOutsideLid, boolean lastOutsideWasLid) {
         if (lastOutsideWasLid && topOutsideLid != null) {
             placeAboveLid(topOutsideLid);
@@ -307,6 +340,9 @@ public  class Cup{
         }
     }
     
+    /**
+     * Desasocia la tapa de la copa.
+     */
     public void detachLid() {
         if (lid != null) {
             lid.setPartnerCup(null);
@@ -314,10 +350,16 @@ public  class Cup{
         }
     }
     
+    /**
+     * Determina si la copa debe colocarse sobre su propia tapa.
+     */
     public boolean shouldBePlacedOnBaseLid() {
         return lid != null && lid.actsAsBaseForPartner() && lid.isVisible();
     }
     
+    /**
+     * Coloca la copa sobre su tapa asociada.
+     */
     public void placeOnBaseLid() {
         placeAboveLid(lid);
         setInside(lid.isInside());

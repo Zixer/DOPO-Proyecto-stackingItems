@@ -4,10 +4,8 @@ import java.util.ArrayList;
 
 
 /**
- * Write a description of class Crazy here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Representa una tapa que altera el orden de inserción para colocarse
+ * antes de su copa asociada.
  */
 public class CrazyLid extends Lid
 {
@@ -25,11 +23,18 @@ public class CrazyLid extends Lid
         if (mark != null) mark.makeInvisible();
     }
     
+    /**
+     * Indica que esta tapa debe colocarse antes que su copa.
+     */
     @Override
     public boolean shouldBeBeforeCup() {
         return true;
     }
     
+    /**
+     * Reordena la tapa dentro del orden de inserción para que quede
+     * antes de su copa asociada.
+     */
     public void reorderInTower(Tower tower) {
         Cup partner = getPartnerCup();
         if (partner == null) return;
@@ -67,6 +72,9 @@ public class CrazyLid extends Lid
         return true;
     }
     
+    /**
+     * Dibuja la tapa con una marca decorativa.
+     */
     public void draw() {
         if (!isVisible()) return;
     
