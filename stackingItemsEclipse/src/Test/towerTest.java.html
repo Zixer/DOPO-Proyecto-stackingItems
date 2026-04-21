@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>towerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">towerTest.java</span></div><h1>towerTest.java</h1><pre class="source lang-java linenums">package Test;
+import tower.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * The test class towerTest.
+ *
+ * @author  (your name)
+ * @version (a version number or a date)
+ */
+public class towerTest
+{
+    /**
+     * Default constructor for test class towerTest
+     */
+<span class="fc" id="L18">    public towerTest()</span>
+    {
+<span class="fc" id="L20">    }</span>
+
+
+    @Test
+    public void shouldCreateTowerWithOddSizedCups() {
+<span class="fc" id="L25">        Tower t = new Tower(4); </span>
+
+<span class="fc" id="L27">        assertEquals(4, t.getCupsSize());</span>
+<span class="fc" id="L28">        assertEquals(0, t.getLidsSize());</span>
+<span class="fc" id="L29">        assertTrue(t.isVisible());</span>
+<span class="fc" id="L30">        assertTrue(t.isOk());</span>
+        
+<span class="fc" id="L32">        t.makeInvisible();</span>
+<span class="fc" id="L33">    }</span>
+
+    @Test
+    public void shouldCoverCupWhenMatchingLidComesRightAfter() {
+<span class="fc" id="L37">        Tower t = new Tower(20, 20);</span>
+
+<span class="fc" id="L39">        t.pushCup(5);</span>
+<span class="fc" id="L40">        t.pushLid(5);</span>
+<span class="fc" id="L41">        t.cover();</span>
+
+<span class="fc" id="L43">        Cup c = t.popCup();</span>
+
+<span class="fc" id="L45">        assertNotNull(c);</span>
+<span class="fc" id="L46">        assertNotNull(c.getLid());</span>
+<span class="fc" id="L47">        assertEquals(5, c.getLid().getNumber());</span>
+<span class="fc" id="L48">        assertTrue(t.isOk());</span>
+<span class="fc" id="L49">        t.makeInvisible();</span>
+<span class="fc" id="L50">    }</span>
+
+    @Test
+    public void shouldSwapTwoObjectsInInsertionOrder() {
+<span class="fc" id="L54">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L56">        t.pushCup(5);</span>
+<span class="fc" id="L57">        t.pushCup(3);</span>
+
+<span class="fc" id="L59">        int pos5Before = -1;</span>
+<span class="fc" id="L60">        int pos3Before = -1;</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (int i = 0; i &lt; t.getInsertionOrder().size(); i++) {</span>
+<span class="fc" id="L63">            String[] item = t.getInsertionOrder().get(i);</span>
+<span class="pc bpc" id="L64" title="1 of 4 branches missed.">            if (item[0].equals(&quot;cup&quot;) &amp;&amp; item[1].equals(&quot;5&quot;)) {</span>
+<span class="fc" id="L65">                pos5Before = i;</span>
+            }
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">            if (item[0].equals(&quot;cup&quot;) &amp;&amp; item[1].equals(&quot;3&quot;)) {</span>
+<span class="fc" id="L68">                pos3Before = i;</span>
+            }
+        }
+
+<span class="fc" id="L72">        t.swap(new String[]{&quot;cup&quot;, &quot;5&quot;}, new String[]{&quot;cup&quot;, &quot;3&quot;});</span>
+
+<span class="fc" id="L74">        int pos5After = -1;</span>
+<span class="fc" id="L75">        int pos3After = -1;</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        for (int i = 0; i &lt; t.getInsertionOrder().size(); i++) {</span>
+<span class="fc" id="L78">            String[] item = t.getInsertionOrder().get(i);</span>
+<span class="pc bpc" id="L79" title="1 of 4 branches missed.">            if (item[0].equals(&quot;cup&quot;) &amp;&amp; item[1].equals(&quot;5&quot;)) {</span>
+<span class="fc" id="L80">                pos5After = i;</span>
+            }
+<span class="pc bpc" id="L82" title="1 of 4 branches missed.">            if (item[0].equals(&quot;cup&quot;) &amp;&amp; item[1].equals(&quot;3&quot;)) {</span>
+<span class="fc" id="L83">                pos3After = i;</span>
+            }
+        }
+
+<span class="fc" id="L87">        assertTrue(t.isOk());</span>
+<span class="fc" id="L88">        assertEquals(pos5Before, pos3After);</span>
+<span class="fc" id="L89">        assertEquals(pos3Before, pos5After);</span>
+
+<span class="fc" id="L91">        t.makeInvisible();</span>
+<span class="fc" id="L92">    }</span>
+    
+    @Test
+    public void shouldFindContainerForCupDuringRedraw() {
+<span class="fc" id="L96">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L98">        t.pushCup(9);</span>
+<span class="fc" id="L99">        t.pushCup(5);</span>
+<span class="fc" id="L100">        t.pushCup(3);</span>
+
+<span class="fc" id="L102">        t.makeVisible();</span>
+<span class="fc" id="L103">        t.redraw();</span>
+
+<span class="fc" id="L105">        Cup c3 = t.getCupByNumber(3);</span>
+
+<span class="fc" id="L107">        assertNotNull(c3);</span>
+<span class="fc" id="L108">        assertTrue(c3.isInside());</span>
+
+<span class="fc" id="L110">        t.makeInvisible();</span>
+<span class="fc" id="L111">    }</span>
+    
+    @Test
+    public void shouldSwapCupAndLid() {
+<span class="fc" id="L115">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L117">        t.pushCup(5);</span>
+<span class="fc" id="L118">        t.pushLid(6);</span>
+
+<span class="fc" id="L120">        int cupIndexBefore = -1;</span>
+<span class="fc" id="L121">        int lidIndexBefore = -1;</span>
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int i = 0; i &lt; t.getInsertionOrder().size(); i++) {</span>
+<span class="fc" id="L124">            String[] item = t.getInsertionOrder().get(i);</span>
+<span class="pc bpc" id="L125" title="1 of 4 branches missed.">            if (item[0].equals(&quot;cup&quot;) &amp;&amp; item[1].equals(&quot;5&quot;)) {</span>
+<span class="fc" id="L126">                cupIndexBefore = i;</span>
+            }
+<span class="pc bpc" id="L128" title="1 of 4 branches missed.">            if (item[0].equals(&quot;lid&quot;) &amp;&amp; item[1].equals(&quot;6&quot;)) {</span>
+<span class="fc" id="L129">                lidIndexBefore = i;</span>
+            }
+        }
+
+<span class="fc" id="L133">        t.swap(new String[]{&quot;cup&quot;, &quot;5&quot;}, new String[]{&quot;lid&quot;, &quot;6&quot;});</span>
+
+<span class="fc" id="L135">        int cupIndexAfter = -1;</span>
+<span class="fc" id="L136">        int lidIndexAfter = -1;</span>
+
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for (int i = 0; i &lt; t.getInsertionOrder().size(); i++) {</span>
+<span class="fc" id="L139">            String[] item = t.getInsertionOrder().get(i);</span>
+<span class="pc bpc" id="L140" title="1 of 4 branches missed.">            if (item[0].equals(&quot;cup&quot;) &amp;&amp; item[1].equals(&quot;5&quot;)) {</span>
+<span class="fc" id="L141">                cupIndexAfter = i;</span>
+            }
+<span class="pc bpc" id="L143" title="1 of 4 branches missed.">            if (item[0].equals(&quot;lid&quot;) &amp;&amp; item[1].equals(&quot;6&quot;)) {</span>
+<span class="fc" id="L144">                lidIndexAfter = i;</span>
+            }
+        }
+
+<span class="fc" id="L148">        assertTrue(t.isOk());</span>
+<span class="fc" id="L149">        assertEquals(cupIndexBefore, lidIndexAfter);</span>
+<span class="fc" id="L150">        assertEquals(lidIndexBefore, cupIndexAfter);</span>
+
+<span class="fc" id="L152">        t.makeInvisible();</span>
+<span class="fc" id="L153">    }</span>
+    
+    @Test
+    public void shouldFailSwapWhenFirstObjectDoesNotExist() {
+<span class="fc" id="L157">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L159">        t.pushCup(5);</span>
+<span class="fc" id="L160">        t.pushCup(3);</span>
+
+<span class="fc" id="L162">        int y5Before = t.getCupByNumber(5).getYpo();</span>
+<span class="fc" id="L163">        int y3Before = t.getCupByNumber(3).getYpo();</span>
+
+<span class="fc" id="L165">        t.swap(new String[]{&quot;cup&quot;, &quot;9&quot;}, new String[]{&quot;cup&quot;, &quot;3&quot;});</span>
+
+<span class="fc" id="L167">        assertFalse(t.isOk());</span>
+<span class="fc" id="L168">        assertEquals(y5Before, t.getCupByNumber(5).getYpo());</span>
+<span class="fc" id="L169">        assertEquals(y3Before, t.getCupByNumber(3).getYpo());</span>
+<span class="fc" id="L170">        t.makeInvisible();</span>
+<span class="fc" id="L171">    }</span>
+    
+    @Test
+    public void shouldMoveBottomCupToBeginningOfInsertionOrder() throws towerException {
+<span class="fc" id="L175">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L177">        t.pushCup(5);</span>
+<span class="fc" id="L178">        t.pushCup(&quot;bottom&quot;, 3);</span>
+
+<span class="fc" id="L180">        t.makeVisible();</span>
+<span class="fc" id="L181">        t.redraw();</span>
+
+<span class="fc" id="L183">        assertEquals(&quot;cup&quot;, t.getInsertionOrder().get(0)[0]);</span>
+<span class="fc" id="L184">        assertEquals(&quot;3&quot;, t.getInsertionOrder().get(0)[1]);</span>
+<span class="fc" id="L185">        assertEquals(&quot;cup&quot;, t.getInsertionOrder().get(1)[0]);</span>
+<span class="fc" id="L186">        assertEquals(&quot;5&quot;, t.getInsertionOrder().get(1)[1]);</span>
+
+<span class="fc" id="L188">        t.makeInvisible();</span>
+<span class="fc" id="L189">    }</span>
+    @Test
+    public void shouldRepositionHierarchicalCupBeforeSmallerObjects() throws towerException {
+<span class="fc" id="L192">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L194">        t.pushCup(7);</span>
+<span class="fc" id="L195">        t.pushCup(5);</span>
+<span class="fc" id="L196">        t.pushCup(&quot;hierarchical&quot;, 6);</span>
+
+<span class="fc" id="L198">        t.makeVisible();</span>
+<span class="fc" id="L199">        t.redraw();</span>
+
+<span class="fc" id="L201">        int pos6 = t.findCupIndex(6);</span>
+<span class="fc" id="L202">        int pos5 = t.findCupIndex(5);</span>
+
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        assertTrue(pos6 &lt; pos5);</span>
+
+<span class="fc" id="L206">        t.makeInvisible();</span>
+<span class="fc" id="L207">    }</span>
+    
+    @Test
+    public void shouldLockHierarchicalCupWhenMovedToFirstPosition() throws towerException {
+<span class="fc" id="L211">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L213">        t.pushCup(3);</span>
+<span class="fc" id="L214">        t.pushCup(1);</span>
+<span class="fc" id="L215">        t.pushCup(&quot;hierarchical&quot;, 5);</span>
+
+<span class="fc" id="L217">        t.makeVisible();</span>
+<span class="fc" id="L218">        t.redraw();</span>
+
+<span class="fc" id="L220">        Cup c = t.getCupByNumber(5);</span>
+
+<span class="fc" id="L222">        assertTrue(c instanceof HierarchicalCup);</span>
+<span class="fc" id="L223">        assertEquals(0, t.findCupIndex(5));</span>
+<span class="fc" id="L224">        assertFalse(c.canBeRemoved());</span>
+
+<span class="fc" id="L226">        t.makeInvisible();</span>
+<span class="fc" id="L227">    }</span>
+    
+    @Test
+    public void shouldPlaceCrazyLidBeforeItsPartnerCup() throws towerException {
+<span class="fc" id="L231">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L233">        t.pushCup(5);</span>
+<span class="fc" id="L234">        t.pushLid(&quot;crazy&quot;, 5);</span>
+
+<span class="fc" id="L236">        int lidIndex = -1;</span>
+<span class="fc" id="L237">        int cupIndex = -1;</span>
+
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        for (int i = 0; i &lt; t.getInsertionOrder().size(); i++) {</span>
+<span class="fc" id="L240">            String[] elem = t.getInsertionOrder().get(i);</span>
+<span class="pc bpc" id="L241" title="1 of 4 branches missed.">            if (elem[0].equals(&quot;lid&quot;) &amp;&amp; elem[1].equals(&quot;5&quot;)) {</span>
+<span class="fc" id="L242">                lidIndex = i;</span>
+            }
+<span class="pc bpc" id="L244" title="1 of 4 branches missed.">            if (elem[0].equals(&quot;cup&quot;) &amp;&amp; elem[1].equals(&quot;5&quot;)) {</span>
+<span class="fc" id="L245">                cupIndex = i;</span>
+            }
+        }
+
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">        assertTrue(lidIndex != -1);</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        assertTrue(cupIndex != -1);</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        assertTrue(lidIndex &lt; cupIndex);</span>
+
+<span class="fc" id="L253">        t.makeInvisible();</span>
+<span class="fc" id="L254">    }</span>
+    
+    @Test
+    public void shouldRecognizeCrazyLidAsBaseForPartner() {
+<span class="fc" id="L258">        CrazyLid lid = new CrazyLid(5, &quot;red&quot;);</span>
+
+<span class="fc" id="L260">        assertTrue(lid.actsAsBaseForPartner());</span>
+<span class="fc" id="L261">    }</span>
+    
+    @Test
+    public void shouldNotAllowFearfulLidWithoutPartnerCupInTower() throws towerException {
+<span class="fc" id="L265">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L267">        t.pushLid(&quot;fearful&quot;, 5);</span>
+
+<span class="fc" id="L269">        assertFalse(t.isOk());</span>
+<span class="fc" id="L270">        assertNull(t.getLidByNumber(5));</span>
+
+<span class="fc" id="L272">        t.makeInvisible();</span>
+<span class="fc" id="L273">    }</span>
+    
+    @Test
+    public void shouldAllowFearfulLidToExitOnlyWhenCoveringPartner() throws towerException {
+<span class="fc" id="L277">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L279">        t.pushCup(5);</span>
+<span class="fc" id="L280">        t.pushLid(&quot;fearful&quot;, 5);</span>
+<span class="fc" id="L281">        t.cover();</span>
+
+<span class="fc" id="L283">        Lid lid = t.popLid();</span>
+
+<span class="fc" id="L285">        assertNotNull(lid);</span>
+<span class="fc" id="L286">        assertTrue(t.isOk());</span>
+
+<span class="fc" id="L288">        t.makeInvisible();</span>
+<span class="fc" id="L289">    }</span>
+
+    @Test
+    public void shouldExecuteFindContainerBeforeWithOpenerCup() throws towerException {
+<span class="fc" id="L293">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L295">        t.pushCup(9);</span>
+<span class="fc" id="L296">        t.pushCup(&quot;opener&quot;, 5);</span>
+
+<span class="fc" id="L298">        t.makeVisible();</span>
+<span class="fc" id="L299">        t.redraw();</span>
+
+<span class="fc" id="L301">        Cup opener = t.getCupByNumber(5);</span>
+
+<span class="fc" id="L303">        assertNotNull(opener);</span>
+<span class="fc" id="L304">        assertTrue(opener instanceof OpenerCup);</span>
+
+<span class="fc" id="L306">        t.makeInvisible();</span>
+<span class="fc" id="L307">    }</span>
+    
+    @Test
+    public void shouldFailSwapWhenSecondObjectDoesNotExist() {
+<span class="fc" id="L311">        Tower t = new Tower(30, 30);</span>
+    
+<span class="fc" id="L313">        t.pushCup(5);</span>
+<span class="fc" id="L314">        t.pushLid(6);</span>
+    
+<span class="fc" id="L316">        int cupYBefore = t.getCupByNumber(5).getYpo();</span>
+<span class="fc" id="L317">        int lidYBefore = t.getLidByNumber(6).getYpo();</span>
+    
+<span class="fc" id="L319">        t.swap(new String[]{&quot;cup&quot;, &quot;5&quot;}, new String[]{&quot;lid&quot;, &quot;9&quot;});</span>
+    
+<span class="fc" id="L321">        assertFalse(t.isOk());</span>
+<span class="fc" id="L322">        assertEquals(cupYBefore, t.getCupByNumber(5).getYpo());</span>
+<span class="fc" id="L323">        assertEquals(lidYBefore, t.getLidByNumber(6).getYpo());</span>
+<span class="fc" id="L324">        t.makeInvisible();</span>
+<span class="fc" id="L325">    }</span>
+    
+    @Test
+    public void shouldRemoveOutsideBlockingLidsForOpenerCup() throws towerException {
+<span class="fc" id="L329">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L331">        t.pushCup(5);</span>
+<span class="fc" id="L332">        t.pushLid(7);</span>
+<span class="fc" id="L333">        t.pushCup(&quot;opener&quot;, 9);</span>
+
+<span class="fc" id="L335">        t.makeVisible();</span>
+<span class="fc" id="L336">        t.redraw();</span>
+
+<span class="fc" id="L338">        assertNull(t.getLidByNumber(7));</span>
+
+<span class="fc" id="L340">        t.makeInvisible();</span>
+<span class="fc" id="L341">    }</span>
+    
+    @Test
+    public void shouldExecuteOpenerCupWithContainerAndIntermediateLids() throws towerException {
+<span class="fc" id="L345">        Tower t = new Tower(30, 30);</span>
+
+<span class="fc" id="L347">        t.pushCup(9);</span>
+<span class="fc" id="L348">        t.pushLid(9);</span>
+<span class="fc" id="L349">        t.pushCup(7);</span>
+<span class="fc" id="L350">        t.pushCup(&quot;opener&quot;, 5);</span>
+
+<span class="fc" id="L352">        t.makeVisible();</span>
+<span class="fc" id="L353">        t.redraw();</span>
+
+<span class="fc" id="L355">        Cup opener = t.getCupByNumber(5);</span>
+
+<span class="fc" id="L357">        assertNotNull(opener);</span>
+<span class="fc" id="L358">        assertTrue(opener instanceof OpenerCup);</span>
+
+<span class="fc" id="L360">        t.makeInvisible();</span>
+<span class="fc" id="L361">    }</span>
+    
+    @Test
+    public void shouldNotCoverWhenCupAndLidSizesDoNotMatch() {
+<span class="fc" id="L365">        Tower t = new Tower(30, 30);</span>
+    
+<span class="fc" id="L367">        t.pushCup(5);</span>
+<span class="fc" id="L368">        t.pushLid(3);</span>
+<span class="fc" id="L369">        t.cover();</span>
+    
+<span class="fc" id="L371">        Cup c = t.getCupByNumber(5);</span>
+    
+<span class="fc" id="L373">        assertNotNull(c);</span>
+<span class="fc" id="L374">        assertNull(c.getLid());</span>
+<span class="fc" id="L375">        t.makeInvisible();</span>
+<span class="fc" id="L376">    }</span>
+    
+    @Test
+    public void shouldNotAllowTowerWithZeroCups() {
+<span class="fc" id="L380">        Tower t = new Tower(0);</span>
+    
+<span class="fc" id="L382">        assertFalse(t.isVisible()); </span>
+<span class="fc" id="L383">        t.makeInvisible();</span>
+<span class="fc" id="L384">    }</span>
+    
+    @Test
+    public void shouldPassSwapToReduceWhenReductionExists() {
+    
+<span class="fc" id="L389">        Tower t = new Tower(20,20);</span>
+    
+<span class="fc" id="L391">        t.pushCup(3);</span>
+<span class="fc" id="L392">        t.pushCup(5);</span>
+<span class="fc" id="L393">        t.pushCup(1);</span>
+    
+<span class="fc" id="L395">        String[][] result = t.swapToReduce();</span>
+    
+<span class="fc" id="L397">        assertEquals(2, result.length);</span>
+    
+<span class="fc" id="L399">        assertNotNull(result[0]);</span>
+<span class="fc" id="L400">        assertNotNull(result[1]);</span>
+<span class="fc" id="L401">        t.makeInvisible();</span>
+<span class="fc" id="L402">    }</span>
+    
+    @Test
+    public void shouldReturnSwapWhenHeightCanBeKeptWithoutIncreasing() {
+<span class="fc" id="L406">        Tower t = new Tower(20,20);</span>
+
+<span class="fc" id="L408">        t.pushCup(5);</span>
+<span class="fc" id="L409">        t.pushCup(3);</span>
+<span class="fc" id="L410">        t.pushCup(1);</span>
+
+<span class="fc" id="L412">        t.redraw();</span>
+<span class="fc" id="L413">        int originalHeight = t.Height();</span>
+
+<span class="fc" id="L415">        String[][] result = t.swapToReduce();</span>
+
+<span class="fc" id="L417">        assertEquals(2, result.length);</span>
+
+<span class="fc" id="L419">        t.swap(result[0], result[1]);</span>
+<span class="fc" id="L420">        t.redraw();</span>
+<span class="fc" id="L421">        int newHeight = t.Height();</span>
+
+<span class="pc bpc" id="L423" title="1 of 2 branches missed.">        assertTrue(newHeight &lt;= originalHeight);</span>
+
+<span class="fc" id="L425">        t.makeInvisible();</span>
+<span class="fc" id="L426">    }</span>
+    
+    @Test
+    public void shouldFailWhenTowerTooSmall() {
+    
+<span class="fc" id="L431">        Tower t = new Tower(20,20);</span>
+    
+<span class="fc" id="L433">        t.pushCup(5);</span>
+    
+<span class="fc" id="L435">        String[][] result = t.swapToReduce();</span>
+    
+<span class="fc" id="L437">        assertEquals(0, result.length);</span>
+<span class="fc" id="L438">        t.makeInvisible();</span>
+<span class="fc" id="L439">    }</span>
+    
+    /**
+     * Tears down the test fixture.
+     *
+     * Called after every test case method.
+     */
+    @AfterEach
+    public void tearDown()
+    {
+<span class="fc" id="L449">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerCC4test.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerCC4test.java</span></div><h1>TowerCC4test.java</h1><pre class="source lang-java linenums">package Test;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+import tower.*;
+
+<span class="fc" id="L7">public class TowerCC4test {</span>
+
+    @Test
+    public void shouldBuildTowerWithMultipleTypes() throws towerException {
+<span class="fc" id="L11">        Tower t = new Tower(10, 50);</span>
+
+<span class="fc" id="L13">        t.pushCup(&quot;normal&quot;, 7);</span>
+<span class="fc" id="L14">        t.pushCup(&quot;opener&quot;, 5);</span>
+<span class="fc" id="L15">        t.pushCup(&quot;hierarchical&quot;, 3);</span>
+
+<span class="fc" id="L17">        t.pushLid(&quot;normal&quot;, 7);</span>
+<span class="fc" id="L18">        t.pushLid(&quot;crazy&quot;, 5);</span>
+
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        assertTrue(t.getCupsSize() == 3);</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        assertTrue(t.getLidsSize() &gt;= 1);</span>
+<span class="fc" id="L22">    }</span>
+
+    @Test
+    public void shouldMaintainOrderConsistency() throws towerException {
+<span class="fc" id="L26">        Tower t = new Tower(10, 50);</span>
+
+<span class="fc" id="L28">        t.pushCup(&quot;normal&quot;, 7);</span>
+<span class="fc" id="L29">        t.pushCup(&quot;normal&quot;, 5);</span>
+<span class="fc" id="L30">        t.pushLid(&quot;crazy&quot;, 5);</span>
+
+<span class="fc" id="L32">        assertNotNull(t.getInsertionOrder());</span>
+<span class="fc" id="L33">    }</span>
+    
+    @Test
+    public void shouldSwapElements() throws towerException {
+<span class="fc" id="L37">        Tower t = new Tower(10, 50);</span>
+        
+<span class="fc" id="L39">        t.pushCup(&quot;normal&quot;, 7);</span>
+<span class="fc" id="L40">        t.pushCup(&quot;normal&quot;, 5);</span>
+
+<span class="fc" id="L42">        String[] o1 = {&quot;cup&quot;, &quot;7&quot;};</span>
+<span class="fc" id="L43">        String[] o2 = {&quot;cup&quot;, &quot;5&quot;};</span>
+        
+<span class="fc" id="L45">        t.swap(o1, o2);</span>
+
+<span class="fc" id="L47">        assertTrue(t.isOk());</span>
+<span class="fc" id="L48">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Cup.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">Cup.java</span></div><h1>Cup.java</h1><pre class="source lang-java linenums">package tower;
+import Shapes.*;
+import java.util.*;
+
+/**
+ * Write a description of class Cup here.
+ *
+ * @author (your name)
+ * @version (a version number or a date)
+ */
+public  class Cup{
+    private int number;
+    private int height;
+    private int width;
+    private int xPosition;
+    private int yPosition;
+    private String color;
+    private boolean isVisible;
+    private static final int cm = 5;
+    public boolean inside;
+    public Rectangle body;
+    public Rectangle interior;
+    public Lid lid;
+    
+    /**
+     * Constructor for objects of class Cup
+     */
+<span class="fc" id="L28">    public Cup(int number,String color) {</span>
+<span class="fc" id="L29">        this.number = number;</span>
+<span class="fc" id="L30">        this.height = calcularHeight(number);</span>
+<span class="fc" id="L31">        this.color = color;</span>
+<span class="fc" id="L32">        this.xPosition = (150 - (((2 * height) - 1) * 5)/2); </span>
+<span class="fc" id="L33">        this.yPosition = (150 - (((2 * height) - 1) * 5)/2);</span>
+<span class="fc" id="L34">        this.width = calcularHeight(number);</span>
+<span class="fc" id="L35">        this.isVisible = false;</span>
+<span class="fc" id="L36">        this.lid =null;</span>
+<span class="fc" id="L37">    }</span>
+    
+    /**
+     * calcula la altura teniendo en cuenta los &quot;centimetros&quot;
+     */
+    public int calcularHeight(int number) {
+<span class="fc" id="L43">        return ((2 * number) - 1) * cm;</span>
+    }
+    
+    public boolean isInside() {
+<span class="fc" id="L47">        return inside;</span>
+    }
+
+    /**
+     * Asocia una tapa a la copa.
+     *
+     * Además de asignar la referencia, establece la relación inversa
+     * en la tapa.
+     *
+     * @param lid tapa asociada
+     */
+    public void addLid(Lid lid){
+<span class="fc" id="L59">        this.lid = lid;</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (lid != null) {</span>
+<span class="fc" id="L61">            lid.setPartnerCup(this);</span>
+        }
+<span class="fc" id="L63">    }</span>
+    
+    public Lid getLid(){
+<span class="fc" id="L66">        return this.lid;    </span>
+    }
+    
+    public void setInside(boolean value) {
+<span class="fc" id="L70">        inside = value;</span>
+<span class="fc" id="L71">    }</span>
+    
+    /**
+     * Hace visible la copa en el canvas y la dibuja.
+     */
+    public void makeVisible() {
+<span class="fc" id="L77">        isVisible = true;</span>
+<span class="fc" id="L78">        draw();</span>
+<span class="fc" id="L79">    }</span>
+    
+    /**
+     * Hace invisible la copa eliminando su representación gráfica.
+     */
+    public void makeInvisible() {
+<span class="fc" id="L85">        erase();</span>
+<span class="fc" id="L86">        isVisible = false;</span>
+<span class="fc" id="L87">    }</span>
+    
+    /**
+     * Mueve el objeto verticalmente una distancia relativa respecto
+     * a su posición actual.
+     *
+     * El objeto se borra del canvas, se actualiza la posición vertical
+     * sumando la distancia indicada y luego se vuelve a dibujar.
+     *
+     * @param distancia cantidad de píxeles a mover:
+     *                  valores positivos → hacia abajo
+     *                  valores negativos → hacia arriba
+     */
+    public void moverVertical(int distancia) {
+<span class="nc" id="L101">        erase();</span>
+<span class="nc" id="L102">        yPosition += distancia;</span>
+<span class="nc" id="L103">        draw();</span>
+<span class="nc" id="L104">    }</span>
+    
+    /**
+     * Mueve el objeto directamente a una posición absoluta dentro del canvas.
+     *
+     * El objeto se borra del canvas, se asignan las nuevas coordenadas
+     * X e Y y luego se vuelve a dibujar en la nueva ubicación.
+     *
+     * @param x nueva posición horizontal absoluta.
+     * @param y nueva posición vertical absoluta.
+     */
+    public void moveTo(int x, int y) {
+<span class="nc" id="L116">        erase();</span>
+<span class="nc" id="L117">        xPosition = x;</span>
+<span class="nc" id="L118">        yPosition = y;</span>
+<span class="nc" id="L119">        draw();</span>
+<span class="nc" id="L120">    }</span>
+    
+    public int getNumber() {
+<span class="fc" id="L123">        return number;</span>
+    }
+    
+    public int getHeight() {
+<span class="fc" id="L127">        return this.height;</span>
+    }
+    
+    public int realHeight(){
+<span class="nc" id="L131">        int number =0 ;</span>
+<span class="nc" id="L132">        number = height/5;</span>
+<span class="nc" id="L133">        number = number +1;</span>
+<span class="nc" id="L134">        number = number/2;</span>
+<span class="nc" id="L135">        return number;</span>
+    }
+    
+    /**
+     * Establece directamente la posición del objeto sin redibujarlo.
+     *
+     * Actualiza las coordenadas internas X y Y del objeto,
+     * pero NO realiza operaciones gráficas como borrar o dibujar.
+     * El cambio solo será visible cuando se invoque posteriormente draw().
+     *
+     * @param x nueva posición horizontal absoluta.
+     * @param y nueva posición vertical absoluta.
+     */
+    public void setPosition(int x, int y) {
+<span class="fc" id="L149">        xPosition = x;</span>
+<span class="fc" id="L150">        yPosition = y;</span>
+<span class="fc" id="L151">    }</span>
+    
+    public String getColor(){
+<span class="fc" id="L154">        return this.color;</span>
+    }
+    
+    /**
+     * Dibuja visualmente la copa en el canvas si el objeto está marcado como visible.
+     *
+     * El método calcula la esquina superior izquierda a partir de la posición central
+     * (xPosition, yPosition) y crea dos rectángulos:
+     *
+     * - body: representa el exterior de la copa con el color asignado.
+     * - interior: representa el interior blanco de la copa, ligeramente más pequeño
+     *   para simular el grosor de las paredes.
+     *
+     * El valor &quot;grosor&quot; define el espesor visual del borde.
+     *
+     * Nota:
+     * - Se crean nuevos objetos Rectangle cada vez que se dibuja.
+     * - El desplazamiento horizontal (-70) corresponde a un ajuste manual
+     *   para alinear la copa dentro del canvas.
+     * - El objeto solo se dibuja si isVisible == true.
+     */
+    public void draw() {
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (!isVisible) return;</span>
+    
+<span class="fc" id="L178">        erase();</span>
+    
+<span class="fc" id="L180">        int grosor = 5;</span>
+    
+<span class="fc" id="L182">        int esquinaX = xPosition;</span>
+<span class="fc" id="L183">        int esquinaY = yPosition - height;</span>
+    
+<span class="fc" id="L185">        body = new Rectangle();</span>
+<span class="fc" id="L186">        body.changeSize(height, width);</span>
+<span class="fc" id="L187">        body.changeColor(color);</span>
+<span class="fc" id="L188">        body.changeP(esquinaX, esquinaY);</span>
+<span class="fc" id="L189">        body.makeVisible();</span>
+    
+<span class="fc" id="L191">        interior = new Rectangle();</span>
+<span class="fc" id="L192">        interior.changeSize(height - grosor, width - 2 * grosor);</span>
+<span class="fc" id="L193">        interior.changeColor(&quot;white&quot;);</span>
+<span class="fc" id="L194">        interior.changeP(esquinaX + grosor, esquinaY);</span>
+<span class="fc" id="L195">        interior.makeVisible();</span>
+<span class="fc" id="L196">        drawDecoration();</span>
+<span class="fc" id="L197">    }</span>
+    
+    public void drawDecoration() {
+        
+<span class="fc" id="L201">    }</span>
+    
+    /**
+     * Oculta visualmente la copa del canvas.
+     *
+     * El método verifica si los rectángulos gráficos que representan
+     * el exterior (body) y el interior (interior) existen y, en caso afirmativo,
+     * los hace invisibles.
+     */
+    public void erase() {
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (body != null) body.makeInvisible();</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (interior != null) interior.makeInvisible();</span>
+<span class="fc" id="L213">    }</span>
+    
+    public int getXpo(){
+<span class="fc" id="L216">        return xPosition;</span>
+    }
+    
+    public int getYpo(){
+<span class="fc" id="L220">        return yPosition;</span>
+    }
+    
+    public int getWidth(){
+<span class="fc" id="L224">        return width;</span>
+    }
+    
+     /**
+     * Posiciona la copa fuera de la torre, centrada horizontalmente.
+     */
+    public void placeOutside(int canvasWidth, int baseY) {
+<span class="fc" id="L231">        int x = (canvasWidth - getWidth()) / 2;</span>
+<span class="fc" id="L232">        int y = baseY;</span>
+    
+<span class="fc" id="L234">        setPosition(x, y);</span>
+<span class="fc" id="L235">        setInside(false);</span>
+<span class="fc" id="L236">    }</span>
+        
+    /**
+     * Posiciona la copa dentro de otra copa contenedora.
+     */
+    public void placeInside(Cup container, Lid lidOnContainer, int grosor) {
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">        if (container == null) return;</span>
+    
+<span class="fc" id="L244">        int innerX = container.getXpo() + grosor;</span>
+<span class="fc" id="L245">        int innerWidth = container.getWidth() - (2 * grosor);</span>
+<span class="fc" id="L246">        int x = innerX + (innerWidth - getWidth()) / 2;</span>
+    
+        int y;
+    
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        if (lidOnContainer == null) {</span>
+<span class="fc" id="L251">            y = container.getYpo() - grosor;</span>
+<span class="fc" id="L252">        } else {</span>
+<span class="nc" id="L253">            y = lidOnContainer.getYpo() - lidOnContainer.getHeight();</span>
+        }
+    
+<span class="fc" id="L256">        setPosition(x, y);</span>
+<span class="fc" id="L257">        setInside(true);</span>
+<span class="fc" id="L258">    }   </span>
+    
+    /**
+     * Posiciona la copa sobre otra copa de soporte.
+     */
+    public void placeAbove(Cup support, Cup container, Lid lidOnSupport, int grosor) {
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        if (support == null) return;</span>
+    
+<span class="nc" id="L266">        int x = support.getXpo() + (support.getWidth() - getWidth()) / 2;</span>
+    
+        int y;
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (lidOnSupport == null) {</span>
+<span class="nc" id="L270">            y = support.getYpo() - support.getHeight();</span>
+<span class="nc" id="L271">        } else {</span>
+<span class="nc" id="L272">            y = lidOnSupport.getYpo() - lidOnSupport.getHeight();</span>
+        }
+    
+<span class="nc" id="L275">        setPosition(x, y);</span>
+<span class="nc" id="L276">        setInside(true);</span>
+<span class="nc" id="L277">    }</span>
+    
+    /**
+     * Posiciona la copa sobre una tapa.
+     */
+    public void placeAboveLid(Lid support) {
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        if (support == null) return;</span>
+    
+<span class="fc" id="L285">        int x = support.getXpo() + (support.getWidth() - getWidth()) / 2;</span>
+<span class="fc" id="L286">        int y = support.getYpo() - support.getHeight();</span>
+    
+<span class="fc" id="L288">        setPosition(x, y);</span>
+<span class="fc" id="L289">        setInside(false);</span>
+<span class="fc" id="L290">    }</span>
+    
+    public void beforeEnter(Tower tower){
+<span class="fc" id="L293">    }</span>
+    
+    public boolean canBeRemoved() {
+<span class="fc" id="L296">        return true;</span>
+    }
+    
+    public void lock() {
+<span class="nc" id="L300">    }</span>
+    
+    public boolean shouldIgnoreSupport() {
+<span class="nc" id="L303">        return false;</span>
+    }
+    
+    public void placeInTower(Cup container, Cup support, Lid lidOnContainer, Lid lidOnSupport, int grosor) {
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">        if (support == null) {</span>
+<span class="fc" id="L308">            placeInside(container, lidOnContainer, grosor);</span>
+<span class="fc" id="L309">        } else {</span>
+<span class="nc" id="L310">            placeAbove(support, container, lidOnSupport, grosor);</span>
+        }
+<span class="fc" id="L312">    }</span>
+    
+    /**
+     * Decide si la copa debe colocarse fuera de la torre.
+     */
+    public boolean shouldGoOutside(boolean lastOutsideWasLid, int outsideSize) {
+<span class="fc bfc" id="L318" title="All 4 branches covered.">            return lastOutsideWasLid || this.getNumber() &gt;= outsideSize;</span>
+    }
+    
+    /**
+     * Posiciona la primera copa del layout.
+     */
+    public void placeAsFirst(int canvasWidth, int baseY, Lid topOutsideLid) {
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">        if (topOutsideLid != null) {</span>
+<span class="nc" id="L326">            placeAboveLid(topOutsideLid);</span>
+<span class="nc" id="L327">        } else {</span>
+<span class="fc" id="L328">            placeOutside(canvasWidth, baseY);</span>
+        }
+<span class="fc" id="L330">    }</span>
+    
+    /**
+     * Posiciona la copa como elemento exterior.
+     */
+    public void placeAsOutside(int canvasWidth, int highestCupTopY, Lid topOutsideLid, boolean lastOutsideWasLid) {
+<span class="pc bpc" id="L336" title="1 of 4 branches missed.">        if (lastOutsideWasLid &amp;&amp; topOutsideLid != null) {</span>
+<span class="fc" id="L337">            placeAboveLid(topOutsideLid);</span>
+<span class="fc" id="L338">        } else {</span>
+<span class="fc" id="L339">            placeOutside(canvasWidth, highestCupTopY);</span>
+        }
+<span class="fc" id="L341">    }</span>
+    
+    /**
+     * Desasocia la tapa de la copa.
+     */
+    public void detachLid() {
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">        if (lid != null) {</span>
+<span class="fc" id="L348">            lid.setPartnerCup(null);</span>
+<span class="fc" id="L349">            lid = null;</span>
+        }
+<span class="fc" id="L351">    }</span>
+    
+    /**
+     * Determina si la copa debe colocarse sobre su propia tapa.
+     */
+    public boolean shouldBePlacedOnBaseLid() {
+<span class="pc bpc" id="L357" title="3 of 6 branches missed.">        return lid != null &amp;&amp; lid.actsAsBaseForPartner() &amp;&amp; lid.isVisible();</span>
+    }
+    
+    /**
+     * Coloca la copa sobre su tapa asociada.
+     */
+    public void placeOnBaseLid() {
+<span class="nc" id="L364">        placeAboveLid(lid);</span>
+<span class="nc" id="L365">        setInside(lid.isInside());</span>
+<span class="nc" id="L366">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

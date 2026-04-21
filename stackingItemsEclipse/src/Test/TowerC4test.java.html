@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerC4test.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerC4test.java</span></div><h1>TowerC4test.java</h1><pre class="source lang-java linenums">package Test;
+
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import tower.*;
+
+<span class="fc" id="L8">public class TowerC4test {</span>
+
+    private Tower tower;
+
+    @Before
+    public void setUp() {
+<span class="fc" id="L14">        tower = new Tower(10, 50);</span>
+<span class="fc" id="L15">    }</span>
+
+    @Test
+    public void shouldCreateEmptyTower() {
+<span class="fc" id="L19">        assertEquals(0, tower.getCupsSize());</span>
+<span class="fc" id="L20">        assertEquals(0, tower.getLidsSize());</span>
+<span class="fc" id="L21">    }</span>
+
+    @Test
+    public void shouldAddNormalCup() throws towerException {
+<span class="fc" id="L25">        tower.pushCup(&quot;normal&quot;, 5);</span>
+<span class="fc" id="L26">        assertEquals(1, tower.getCupsSize());</span>
+<span class="fc" id="L27">    }</span>
+
+    @Test
+    public void shouldNotAllowDuplicateCup() throws towerException {
+<span class="fc" id="L31">        tower.pushCup(&quot;normal&quot;, 5);</span>
+        try {
+<span class="nc" id="L33">            tower.pushCup(&quot;normal&quot;, 5);</span>
+<span class="nc" id="L34">            fail(&quot;Debió lanzar excepción&quot;);</span>
+<span class="pc" id="L35">        } catch (towerException e) {</span>
+<span class="fc" id="L36">            assertTrue(true);</span>
+        }
+<span class="fc" id="L38">    }</span>
+
+    @Test
+    public void shouldAddOpenerCupAndRemoveBlockingLids() throws towerException {
+<span class="fc" id="L42">        tower.pushCup(&quot;normal&quot;, 7);</span>
+<span class="fc" id="L43">        tower.pushLid(&quot;normal&quot;, 9);</span>
+<span class="fc" id="L44">        tower.pushLid(&quot;normal&quot;, 4);</span>
+<span class="fc" id="L45">        tower.pushLid(&quot;normal&quot;, 6);</span>
+        
+<span class="fc" id="L47">        tower.pushCup(&quot;opener&quot;, 5);</span>
+
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        assertTrue(tower.getLidsSize() &gt;= 0);</span>
+<span class="fc" id="L50">    }</span>
+
+    @Test
+    public void shouldAddHierarchicalCupAndReorder() throws towerException {
+<span class="fc" id="L54">        tower.pushCup(&quot;normal&quot;, 7);</span>
+<span class="fc" id="L55">        tower.pushCup(&quot;normal&quot;, 5);</span>
+<span class="fc" id="L56">        tower.pushCup(&quot;hierarchical&quot;, 3);</span>
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        assertTrue(tower.getInsertionOrder().size() &gt; 0);</span>
+<span class="fc" id="L59">    }</span>
+
+    @Test
+    public void fearfulLidShouldNotEnterWithoutCup() throws towerException {
+<span class="fc" id="L63">        tower.pushLid(&quot;fearful&quot;, 5);</span>
+
+<span class="fc" id="L65">        assertFalse(tower.isOk());</span>
+<span class="fc" id="L66">    }</span>
+
+    @Test
+    public void crazyLidShouldGoBeforeCup() throws towerException {
+<span class="fc" id="L70">        tower.pushCup(&quot;normal&quot;, 5);</span>
+<span class="fc" id="L71">        tower.pushLid(&quot;crazy&quot;, 5);</span>
+
+<span class="fc" id="L73">        String[] first = tower.getInsertionOrder().get(0);</span>
+<span class="fc" id="L74">        assertEquals(&quot;lid&quot;, first[0]);</span>
+<span class="fc" id="L75">    }</span>
+
+    @Test
+    public void shouldRemoveCup() throws towerException {
+<span class="fc" id="L79">        tower.pushCup(&quot;normal&quot;, 5);</span>
+<span class="fc" id="L80">        tower.removeCup(5);</span>
+
+<span class="fc" id="L82">        assertEquals(0, tower.getCupsSize());</span>
+<span class="fc" id="L83">    }</span>
+
+    @Test
+    public void shouldCalculateHeight() throws towerException {
+<span class="fc" id="L87">        tower.pushCup(&quot;normal&quot;, 5);</span>
+<span class="fc" id="L88">        tower.pushCup(&quot;normal&quot;, 7);</span>
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        assertTrue(tower.Height() &gt; 0);</span>
+<span class="fc" id="L91">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

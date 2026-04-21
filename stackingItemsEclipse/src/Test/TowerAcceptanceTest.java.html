@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerAcceptanceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerAcceptanceTest.java</span></div><h1>TowerAcceptanceTest.java</h1><pre class="source lang-java linenums">package Test;
+import java.util.ArrayList;
+import java.util.List;
+import tower.*;
+public class TowerAcceptanceTest {
+
+    private long defaultDelay;
+
+<span class="nc" id="L9">    public TowerAcceptanceTest(long defaultDelay) {</span>
+<span class="nc" id="L10">        this.defaultDelay = defaultDelay+500;</span>
+<span class="nc" id="L11">    }</span>
+
+    public void setDefaultDelay(long delay) {
+<span class="nc" id="L14">        this.defaultDelay = delay;</span>
+<span class="nc" id="L15">    }</span>
+
+    public long getDefaultDelay() {
+<span class="nc" id="L18">        return defaultDelay;</span>
+    }
+
+    private void waitMillis(long millis) {
+        try {
+<span class="nc" id="L23">            Thread.sleep(millis);</span>
+<span class="nc" id="L24">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L25">            Thread.currentThread().interrupt();</span>
+        }
+<span class="nc" id="L27">    }</span>
+
+    public Tower createTower(int maxHeight, int maxWidth) {
+<span class="nc" id="L30">        Tower tower = new Tower(maxHeight, maxWidth);</span>
+<span class="nc" id="L31">        tower.makeVisible();</span>
+<span class="nc" id="L32">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L33">        return tower;</span>
+    }
+
+    public void pushCupStep(Tower tower, int size) {
+<span class="nc" id="L37">        System.out.println(&quot;pushCup(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L38">        tower.pushCup(size);</span>
+<span class="nc" id="L39">        tower.makeVisible();</span>
+<span class="nc" id="L40">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L41">    }</span>
+
+    public void pushLidStep(Tower tower, int size) {
+<span class="nc" id="L44">        System.out.println(&quot;pushLid(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L45">        tower.pushLid(size);</span>
+<span class="nc" id="L46">        tower.makeVisible();</span>
+<span class="nc" id="L47">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L48">    }</span>
+
+    public void removeCupStep(Tower tower, int size) {
+<span class="nc" id="L51">        System.out.println(&quot;removeCup(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L52">        tower.removeCup(size);</span>
+<span class="nc" id="L53">        tower.makeVisible();</span>
+<span class="nc" id="L54">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L55">    }</span>
+
+    public void removeLidStep(Tower tower, int size) {
+<span class="nc" id="L58">        System.out.println(&quot;removeLid(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L59">        tower.removeLid(size);</span>
+<span class="nc" id="L60">        tower.makeVisible();</span>
+<span class="nc" id="L61">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L62">    }</span>
+
+    public void redrawStep(Tower tower) {
+<span class="nc" id="L65">        System.out.println(&quot;redraw()&quot;);</span>
+<span class="nc" id="L66">        tower.redraw();</span>
+<span class="nc" id="L67">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L68">    }</span>
+
+    public void coverStep(Tower tower) {
+<span class="nc" id="L71">        System.out.println(&quot;cover()&quot;);</span>
+<span class="nc" id="L72">        tower.cover();</span>
+<span class="nc" id="L73">        tower.makeVisible();</span>
+<span class="nc" id="L74">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L75">    }</span>
+
+    public void reverseTowerStep(Tower tower) {
+<span class="nc" id="L78">        System.out.println(&quot;reverseTower()&quot;);</span>
+<span class="nc" id="L79">        tower.reverseTower();</span>
+<span class="nc" id="L80">        tower.makeVisible();</span>
+<span class="nc" id="L81">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L82">    }</span>
+
+    public void orderTowerStep(Tower tower) {
+<span class="nc" id="L85">        System.out.println(&quot;orderTower()&quot;);</span>
+<span class="nc" id="L86">        tower.orderTower();</span>
+<span class="nc" id="L87">        tower.makeVisible();</span>
+<span class="nc" id="L88">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L89">    }</span>
+
+    public Tower demoOnlyCups() {
+<span class="nc" id="L92">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L94">        pushCupStep(tower, 9);</span>
+    
+<span class="nc" id="L96">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L97">        pushCupStep(tower, 3);</span>
+<span class="nc" id="L98">        pushCupStep(tower, 7);</span>
+<span class="nc" id="L99">        pushCupStep(tower, 11);</span>
+
+<span class="nc" id="L101">        tower.makeInvisible();</span>
+<span class="nc" id="L102">        return tower;</span>
+    }
+
+    public Tower demoCupsAndLids() {
+<span class="nc" id="L106">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L108">        pushCupStep(tower, 9);</span>
+<span class="nc" id="L109">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L110">        pushCupStep(tower, 3);</span>
+
+<span class="nc" id="L112">        pushLidStep(tower, 3);</span>
+<span class="nc" id="L113">        pushLidStep(tower, 5);</span>
+<span class="nc" id="L114">        pushLidStep(tower, 9);</span>
+
+<span class="nc" id="L116">        pushCupStep(tower, 7);</span>
+<span class="nc" id="L117">        pushLidStep(tower, 7);</span>
+        
+<span class="nc" id="L119">        tower.makeInvisible();</span>
+<span class="nc" id="L120">        return tower;</span>
+    }
+
+    public Tower demoCover() {
+<span class="nc" id="L124">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L126">        pushCupStep(tower, 9);</span>
+<span class="nc" id="L127">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L128">        pushCupStep(tower, 3);</span>
+
+<span class="nc" id="L130">        pushLidStep(tower, 9);</span>
+<span class="nc" id="L131">        pushLidStep(tower, 3);</span>
+<span class="nc" id="L132">        pushLidStep(tower, 5);</span>
+
+<span class="nc" id="L134">        coverStep(tower);</span>
+        
+<span class="nc" id="L136">        tower.makeInvisible();</span>
+<span class="nc" id="L137">        return tower;</span>
+    }
+
+    public Tower demoReverse() {
+<span class="nc" id="L141">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L143">        pushCupStep(tower, 9);</span>
+<span class="nc" id="L144">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L145">        pushCupStep(tower, 3);</span>
+<span class="nc" id="L146">        pushCupStep(tower, 7);</span>
+
+<span class="nc" id="L148">        reverseTowerStep(tower);</span>
+        
+<span class="nc" id="L150">        tower.makeInvisible();</span>
+<span class="nc" id="L151">        return tower;</span>
+    }
+
+    public Tower demoOrder() {
+<span class="nc" id="L155">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L157">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L158">        pushCupStep(tower, 9);</span>
+<span class="nc" id="L159">        pushCupStep(tower, 3);</span>
+<span class="nc" id="L160">        pushCupStep(tower, 7);</span>
+
+<span class="nc" id="L162">        orderTowerStep(tower);</span>
+        
+<span class="nc" id="L164">        tower.makeInvisible();</span>
+<span class="nc" id="L165">        return tower;</span>
+    }
+
+
+
+    public void runSequence(Tower tower, List&lt;String[]&gt; actions) {
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        for (String[] action : actions) {</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (action.length == 0) continue;</span>
+
+<span class="nc" id="L174">            String command = action[0];</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (&quot;cup&quot;.equals(command)) {</span>
+<span class="nc" id="L177">                pushCupStep(tower, Integer.parseInt(action[1]));</span>
+<span class="nc" id="L178">            }</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            else if (&quot;lid&quot;.equals(command)) {</span>
+<span class="nc" id="L180">                pushLidStep(tower, Integer.parseInt(action[1]));</span>
+<span class="nc" id="L181">            }</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            else if (&quot;redraw&quot;.equals(command)) {</span>
+<span class="nc" id="L183">                redrawStep(tower);</span>
+<span class="nc" id="L184">            }</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            else if (&quot;cover&quot;.equals(command)) {</span>
+<span class="nc" id="L186">                coverStep(tower);</span>
+<span class="nc" id="L187">            }</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            else if (&quot;reverse&quot;.equals(command)) {</span>
+<span class="nc" id="L189">                reverseTowerStep(tower);</span>
+<span class="nc" id="L190">            }</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            else if (&quot;order&quot;.equals(command)) {</span>
+<span class="nc" id="L192">                orderTowerStep(tower);</span>
+<span class="nc" id="L193">            }</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            else if (&quot;removeCup&quot;.equals(command)) {</span>
+<span class="nc" id="L195">                removeCupStep(tower, Integer.parseInt(action[1]));</span>
+<span class="nc" id="L196">            }</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            else if (&quot;removeLid&quot;.equals(command)) {</span>
+<span class="nc" id="L198">                removeLidStep(tower, Integer.parseInt(action[1]));</span>
+            }
+        }
+<span class="nc" id="L201">    }</span>
+
+    public Tower demoCustomSequence() {
+<span class="nc" id="L204">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L206">        List&lt;String[]&gt; actions = new ArrayList&lt;String[]&gt;();</span>
+<span class="nc" id="L207">        actions.add(new String[]{&quot;cup&quot;, &quot;9&quot;});</span>
+<span class="nc" id="L208">        actions.add(new String[]{&quot;cup&quot;, &quot;5&quot;});</span>
+<span class="nc" id="L209">        actions.add(new String[]{&quot;lid&quot;, &quot;5&quot;});</span>
+<span class="nc" id="L210">        actions.add(new String[]{&quot;cup&quot;, &quot;3&quot;});</span>
+<span class="nc" id="L211">        actions.add(new String[]{&quot;lid&quot;, &quot;9&quot;});</span>
+<span class="nc" id="L212">        actions.add(new String[]{&quot;cover&quot;});</span>
+<span class="nc" id="L213">        actions.add(new String[]{&quot;reverse&quot;});</span>
+<span class="nc" id="L214">        actions.add(new String[]{&quot;redraw&quot;});</span>
+
+<span class="nc" id="L216">        runSequence(tower, actions);</span>
+
+<span class="nc" id="L218">        return tower;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

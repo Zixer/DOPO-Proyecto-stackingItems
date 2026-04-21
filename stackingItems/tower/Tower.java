@@ -647,7 +647,6 @@ public class Tower
      * - Redibuja la torre.
      *
      * @param i tamaño o número de la tapa.
-     * @param color color de la tapa.
      */
     public void pushLid(int i) {
         if (i > maxWidth || duplicatedLidSize(i)) {

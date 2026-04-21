@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CrazyLid.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">CrazyLid.java</span></div><h1>CrazyLid.java</h1><pre class="source lang-java linenums">package tower;
+import Shapes.*;
+import java.util.ArrayList;
+
+
+/**
+ * Representa una tapa que altera el orden de inserción para colocarse
+ * antes de su copa asociada.
+ */
+public class CrazyLid extends Lid
+{
+    private Rectangle mark; 
+    /**
+     * Constructor for objects of class Crazy
+     */
+    public CrazyLid(int number, String color){
+<span class="fc" id="L17">        super(number,color);</span>
+<span class="fc" id="L18">        mark = new Rectangle();</span>
+<span class="fc" id="L19">    }</span>
+    
+    public void erase() {
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (lid != null) lid.makeInvisible();  </span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (mark != null) mark.makeInvisible();</span>
+<span class="fc" id="L24">    }</span>
+    
+    /**
+     * Indica que esta tapa debe colocarse antes que su copa.
+     */
+    @Override
+    public boolean shouldBeBeforeCup() {
+<span class="fc" id="L31">        return true;</span>
+    }
+    
+    /**
+     * Reordena la tapa dentro del orden de inserción para que quede
+     * antes de su copa asociada.
+     */
+    public void reorderInTower(Tower tower) {
+<span class="nc" id="L39">        Cup partner = getPartnerCup();</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (partner == null) return;</span>
+    
+<span class="nc" id="L42">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="nc" id="L43">        int lidNumber = this.getNumber();</span>
+    
+<span class="nc" id="L45">        int lidIndex = -1;</span>
+<span class="nc" id="L46">        int cupIndex = -1;</span>
+    
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="nc" id="L49">            String[] elem = order.get(i);</span>
+    
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            if (elem[0].equals(&quot;lid&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                elem[1].equals(String.valueOf(lidNumber))) {</span>
+<span class="nc" id="L53">                lidIndex = i;</span>
+            }
+    
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (elem[0].equals(&quot;cup&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                elem[1].equals(String.valueOf(partner.getNumber()))) {</span>
+<span class="nc" id="L58">                cupIndex = i;</span>
+            }
+        }
+    
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        if (lidIndex == -1 || cupIndex == -1) return;</span>
+    
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (lidIndex &lt; cupIndex) return;</span>
+    
+<span class="nc" id="L66">        String[] lidElem = order.remove(lidIndex);</span>
+<span class="nc" id="L67">        order.add(cupIndex, lidElem);</span>
+<span class="nc" id="L68">    }</span>
+
+    @Override
+    public boolean actsAsBaseForPartner() {
+<span class="fc" id="L72">        return true;</span>
+    }
+    
+    /**
+     * Dibuja la tapa con una marca decorativa.
+     */
+    public void draw() {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (!isVisible()) return;</span>
+    
+<span class="nc" id="L81">        erase();</span>
+    
+<span class="nc" id="L83">        lid = new Rectangle();</span>
+<span class="nc" id="L84">        lid.changeSize(getHeight(), getWidth());</span>
+<span class="nc" id="L85">        lid.changeColor(getColor());</span>
+<span class="nc" id="L86">        lid.changeP(getXpo(), getYpo() - getHeight());</span>
+<span class="nc" id="L87">        lid.makeVisible();</span>
+    
+<span class="nc" id="L89">        mark.changeSize(2, getWidth() / 2);</span>
+<span class="nc" id="L90">        mark.changeColor(&quot;lightOrange&quot;);</span>
+<span class="nc" id="L91">        mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);</span>
+<span class="nc" id="L92">        mark.makeVisible();</span>
+<span class="nc" id="L93">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

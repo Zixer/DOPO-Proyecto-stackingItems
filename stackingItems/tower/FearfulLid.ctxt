@@ -1,17 +1,20 @@
 #BlueJ class context
 comment0.target=FearfulLid
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ Fearful\ here.\r\n\r\n\ @author\ (your\ name)\r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment0.text=\r\n\ Representa\ una\ tapa\ que\ depende\ de\ su\ copa\ asociada\ para\ poder\ entrar\r\n\ o\ salir\ de\ la\ torre.\r\n
 comment1.params=number\ color
 comment1.target=FearfulLid(int,\ java.lang.String)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ Fearful\r\n
 comment2.params=tower
 comment2.target=boolean\ canEnter(Tower)
+comment2.text=\r\n\ Determina\ si\ la\ tapa\ puede\ entrar\ en\ la\ torre.\r\n\r\n\ Solo\ puede\ hacerlo\ si\ su\ copa\ asociada\ existe\ y\ est\u00E1\ en\ la\ torre.\r\n
 comment3.params=
 comment3.target=void\ erase()
 comment4.params=tower
 comment4.target=boolean\ canExit(Tower)
 comment5.params=
 comment5.target=void\ makeVisible()
+comment5.text=\r\n\ Hace\ visible\ la\ tapa\ y\ fuerza\ su\ redibujado\ con\ decoraci\u00F3n.\r\n
 comment6.params=
 comment6.target=void\ draw()
+comment6.text=\r\n\ Dibuja\ la\ tapa\ junto\ con\ su\ marca\ decorativa.\r\n
 numComments=7

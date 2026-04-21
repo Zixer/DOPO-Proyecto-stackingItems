@@ -1,6 +1,6 @@
 #BlueJ class context
 comment0.target=CrazyLid
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ Crazy\ here.\r\n\r\n\ @author\ (your\ name)\r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment0.text=\r\n\ Representa\ una\ tapa\ que\ altera\ el\ orden\ de\ inserci\u00F3n\ para\ colocarse\r\n\ antes\ de\ su\ copa\ asociada.\r\n
 comment1.params=number\ color
 comment1.target=CrazyLid(int,\ java.lang.String)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ Crazy\r\n
@@ -8,10 +8,13 @@ comment2.params=
 comment2.target=void\ erase()
 comment3.params=
 comment3.target=boolean\ shouldBeBeforeCup()
+comment3.text=\r\n\ Indica\ que\ esta\ tapa\ debe\ colocarse\ antes\ que\ su\ copa.\r\n
 comment4.params=tower
 comment4.target=void\ reorderInTower(Tower)
+comment4.text=\r\n\ Reordena\ la\ tapa\ dentro\ del\ orden\ de\ inserci\u00F3n\ para\ que\ quede\r\n\ antes\ de\ su\ copa\ asociada.\r\n
 comment5.params=
 comment5.target=boolean\ actsAsBaseForPartner()
 comment6.params=
 comment6.target=void\ draw()
+comment6.text=\r\n\ Dibuja\ la\ tapa\ con\ una\ marca\ decorativa.\r\n
 numComments=7

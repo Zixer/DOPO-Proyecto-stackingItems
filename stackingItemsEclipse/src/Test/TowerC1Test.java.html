@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerC1Test.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerC1Test.java</span></div><h1>TowerC1Test.java</h1><pre class="source lang-java linenums">package Test;
+
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import tower.*;
+
+import java.util.ArrayList;
+
+<span class="fc" id="L10">public class TowerC1Test {</span>
+
+    private Tower tower;
+
+    @Before
+    public void setUp() {
+<span class="fc" id="L16">        tower = new Tower(100, 50);</span>
+<span class="fc" id="L17">    }</span>
+
+    // =========================
+    // Helpers
+    // =========================
+
+    private int indexOf(String type, String number) {
+<span class="fc" id="L24">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="fc" id="L26">            String[] item = order.get(i);</span>
+<span class="fc bfc" id="L27" title="All 4 branches covered.">            if (item[0].equals(type) &amp;&amp; item[1].equals(number)) {</span>
+<span class="fc" id="L28">                return i;</span>
+            }
+        }
+<span class="fc" id="L31">        return -1;</span>
+    }
+
+    private boolean contains(String type, String number) {
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        return indexOf(type, number) != -1;</span>
+    }
+
+    private String[][] snapshotOrder() {
+<span class="fc" id="L39">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="fc" id="L40">        String[][] copy = new String[order.size()][2];</span>
+
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="fc" id="L43">            copy[i][0] = order.get(i)[0];</span>
+<span class="fc" id="L44">            copy[i][1] = order.get(i)[1];</span>
+        }
+<span class="fc" id="L46">        return copy;</span>
+    }
+
+    private void assertItemAt(int index, String type, String number) {
+<span class="fc" id="L50">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">        assertTrue(&quot;Índice fuera de rango&quot;, index &gt;= 0 &amp;&amp; index &lt; order.size());</span>
+<span class="fc" id="L52">        assertEquals(type, order.get(index)[0]);</span>
+<span class="fc" id="L53">        assertEquals(number, order.get(index)[1]);</span>
+<span class="fc" id="L54">    }</span>
+
+    private void assertOrderEquals(String[][] expected) {
+<span class="fc" id="L57">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="fc" id="L58">        assertEquals(&quot;Tamaño del insertionOrder incorrecto&quot;, expected.length, order.size());</span>
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        for (int i = 0; i &lt; expected.length; i++) {</span>
+<span class="fc" id="L61">            assertEquals(&quot;Tipo incorrecto en posición &quot; + i, expected[i][0], order.get(i)[0]);</span>
+<span class="fc" id="L62">            assertEquals(&quot;Número incorrecto en posición &quot; + i, expected[i][1], order.get(i)[1]);</span>
+        }
+<span class="fc" id="L64">    }</span>
+
+    // =========================
+    // Crear torre
+    // =========================
+
+    @Test
+    public void shouldCreateAnEmptyTower() {
+<span class="fc" id="L72">        assertEquals(0, tower.getCupsSize());</span>
+<span class="fc" id="L73">        assertEquals(0, tower.getLidsSize());</span>
+<span class="fc" id="L74">        assertEquals(0, tower.getInsertionOrder().size());</span>
+<span class="fc" id="L75">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L76">    }</span>
+
+    // =========================
+    // Manejo de cups
+    // =========================
+
+    @Test
+    public void shouldAddOneCupAndRegisterItInInsertionOrder() {
+<span class="fc" id="L84">        tower.pushCup(5);</span>
+
+<span class="fc" id="L86">        assertEquals(1, tower.getCupsSize());</span>
+<span class="fc" id="L87">        assertNotNull(tower.getCupByNumber(5));</span>
+<span class="fc" id="L88">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L89">        assertEquals(1, tower.getInsertionOrder().size());</span>
+<span class="fc" id="L90">        assertItemAt(0, &quot;cup&quot;, &quot;5&quot;);</span>
+<span class="fc" id="L91">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L92">    }</span>
+
+    @Test
+    public void shouldNotAddDuplicatedCup() {
+<span class="fc" id="L96">        tower.pushCup(5);</span>
+<span class="fc" id="L97">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L99">        tower.pushCup(5);</span>
+
+<span class="fc" id="L101">        assertEquals(1, tower.getCupsSize());</span>
+<span class="fc" id="L102">        assertNotNull(tower.getCupByNumber(5));</span>
+<span class="fc" id="L103">        assertOrderEquals(before);</span>
+<span class="fc" id="L104">        assertFalse(tower.isOk());</span>
+<span class="fc" id="L105">    }</span>
+
+    @Test
+    public void shouldPopLastCupAndRemoveItFromInsertionOrder() {
+<span class="fc" id="L109">        tower.pushCup(5);</span>
+<span class="fc" id="L110">        tower.pushCup(7);</span>
+
+<span class="fc" id="L112">        Cup removed = tower.popCup();</span>
+
+<span class="fc" id="L114">        assertNotNull(removed);</span>
+<span class="fc" id="L115">        assertEquals(7, removed.getNumber());</span>
+<span class="fc" id="L116">        assertEquals(1, tower.getCupsSize());</span>
+<span class="fc" id="L117">        assertNull(tower.getCupByNumber(7));</span>
+<span class="fc" id="L118">        assertFalse(contains(&quot;cup&quot;, &quot;7&quot;));</span>
+<span class="fc" id="L119">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L120">        assertEquals(1, tower.getInsertionOrder().size());</span>
+<span class="fc" id="L121">        assertItemAt(0, &quot;cup&quot;, &quot;5&quot;);</span>
+<span class="fc" id="L122">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L123">    }</span>
+
+    @Test
+    public void shouldRemoveSpecificCupEverywhere() {
+<span class="fc" id="L127">        tower.pushCup(5);</span>
+<span class="fc" id="L128">        tower.pushCup(7);</span>
+<span class="fc" id="L129">        tower.pushCup(9);</span>
+
+<span class="fc" id="L131">        tower.removeCup(7);</span>
+
+<span class="fc" id="L133">        assertEquals(2, tower.getCupsSize());</span>
+<span class="fc" id="L134">        assertNull(tower.getCupByNumber(7));</span>
+<span class="fc" id="L135">        assertFalse(contains(&quot;cup&quot;, &quot;7&quot;));</span>
+<span class="fc" id="L136">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L137">        assertTrue(contains(&quot;cup&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L138">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L139">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L140">            {&quot;cup&quot;, &quot;9&quot;}</span>
+        });
+<span class="fc" id="L142">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L143">    }</span>
+
+    // =========================
+    // Manejo de lids
+    // =========================
+
+    @Test
+    public void shouldAddOneLidAndRegisterItInInsertionOrder() {
+<span class="fc" id="L151">        tower.pushLid(5);</span>
+
+<span class="fc" id="L153">        assertEquals(1, tower.getLidsSize());</span>
+<span class="fc" id="L154">        assertNotNull(tower.getLidByNumber(5));</span>
+<span class="fc" id="L155">        assertTrue(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L156">        assertEquals(1, tower.getInsertionOrder().size());</span>
+<span class="fc" id="L157">        assertItemAt(0, &quot;lid&quot;, &quot;5&quot;);</span>
+<span class="fc" id="L158">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L159">    }</span>
+
+    @Test
+    public void shouldNotAddDuplicatedLid() {
+<span class="fc" id="L163">        tower.pushLid(5);</span>
+<span class="fc" id="L164">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L166">        tower.pushLid(5);</span>
+
+<span class="fc" id="L168">        assertEquals(1, tower.getLidsSize());</span>
+<span class="fc" id="L169">        assertNotNull(tower.getLidByNumber(5));</span>
+<span class="fc" id="L170">        assertOrderEquals(before);</span>
+<span class="fc" id="L171">        assertFalse(tower.isOk());</span>
+<span class="fc" id="L172">    }</span>
+
+    @Test
+    public void shouldPopLastLidAndRemoveItFromInsertionOrder() {
+<span class="fc" id="L176">        tower.pushLid(5);</span>
+<span class="fc" id="L177">        tower.pushLid(7);</span>
+
+<span class="fc" id="L179">        Lid removed = tower.popLid();</span>
+
+<span class="fc" id="L181">        assertNotNull(removed);</span>
+<span class="fc" id="L182">        assertEquals(7, removed.getNumber());</span>
+<span class="fc" id="L183">        assertEquals(1, tower.getLidsSize());</span>
+<span class="fc" id="L184">        assertNull(tower.getLidByNumber(7));</span>
+<span class="fc" id="L185">        assertFalse(contains(&quot;lid&quot;, &quot;7&quot;));</span>
+<span class="fc" id="L186">        assertTrue(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L187">        assertEquals(1, tower.getInsertionOrder().size());</span>
+<span class="fc" id="L188">        assertItemAt(0, &quot;lid&quot;, &quot;5&quot;);</span>
+<span class="fc" id="L189">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L190">    }</span>
+
+    @Test
+    public void shouldRemoveSpecificLidEverywhere() {
+<span class="fc" id="L194">        tower.pushLid(5);</span>
+<span class="fc" id="L195">        tower.pushLid(7);</span>
+<span class="fc" id="L196">        tower.pushLid(9);</span>
+
+<span class="fc" id="L198">        tower.removeLid(7);</span>
+
+<span class="fc" id="L200">        assertEquals(2, tower.getLidsSize());</span>
+<span class="fc" id="L201">        assertNull(tower.getLidByNumber(7));</span>
+<span class="fc" id="L202">        assertFalse(contains(&quot;lid&quot;, &quot;7&quot;));</span>
+<span class="fc" id="L203">        assertTrue(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L204">        assertTrue(contains(&quot;lid&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L205">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L206">            {&quot;lid&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L207">            {&quot;lid&quot;, &quot;9&quot;}</span>
+        });
+<span class="fc" id="L209">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L210">    }</span>
+
+    // =========================
+    // Relación cup-lid del mismo número
+    // =========================
+
+    @Test
+    public void shouldLinkCupAndLidOfSameNumber() {
+<span class="fc" id="L218">        tower.pushCup(5);</span>
+<span class="fc" id="L219">        tower.pushLid(5);</span>
+
+<span class="fc" id="L221">        Cup cup = tower.getCupByNumber(5);</span>
+<span class="fc" id="L222">        Lid lid = tower.getLidByNumber(5);</span>
+
+<span class="fc" id="L224">        assertNotNull(cup);</span>
+<span class="fc" id="L225">        assertNotNull(lid);</span>
+<span class="fc" id="L226">        assertEquals(lid, cup.getLid());</span>
+<span class="fc" id="L227">        assertEquals(cup, lid.getPartnerCup());</span>
+<span class="fc" id="L228">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L229">        assertTrue(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L230">    }</span>
+
+    @Test
+    public void shouldRemovePartnerReferenceWhenLidIsRemoved() {
+<span class="fc" id="L234">        tower.pushCup(5);</span>
+<span class="fc" id="L235">        tower.pushLid(5);</span>
+
+<span class="fc" id="L237">        Cup cup = tower.getCupByNumber(5);</span>
+<span class="fc" id="L238">        assertNotNull(cup.getLid());</span>
+
+<span class="fc" id="L240">        tower.removeLid(5);</span>
+
+<span class="fc" id="L242">        assertNull(tower.getLidByNumber(5));</span>
+<span class="fc" id="L243">        assertFalse(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L244">        assertNull(cup.getLid());</span>
+<span class="fc" id="L245">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L246">        assertEquals(1, tower.getCupsSize());</span>
+<span class="fc" id="L247">        assertEquals(0, tower.getLidsSize());</span>
+<span class="fc" id="L248">    }</span>
+
+    // =========================
+    // orderTower
+    // =========================
+
+    @Test
+    public void shouldOrderCupsFromGreaterToSmaller() {
+<span class="fc" id="L256">        tower.pushCup(5);</span>
+<span class="fc" id="L257">        tower.pushCup(9);</span>
+<span class="fc" id="L258">        tower.pushCup(3);</span>
+<span class="fc" id="L259">        tower.pushCup(7);</span>
+
+<span class="fc" id="L261">        tower.orderTower();</span>
+
+<span class="fc" id="L263">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L264">            {&quot;cup&quot;, &quot;9&quot;},</span>
+<span class="fc" id="L265">            {&quot;cup&quot;, &quot;7&quot;},</span>
+<span class="fc" id="L266">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L267">            {&quot;cup&quot;, &quot;3&quot;}</span>
+        });
+<span class="fc" id="L269">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L270">    }</span>
+
+    @Test
+    public void shouldOrderCupsAndKeepLidsAfterCups() {
+<span class="fc" id="L274">        tower.pushCup(5);</span>
+<span class="fc" id="L275">        tower.pushCup(9);</span>
+<span class="fc" id="L276">        tower.pushCup(3);</span>
+<span class="fc" id="L277">        tower.pushLid(5);</span>
+<span class="fc" id="L278">        tower.pushLid(9);</span>
+
+<span class="fc" id="L280">        tower.orderTower();</span>
+
+<span class="fc" id="L282">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L283">            {&quot;cup&quot;, &quot;9&quot;},</span>
+<span class="fc" id="L284">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L285">            {&quot;cup&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L286">            {&quot;lid&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L287">            {&quot;lid&quot;, &quot;9&quot;}</span>
+        });
+<span class="fc" id="L289">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L290">    }</span>
+
+    // =========================
+    // reverseTower
+    // =========================
+
+    @Test
+    public void shouldReverseInsertionOrderExactly() {
+<span class="fc" id="L298">        tower.pushCup(9);</span>
+<span class="fc" id="L299">        tower.pushCup(5);</span>
+<span class="fc" id="L300">        tower.pushCup(3);</span>
+
+<span class="fc" id="L302">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L304">        tower.reverseTower();</span>
+
+<span class="fc" id="L306">        assertEquals(before[0][0], &quot;cup&quot;);</span>
+<span class="fc" id="L307">        assertEquals(before[0][1], &quot;9&quot;);</span>
+<span class="fc" id="L308">        assertEquals(before[2][1], &quot;3&quot;);</span>
+
+<span class="fc" id="L310">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L311">            {&quot;cup&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L312">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L313">            {&quot;cup&quot;, &quot;9&quot;}</span>
+        });
+<span class="fc" id="L315">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L316">    }</span>
+
+    @Test
+    public void shouldSwapTwoElementsAndOnlyThoseElementsChangePlaces() {
+<span class="fc" id="L320">        tower.pushCup(9);</span>
+<span class="fc" id="L321">        tower.pushCup(5);</span>
+<span class="fc" id="L322">        tower.pushCup(3);</span>
+
+<span class="fc" id="L324">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L326">        tower.swap(new String[]{&quot;cup&quot;, &quot;9&quot;}, new String[]{&quot;cup&quot;, &quot;3&quot;});</span>
+
+<span class="fc" id="L328">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L329">            {&quot;cup&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L330">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L331">            {&quot;cup&quot;, &quot;9&quot;}</span>
+        });
+
+        // El del medio debe quedarse igual
+<span class="fc" id="L335">        assertEquals(before[1][0], tower.getInsertionOrder().get(1)[0]);</span>
+<span class="fc" id="L336">        assertEquals(before[1][1], tower.getInsertionOrder().get(1)[1]);</span>
+<span class="fc" id="L337">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L338">    }</span>
+
+    // =========================
+    // cover
+    // =========================
+
+    @Test
+    public void shouldMoveLidsAfterCupsWhenCoverIsCalled() {
+<span class="fc" id="L346">        tower.pushCup(9);</span>
+<span class="fc" id="L347">        tower.pushCup(5);</span>
+<span class="fc" id="L348">        tower.pushCup(3);</span>
+<span class="fc" id="L349">        tower.pushLid(9);</span>
+<span class="fc" id="L350">        tower.pushLid(3);</span>
+<span class="fc" id="L351">        tower.pushLid(5);</span>
+
+<span class="fc" id="L353">        tower.cover();</span>
+
+<span class="fc" id="L355">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L356">            {&quot;cup&quot;, &quot;9&quot;},</span>
+<span class="fc" id="L357">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L358">            {&quot;cup&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L359">            {&quot;lid&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L360">            {&quot;lid&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L361">            {&quot;lid&quot;, &quot;9&quot;}</span>
+        });
+<span class="fc" id="L363">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L364">    }</span>
+
+    // =========================
+    // height
+    // =========================
+
+    @Test
+    public void shouldReturnZeroHeightWhenTowerIsEmpty() {
+<span class="fc" id="L372">        assertEquals(0, tower.Height());</span>
+<span class="fc" id="L373">    }</span>
+
+    @Test
+    public void shouldIncreaseHeightWhenElementsAreAdded() {
+<span class="fc" id="L377">        int initialHeight = tower.Height();</span>
+
+<span class="fc" id="L379">        tower.pushCup(9);</span>
+<span class="fc" id="L380">        int heightAfterCup = tower.Height();</span>
+
+<span class="fc" id="L382">        tower.pushLid(9);</span>
+<span class="fc" id="L383">        int heightAfterLid = tower.Height();</span>
+
+<span class="fc" id="L385">        assertEquals(0, initialHeight);</span>
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">        assertTrue(heightAfterCup &gt; initialHeight);</span>
+<span class="pc bpc" id="L387" title="1 of 2 branches missed.">        assertTrue(heightAfterLid &gt;= heightAfterCup);</span>
+<span class="fc" id="L388">    }</span>
+
+    // =========================
+    // visibility
+    // =========================
+
+    @Test
+    public void shouldBecomeVisible() {
+<span class="fc" id="L396">        tower.makeVisible();</span>
+<span class="fc" id="L397">        assertTrue(tower.isVisible());</span>
+<span class="fc" id="L398">    }</span>
+
+    @Test
+    public void shouldBecomeInvisible() {
+<span class="fc" id="L402">        tower.makeVisible();</span>
+<span class="fc" id="L403">        tower.makeInvisible();</span>
+<span class="fc" id="L404">        assertFalse(tower.isVisible());</span>
+<span class="fc" id="L405">    }</span>
+
+    @Test
+    public void shouldKeepDataWhenBecomingInvisible() {
+<span class="fc" id="L409">        tower.pushCup(5);</span>
+<span class="fc" id="L410">        tower.pushLid(5);</span>
+
+<span class="fc" id="L412">        tower.makeInvisible();</span>
+
+<span class="fc" id="L414">        assertFalse(tower.isVisible());</span>
+<span class="fc" id="L415">        assertNotNull(tower.getCupByNumber(5));</span>
+<span class="fc" id="L416">        assertNotNull(tower.getLidByNumber(5));</span>
+<span class="fc" id="L417">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L418">        assertTrue(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L419">    }</span>
+
+    // =========================
+    // exit
+    // =========================
+
+    @Test
+    public void shouldExitAndClearEverything() {
+<span class="fc" id="L427">        tower.pushCup(5);</span>
+<span class="fc" id="L428">        tower.pushCup(7);</span>
+<span class="fc" id="L429">        tower.pushLid(5);</span>
+<span class="fc" id="L430">        tower.makeVisible();</span>
+
+<span class="fc" id="L432">        tower.exit();</span>
+
+<span class="fc" id="L434">        assertEquals(0, tower.getCupsSize());</span>
+<span class="fc" id="L435">        assertEquals(0, tower.getLidsSize());</span>
+<span class="fc" id="L436">        assertEquals(0, tower.getInsertionOrder().size());</span>
+<span class="fc" id="L437">        assertFalse(tower.isVisible());</span>
+<span class="fc" id="L438">        assertNull(tower.getCupByNumber(5));</span>
+<span class="fc" id="L439">        assertNull(tower.getLidByNumber(5));</span>
+<span class="fc" id="L440">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

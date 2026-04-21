@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerC2Test.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerC2Test.java</span></div><h1>TowerC2Test.java</h1><pre class="source lang-java linenums">package Test;
+
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import tower.*;
+
+import java.util.ArrayList;
+
+<span class="fc" id="L10">public class TowerC2Test {</span>
+
+    private Tower tower;
+
+    @Before
+    public void setUp() {
+<span class="fc" id="L16">        tower = new Tower(100, 50);</span>
+<span class="fc" id="L17">        tower.makeInvisible(); // ciclo 2 pide pruebas de unidad en modo invisible</span>
+<span class="fc" id="L18">    }</span>
+
+    // =========================
+    // Helpers
+    // =========================
+
+    private int indexOf(String type, String number) {
+<span class="fc" id="L25">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="fc" id="L27">            String[] item = order.get(i);</span>
+<span class="fc bfc" id="L28" title="All 4 branches covered.">            if (item[0].equals(type) &amp;&amp; item[1].equals(number)) {</span>
+<span class="fc" id="L29">                return i;</span>
+            }
+        }
+<span class="fc" id="L32">        return -1;</span>
+    }
+
+    private boolean contains(String type, String number) {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        return indexOf(type, number) != -1;</span>
+    }
+
+    private String[][] snapshotOrder() {
+<span class="fc" id="L40">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="fc" id="L41">        String[][] copy = new String[order.size()][2];</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="fc" id="L43">            copy[i][0] = order.get(i)[0];</span>
+<span class="fc" id="L44">            copy[i][1] = order.get(i)[1];</span>
+        }
+<span class="fc" id="L46">        return copy;</span>
+    }
+
+    private void assertOrderEquals(String[][] expected) {
+<span class="fc" id="L50">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="fc" id="L51">        assertEquals(&quot;Tamaño incorrecto del insertionOrder&quot;, expected.length, order.size());</span>
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (int i = 0; i &lt; expected.length; i++) {</span>
+<span class="fc" id="L54">            assertEquals(&quot;Tipo incorrecto en posición &quot; + i, expected[i][0], order.get(i)[0]);</span>
+<span class="fc" id="L55">            assertEquals(&quot;Número incorrecto en posición &quot; + i, expected[i][1], order.get(i)[1]);</span>
+        }
+<span class="fc" id="L57">    }</span>
+
+    private void assertOnlyTheseTwoPositionsChanged(String[][] before, int pos1, int pos2) {
+<span class="fc" id="L60">        ArrayList&lt;String[]&gt; after = tower.getInsertionOrder();</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (int i = 0; i &lt; before.length; i++) {</span>
+<span class="fc bfc" id="L63" title="All 4 branches covered.">            if (i != pos1 &amp;&amp; i != pos2) {</span>
+<span class="fc" id="L64">                assertEquals(&quot;Cambió el tipo en una posición no esperada: &quot; + i, before[i][0], after.get(i)[0]);</span>
+<span class="fc" id="L65">                assertEquals(&quot;Cambió el número en una posición no esperada: &quot; + i, before[i][1], after.get(i)[1]);</span>
+            }
+        }
+<span class="fc" id="L68">    }</span>
+
+    // =========================
+    // Requisito 10:
+    // crear torre indicando número de tazas
+    // =========================
+
+    @Test
+    public void shouldCreateTowerWithGivenNumberOfCups() {
+<span class="fc" id="L77">        Tower t = new Tower(4);</span>
+<span class="fc" id="L78">        t.makeInvisible();</span>
+
+<span class="fc" id="L80">        assertEquals(4, t.getCupsSize());</span>
+<span class="fc" id="L81">        assertEquals(0, t.getLidsSize());</span>
+
+<span class="fc" id="L83">        assertNotNull(t.getCupByNumber(1));</span>
+<span class="fc" id="L84">        assertNotNull(t.getCupByNumber(3));</span>
+<span class="fc" id="L85">        assertNotNull(t.getCupByNumber(5));</span>
+<span class="fc" id="L86">        assertNotNull(t.getCupByNumber(7));</span>
+
+<span class="fc" id="L88">        assertEquals(4, t.getInsertionOrder().size());</span>
+<span class="fc" id="L89">        assertEquals(&quot;cup&quot;, t.getInsertionOrder().get(0)[0]);</span>
+<span class="fc" id="L90">        assertEquals(&quot;1&quot;, t.getInsertionOrder().get(0)[1]);</span>
+<span class="fc" id="L91">        assertEquals(&quot;7&quot;, t.getInsertionOrder().get(3)[1]);</span>
+<span class="fc" id="L92">    }</span>
+
+    @Test
+    public void shouldCreateEmptyTowerWhenCupsIsZero() {
+<span class="fc" id="L96">        Tower t = new Tower(0);</span>
+<span class="fc" id="L97">        t.makeInvisible();</span>
+
+<span class="fc" id="L99">        assertEquals(0, t.getCupsSize());</span>
+<span class="fc" id="L100">        assertEquals(0, t.getLidsSize());</span>
+<span class="fc" id="L101">        assertEquals(0, t.getInsertionOrder().size());</span>
+<span class="fc" id="L102">    }</span>
+
+    // =========================
+    // Requisito 11:
+    // swap
+    // =========================
+
+    @Test
+    public void shouldSwapTwoCupsAndOnlyThoseTwoShouldChangePlaces() {
+<span class="fc" id="L111">        tower.pushCup(9);</span>
+<span class="fc" id="L112">        tower.pushCup(5);</span>
+<span class="fc" id="L113">        tower.pushCup(3);</span>
+
+<span class="fc" id="L115">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L117">        int posCup9 = indexOf(&quot;cup&quot;, &quot;9&quot;);</span>
+<span class="fc" id="L118">        int posCup3 = indexOf(&quot;cup&quot;, &quot;3&quot;);</span>
+
+<span class="fc" id="L120">        tower.swap(new String[]{&quot;cup&quot;, &quot;9&quot;}, new String[]{&quot;cup&quot;, &quot;3&quot;});</span>
+
+<span class="fc" id="L122">        assertEquals(posCup9, indexOf(&quot;cup&quot;, &quot;3&quot;));</span>
+<span class="fc" id="L123">        assertEquals(posCup3, indexOf(&quot;cup&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L124">        assertOnlyTheseTwoPositionsChanged(before, posCup9, posCup3);</span>
+<span class="fc" id="L125">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L126">    }</span>
+
+    @Test
+    public void shouldSwapCupAndLidAndOnlyThoseTwoShouldChangePlaces() {
+<span class="fc" id="L130">        tower.pushCup(9);</span>
+<span class="fc" id="L131">        tower.pushCup(5);</span>
+<span class="fc" id="L132">        tower.pushLid(5);</span>
+
+<span class="fc" id="L134">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L136">        int posCup9 = indexOf(&quot;cup&quot;, &quot;9&quot;);</span>
+<span class="fc" id="L137">        int posLid5 = indexOf(&quot;lid&quot;, &quot;5&quot;);</span>
+
+<span class="fc" id="L139">        tower.swap(new String[]{&quot;cup&quot;, &quot;9&quot;}, new String[]{&quot;lid&quot;, &quot;5&quot;});</span>
+
+<span class="fc" id="L141">        assertEquals(posCup9, indexOf(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L142">        assertEquals(posLid5, indexOf(&quot;cup&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L143">        assertOnlyTheseTwoPositionsChanged(before, posCup9, posLid5);</span>
+<span class="fc" id="L144">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L145">    }</span>
+
+    @Test
+    public void shouldNotSwapWhenOneObjectDoesNotExist() {
+<span class="fc" id="L149">        tower.pushCup(9);</span>
+<span class="fc" id="L150">        tower.pushCup(5);</span>
+
+<span class="fc" id="L152">        String[][] before = snapshotOrder();</span>
+
+<span class="fc" id="L154">        tower.swap(new String[]{&quot;cup&quot;, &quot;9&quot;}, new String[]{&quot;lid&quot;, &quot;7&quot;});</span>
+
+<span class="fc" id="L156">        assertOrderEquals(before);</span>
+<span class="fc" id="L157">        assertFalse(tower.isOk());</span>
+<span class="fc" id="L158">    }</span>
+
+    // =========================
+    // Requisito 12:
+    // cover
+    // =========================
+
+    @Test
+    public void shouldCoverOnlyCupsThatHaveTheirLidsInTower() {
+<span class="fc" id="L167">        tower.pushCup(9);</span>
+<span class="fc" id="L168">        tower.pushCup(5);</span>
+<span class="fc" id="L169">        tower.pushCup(3);</span>
+
+<span class="fc" id="L171">        tower.pushLid(9);</span>
+<span class="fc" id="L172">        tower.pushLid(5);</span>
+
+<span class="fc" id="L174">        tower.cover();</span>
+
+        // cups primero, lids después ordenadas ascendente
+<span class="fc" id="L177">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L178">            {&quot;cup&quot;, &quot;9&quot;},</span>
+<span class="fc" id="L179">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L180">            {&quot;cup&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L181">            {&quot;lid&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L182">            {&quot;lid&quot;, &quot;9&quot;}</span>
+        });
+
+<span class="fc" id="L185">        assertTrue(contains(&quot;cup&quot;, &quot;3&quot;));</span>
+<span class="fc" id="L186">        assertFalse(contains(&quot;lid&quot;, &quot;3&quot;));</span>
+<span class="fc" id="L187">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L188">    }</span>
+
+    @Test
+    public void shouldNotLoseAnyElementAfterCover() {
+<span class="fc" id="L192">        tower.pushCup(9);</span>
+<span class="fc" id="L193">        tower.pushCup(5);</span>
+<span class="fc" id="L194">        tower.pushLid(5);</span>
+<span class="fc" id="L195">        tower.pushLid(9);</span>
+
+<span class="fc" id="L197">        int cupsBefore = tower.getCupsSize();</span>
+<span class="fc" id="L198">        int lidsBefore = tower.getLidsSize();</span>
+
+<span class="fc" id="L200">        tower.cover();</span>
+
+<span class="fc" id="L202">        assertEquals(cupsBefore, tower.getCupsSize());</span>
+<span class="fc" id="L203">        assertEquals(lidsBefore, tower.getLidsSize());</span>
+<span class="fc" id="L204">        assertTrue(contains(&quot;cup&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L205">        assertTrue(contains(&quot;cup&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L206">        assertTrue(contains(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L207">        assertTrue(contains(&quot;lid&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L208">    }</span>
+
+    @Test
+    public void shouldLeaveOrderConsistentAfterCoverWhenLidsAreUnordered() {
+<span class="fc" id="L212">        tower.pushCup(9);</span>
+<span class="fc" id="L213">        tower.pushCup(5);</span>
+<span class="fc" id="L214">        tower.pushCup(3);</span>
+<span class="fc" id="L215">        tower.pushLid(9);</span>
+<span class="fc" id="L216">        tower.pushLid(3);</span>
+<span class="fc" id="L217">        tower.pushLid(5);</span>
+
+<span class="fc" id="L219">        tower.cover();</span>
+
+<span class="fc" id="L221">        assertOrderEquals(new String[][]{</span>
+<span class="fc" id="L222">            {&quot;cup&quot;, &quot;9&quot;},</span>
+<span class="fc" id="L223">            {&quot;cup&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L224">            {&quot;cup&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L225">            {&quot;lid&quot;, &quot;3&quot;},</span>
+<span class="fc" id="L226">            {&quot;lid&quot;, &quot;5&quot;},</span>
+<span class="fc" id="L227">            {&quot;lid&quot;, &quot;9&quot;}</span>
+        });
+<span class="fc" id="L229">    }</span>
+
+    // =========================
+    // Requisito 13:
+    // swapToReduce
+    // =========================
+
+    @Test
+    public void shouldReturnEmptySwapToReduceWhenThereAreLessThanTwoItems() {
+<span class="fc" id="L238">        tower.pushCup(9);</span>
+
+<span class="fc" id="L240">        String[][] result = tower.swapToReduce();</span>
+
+<span class="fc" id="L242">        assertEquals(0, result.length);</span>
+<span class="fc" id="L243">        assertFalse(tower.isOk());</span>
+<span class="fc" id="L244">    }</span>
+
+    @Test
+    public void shouldSuggestExistingObjectsInSwapToReduce() {
+<span class="fc" id="L248">        tower.pushCup(9);</span>
+<span class="fc" id="L249">        tower.pushCup(5);</span>
+<span class="fc" id="L250">        tower.pushCup(3);</span>
+<span class="fc" id="L251">        tower.pushLid(5);</span>
+
+<span class="fc" id="L253">        String[][] result = tower.swapToReduce();</span>
+
+<span class="fc" id="L255">        assertEquals(2, result.length);</span>
+<span class="fc" id="L256">        assertEquals(2, result[0].length);</span>
+<span class="fc" id="L257">        assertEquals(2, result[1].length);</span>
+
+<span class="fc" id="L259">        assertTrue(contains(result[0][0], result[0][1]));</span>
+<span class="fc" id="L260">        assertTrue(contains(result[1][0], result[1][1]));</span>
+<span class="fc" id="L261">        assertTrue(tower.isOk());</span>
+<span class="fc" id="L262">    }</span>
+
+    @Test
+    public void shouldReduceOrKeepHeightWhenApplyingSuggestedSwap() {
+<span class="fc" id="L266">        tower.pushCup(9);</span>
+<span class="fc" id="L267">        tower.pushCup(3);</span>
+<span class="fc" id="L268">        tower.pushCup(7);</span>
+<span class="fc" id="L269">        tower.pushLid(3);</span>
+<span class="fc" id="L270">        tower.pushLid(9);</span>
+
+<span class="fc" id="L272">        tower.redraw();</span>
+<span class="fc" id="L273">        int originalHeight = tower.Height();</span>
+
+<span class="fc" id="L275">        String[][] suggestion = tower.swapToReduce();</span>
+
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">        if (suggestion.length == 2) {</span>
+<span class="fc" id="L278">            tower.swap(suggestion[0], suggestion[1]);</span>
+<span class="fc" id="L279">            tower.redraw();</span>
+<span class="fc" id="L280">            int newHeight = tower.Height();</span>
+
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">            assertTrue(&quot;La altura aumentó después del swap sugerido&quot;, newHeight &lt;= originalHeight);</span>
+<span class="fc" id="L283">        } else {</span>
+<span class="nc" id="L284">            fail(&quot;swapToReduce no devolvió una sugerencia válida&quot;);</span>
+        }
+<span class="fc" id="L286">    }</span>
+    
+    @Test
+    public void shouldUseExistingLidWhenPushingCup() {
+<span class="fc" id="L290">        Tower t = new Tower(20,20);</span>
+
+<span class="fc" id="L292">        t.pushLid(5);   </span>
+<span class="fc" id="L293">        t.pushCup(5);   </span>
+
+<span class="fc" id="L295">        Cup c = t.getCupByNumber(5);</span>
+
+<span class="fc" id="L297">        assertNotNull(c);</span>
+<span class="fc" id="L298">        assertNotNull(c.getLid()); </span>
+<span class="fc" id="L299">    }</span>
+
+    @Test
+    public void shouldExecuteDrawRule() {
+<span class="fc" id="L303">        Tower t = new Tower(20, 20);</span>
+<span class="fc" id="L304">        t.makeVisible();</span>
+<span class="fc" id="L305">        t.drawRule();</span>
+
+<span class="fc" id="L307">        assertTrue(t.isVisible());</span>
+
+<span class="fc" id="L309">        t.makeInvisible();</span>
+<span class="fc" id="L310">    }</span>
+    @Test
+    public void shouldCreateCupWithNewColorWhenNoLidExists() {
+<span class="fc" id="L313">        Tower t = new Tower(20,20);</span>
+
+<span class="fc" id="L315">        t.pushCup(5);</span>
+
+<span class="fc" id="L317">        Cup c = t.getCupByNumber(5);</span>
+
+<span class="fc" id="L319">        assertNotNull(c);</span>
+<span class="fc" id="L320">        assertNull(c.getLid()); // porque no había lid</span>
+<span class="fc" id="L321">    }</span>
+    @Test
+    public void shouldNotModifyTowerWhenOnlyConsultingSwapToReduce() {
+<span class="fc" id="L324">        tower.pushCup(9);</span>
+<span class="fc" id="L325">        tower.pushCup(5);</span>
+<span class="fc" id="L326">        tower.pushCup(3);</span>
+<span class="fc" id="L327">        tower.pushLid(5);</span>
+
+<span class="fc" id="L329">        String[][] before = snapshotOrder();</span>
+<span class="fc" id="L330">        int heightBefore = tower.Height();</span>
+
+<span class="fc" id="L332">        tower.swapToReduce();</span>
+
+<span class="fc" id="L334">        assertOrderEquals(before);</span>
+<span class="fc" id="L335">        assertEquals(heightBefore, tower.Height());</span>
+<span class="fc" id="L336">    }</span>
+
+    // =========================
+    // Propuestas estilo TowerCC2Test
+    // =========================
+
+    @Test
+    public void accordingXXShouldSwapFirstAndLastObjectsCorrectly() {
+<span class="fc" id="L344">        tower.pushCup(9);</span>
+<span class="fc" id="L345">        tower.pushCup(7);</span>
+<span class="fc" id="L346">        tower.pushCup(5);</span>
+<span class="fc" id="L347">        tower.pushLid(5);</span>
+
+<span class="fc" id="L349">        tower.swap(new String[]{&quot;cup&quot;, &quot;9&quot;}, new String[]{&quot;lid&quot;, &quot;5&quot;});</span>
+
+<span class="fc" id="L351">        assertEquals(0, indexOf(&quot;lid&quot;, &quot;5&quot;));</span>
+<span class="fc" id="L352">        assertEquals(3, indexOf(&quot;cup&quot;, &quot;9&quot;));</span>
+<span class="fc" id="L353">    }</span>
+
+    @Test
+    public void accordingXXShouldSuggestASwapThatUsesExistingItems() {
+<span class="fc" id="L357">        tower.pushCup(9);</span>
+<span class="fc" id="L358">        tower.pushCup(5);</span>
+<span class="fc" id="L359">        tower.pushLid(5);</span>
+
+<span class="fc" id="L361">        String[][] suggestion = tower.swapToReduce();</span>
+
+<span class="fc" id="L363">        assertEquals(2, suggestion.length);</span>
+<span class="fc" id="L364">        assertTrue(contains(suggestion[0][0], suggestion[0][1]));</span>
+<span class="fc" id="L365">        assertTrue(contains(suggestion[1][0], suggestion[1][1]));</span>
+<span class="fc" id="L366">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

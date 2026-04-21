@@ -1,12 +1,15 @@
 #BlueJ class context
 comment0.target=OpenerCup
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ OpenerCup\ here.\r\n\r\n\ @author\ (your\ name)\r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment0.text=\r\n\ Representa\ una\ copa\ especial\ de\ tipo\ "OpenerCup".\r\n\r\n\ Este\ tipo\ de\ copa\ tiene\ la\ capacidad\ de\ eliminar\ tapas\ que\ bloquean\ su\r\n\ entrada\ en\ la\ torre\ antes\ de\ ser\ posicionada,\ permitiendo\ as\u00ED\ abrir\ espacio\r\n\ dentro\ de\ la\ estructura.\r\n
 comment1.params=number\ color
 comment1.target=OpenerCup(int,\ java.lang.String)
 comment2.params=tower
 comment2.target=void\ beforeEnter(Tower)
+comment2.text=\r\n\ Ejecuta\ la\ l\u00F3gica\ previa\ a\ la\ inserci\u00F3n\ de\ la\ copa\ en\ la\ torre.\r\n\r\n\ Este\ m\u00E9todo\ permite\ que\ la\ OpenerCup\ elimine\ cualquier\ tapa\ que\ impida\r\n\ su\ correcta\ ubicaci\u00F3n\ antes\ de\ ser\ posicionada\ en\ el\ layout.\r\n\r\n\ El\ comportamiento\ depende\ de\ si\ existe\ una\ copa\ contenedora\ previa\:\r\n\r\n\ -\ Si\ existe\ una\ copa\ contenedora,\ se\ eliminan\ todas\ las\ tapas\ ubicadas\r\n\ \ \ entre\ dicha\ copa\ y\ la\ OpenerCup\ dentro\ del\ orden\ de\ inserci\u00F3n.\r\n\r\n\ -\ Si\ no\ existe\ una\ copa\ contenedora,\ se\ eliminan\ las\ tapas\ externas\ que\r\n\ \ \ bloquean\ la\ entrada\ de\ la\ OpenerCup\ en\ su\ posici\u00F3n\ actual.\r\n\r\n\ Esto\ garantiza\ que\ la\ copa\ pueda\ insertarse\ sin\ interferencias.\r\n\r\n\ @param\ tower\ torre\ en\ la\ cual\ se\ va\ a\ insertar\ la\ copa.\r\n
 comment3.params=
 comment3.target=void\ erase()
+comment3.text=\r\n\ Oculta\ completamente\ la\ representaci\u00F3n\ visual\ de\ la\ OpenerCup.\r\n\r\n\ Este\ m\u00E9todo\ hace\ invisibles\ tanto\ el\ cuerpo\ principal\ de\ la\ copa\ como\r\n\ su\ interior\ y\ los\ elementos\ de\ decoraci\u00F3n\ asociados.\r\n\r\n\ Se\ utiliza\ principalmente\ durante\ procesos\ de\ redibujado\ para\ evitar\r\n\ artefactos\ visuales\ antes\ de\ recalcular\ posiciones.\r\n
 comment4.params=
 comment4.target=void\ drawDecoration()
+comment4.text=\r\n\ Dibuja\ la\ decoraci\u00F3n\ caracter\u00EDstica\ de\ la\ OpenerCup.\r\n\r\n\ La\ decoraci\u00F3n\ consiste\ en\ dos\ rect\u00E1ngulos\ verticales\ ubicados\ a\ los\ lados\r\n\ de\ la\ copa,\ los\ cuales\ se\ posicionan\ en\ funci\u00F3n\ de\ las\ coordenadas\ actuales\r\n\ y\ dimensiones\ del\ objeto.\r\n\r\n\ Cada\ vez\ que\ se\ invoca\ este\ m\u00E9todo,\ se\ crean\ nuevas\ instancias\ de\ los\r\n\ elementos\ gr\u00E1ficos\ y\ se\ hacen\ visibles\ en\ pantalla.\r\n\r\n\ Este\ m\u00E9todo\ es\ llamado\ como\ parte\ del\ proceso\ de\ renderizado\ de\ la\ copa.\r\n
 numComments=5

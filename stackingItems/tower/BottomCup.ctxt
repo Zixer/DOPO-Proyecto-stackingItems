@@ -1,11 +1,15 @@
 #BlueJ class context
 comment0.target=BottomCup
+comment0.text=\r\n\ Representa\ una\ copa\ especial\ que\ siempre\ se\ mueve\ al\ fondo\r\n\ del\ orden\ de\ inserci\u00F3n\ antes\ de\ posicionarse\ en\ la\ torre.\r\n
 comment1.params=number\ color
 comment1.target=BottomCup(int,\ java.lang.String)
 comment2.params=tower
 comment2.target=void\ beforeEnter(Tower)
+comment2.text=\r\n\ Ejecuta\ la\ l\u00F3gica\ previa\ a\ la\ inserci\u00F3n.\r\n\r\n\ Mueve\ la\ copa\ al\ inicio\ del\ orden\ de\ inserci\u00F3n,\ simulando\ que\r\n\ queda\ en\ la\ base\ de\ la\ torre.\r\n\r\n\ @param\ tower\ torre\ donde\ se\ inserta\ la\ copa\r\n
 comment3.params=
 comment3.target=void\ erase()
+comment3.text=\r\n\ Elimina\ la\ representaci\u00F3n\ visual\ de\ la\ copa.\r\n
 comment4.params=
 comment4.target=void\ drawDecoration()
+comment4.text=\r\n\ Dibuja\ la\ decoraci\u00F3n\ caracter\u00EDstica\ de\ la\ BottomCup.\r\n\r\n\ Se\ representa\ como\ una\ l\u00EDnea\ horizontal\ en\ la\ parte\ superior.\r\n
 numComments=5

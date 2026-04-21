@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerAcceptanceTestC1.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerAcceptanceTestC1.java</span></div><h1>TowerAcceptanceTestC1.java</h1><pre class="source lang-java linenums">package Test;
+import tower.*;
+import javax.swing.JOptionPane;
+import java.util.ArrayList;
+
+public class TowerAcceptanceTestC1 {
+
+    private long defaultDelay;
+
+<span class="nc" id="L10">    public TowerAcceptanceTestC1(long defaultDelay) {</span>
+<span class="nc" id="L11">        this.defaultDelay = defaultDelay + 500;</span>
+<span class="nc" id="L12">    }</span>
+
+    private void waitMillis(long millis) {
+        try {
+<span class="nc" id="L16">            Thread.sleep(millis);</span>
+<span class="nc" id="L17">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L18">            Thread.currentThread().interrupt();</span>
+        }
+<span class="nc" id="L20">    }</span>
+
+    public Tower createTower(int maxHeight, int maxWidth) {
+<span class="nc" id="L23">        Tower tower = new Tower(maxHeight, maxWidth);</span>
+<span class="nc" id="L24">        tower.makeVisible();</span>
+<span class="nc" id="L25">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L26">        return tower;</span>
+    }
+
+    public void pushCupStep(Tower tower, int size) {
+<span class="nc" id="L30">        System.out.println(&quot;pushCup(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L31">        tower.pushCup(size);</span>
+<span class="nc" id="L32">        tower.makeVisible();</span>
+<span class="nc" id="L33">        printOrder(tower);</span>
+<span class="nc" id="L34">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L35">    }</span>
+
+    public void pushLidStep(Tower tower, int size) {
+<span class="nc" id="L38">        System.out.println(&quot;pushLid(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L39">        tower.pushLid(size);</span>
+<span class="nc" id="L40">        tower.makeVisible();</span>
+<span class="nc" id="L41">        printOrder(tower);</span>
+<span class="nc" id="L42">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L43">    }</span>
+
+    public void removeCupStep(Tower tower, int size) {
+<span class="nc" id="L46">        System.out.println(&quot;removeCup(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L47">        tower.removeCup(size);</span>
+<span class="nc" id="L48">        tower.makeVisible();</span>
+<span class="nc" id="L49">        printOrder(tower);</span>
+<span class="nc" id="L50">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L51">    }</span>
+
+    public void removeLidStep(Tower tower, int size) {
+<span class="nc" id="L54">        System.out.println(&quot;removeLid(&quot; + size + &quot;)&quot;);</span>
+<span class="nc" id="L55">        tower.removeLid(size);</span>
+<span class="nc" id="L56">        tower.makeVisible();</span>
+<span class="nc" id="L57">        printOrder(tower);</span>
+<span class="nc" id="L58">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L59">    }</span>
+
+    public void orderTowerStep(Tower tower) {
+<span class="nc" id="L62">        System.out.println(&quot;orderTower()&quot;);</span>
+<span class="nc" id="L63">        tower.orderTower();</span>
+<span class="nc" id="L64">        tower.makeVisible();</span>
+<span class="nc" id="L65">        printOrder(tower);</span>
+<span class="nc" id="L66">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L67">    }</span>
+
+    public void reverseTowerStep(Tower tower) {
+<span class="nc" id="L70">        System.out.println(&quot;reverseTower()&quot;);</span>
+<span class="nc" id="L71">        tower.reverseTower();</span>
+<span class="nc" id="L72">        tower.makeVisible();</span>
+<span class="nc" id="L73">        printOrder(tower);</span>
+<span class="nc" id="L74">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L75">    }</span>
+
+    public void coverStep(Tower tower) {
+<span class="nc" id="L78">        System.out.println(&quot;cover()&quot;);</span>
+<span class="nc" id="L79">        tower.cover();</span>
+<span class="nc" id="L80">        tower.makeVisible();</span>
+<span class="nc" id="L81">        printOrder(tower);</span>
+<span class="nc" id="L82">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L83">    }</span>
+
+    public void visibleStep(Tower tower) {
+<span class="nc" id="L86">        System.out.println(&quot;makeVisible()&quot;);</span>
+<span class="nc" id="L87">        tower.makeVisible();</span>
+<span class="nc" id="L88">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L89">    }</span>
+
+    public void invisibleStep(Tower tower) {
+<span class="nc" id="L92">        System.out.println(&quot;makeInvisible()&quot;);</span>
+<span class="nc" id="L93">        tower.makeInvisible();</span>
+<span class="nc" id="L94">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L95">    }</span>
+
+    private void printOrder(Tower tower) {
+<span class="nc" id="L98">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="nc" id="L99">        System.out.println(&quot;InsertionOrder actual:&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        for (String[] item : order) {</span>
+<span class="nc" id="L101">            System.out.println(&quot;{&quot; + item[0] + &quot;, &quot; + item[1] + &quot;}&quot;);</span>
+        }
+<span class="nc" id="L103">        System.out.println(&quot;---------------------&quot;);</span>
+<span class="nc" id="L104">    }</span>
+
+    private boolean contains(Tower tower, String type, String number) {
+<span class="nc" id="L107">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (String[] item : order) {</span>
+<span class="nc bnc" id="L109" title="All 4 branches missed.">            if (item[0].equals(type) &amp;&amp; item[1].equals(number)) {</span>
+<span class="nc" id="L110">                return true;</span>
+            }
+        }
+<span class="nc" id="L113">        return false;</span>
+    }
+
+    private int indexOf(Tower tower, String type, String number) {
+<span class="nc" id="L117">        ArrayList&lt;String[]&gt; order = tower.getInsertionOrder();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">            if (order.get(i)[0].equals(type) &amp;&amp; order.get(i)[1].equals(number)) {</span>
+<span class="nc" id="L120">                return i;</span>
+            }
+        }
+<span class="nc" id="L123">        return -1;</span>
+    }
+
+    public boolean askUser(String message, String title) {
+<span class="nc" id="L127">        int answer = JOptionPane.showConfirmDialog(</span>
+<span class="nc" id="L128">            null,</span>
+<span class="nc" id="L129">            message,</span>
+<span class="nc" id="L130">            title,</span>
+<span class="nc" id="L131">            JOptionPane.YES_NO_OPTION</span>
+        );
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        return answer == JOptionPane.YES_OPTION;</span>
+    }
+
+    /**
+     * Aceptación 1:
+     * gestión + reorganización + validación real del cambio de orden.
+     */
+    public Tower demoManagementAndReorganization() {
+<span class="nc" id="L141">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L143">        pushCupStep(tower, 9);</span>
+<span class="nc" id="L144">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L145">        pushCupStep(tower, 3);</span>
+<span class="nc" id="L146">        pushLidStep(tower, 9);</span>
+<span class="nc" id="L147">        pushLidStep(tower, 5);</span>
+
+<span class="nc" id="L149">        int indexCup9Before = indexOf(tower, &quot;cup&quot;, &quot;9&quot;);</span>
+<span class="nc" id="L150">        int indexCup3Before = indexOf(tower, &quot;cup&quot;, &quot;3&quot;);</span>
+
+<span class="nc" id="L152">        reverseTowerStep(tower);</span>
+
+<span class="nc" id="L154">        int indexCup9AfterReverse = indexOf(tower, &quot;cup&quot;, &quot;9&quot;);</span>
+<span class="nc" id="L155">        int indexCup3AfterReverse = indexOf(tower, &quot;cup&quot;, &quot;3&quot;);</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        boolean reverseChangedOrder =</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            indexCup9Before != indexCup9AfterReverse &amp;&amp;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            indexCup3Before != indexCup3AfterReverse &amp;&amp;</span>
+<span class="nc" id="L160">            indexCup3AfterReverse &lt; indexCup9AfterReverse;</span>
+
+<span class="nc" id="L162">        orderTowerStep(tower);</span>
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        boolean orderedCorrectly =</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            indexOf(tower, &quot;cup&quot;, &quot;9&quot;) &lt; indexOf(tower, &quot;cup&quot;, &quot;5&quot;) &amp;&amp;</span>
+<span class="nc" id="L166">            indexOf(tower, &quot;cup&quot;, &quot;5&quot;) &lt; indexOf(tower, &quot;cup&quot;, &quot;3&quot;);</span>
+
+<span class="nc" id="L168">        coverStep(tower);</span>
+
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        boolean coverPlacedLidsAfterCups =</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            indexOf(tower, &quot;lid&quot;, &quot;5&quot;) &gt; indexOf(tower, &quot;cup&quot;, &quot;3&quot;) &amp;&amp;</span>
+<span class="nc" id="L172">            indexOf(tower, &quot;lid&quot;, &quot;9&quot;) &gt; indexOf(tower, &quot;cup&quot;, &quot;3&quot;);</span>
+
+<span class="nc" id="L174">        waitMillis(defaultDelay + 1000);</span>
+
+<span class="nc" id="L176">        boolean accepted = askUser(</span>
+<span class="nc" id="L177">            &quot;¿Visualmente la torre agregó elementos, invirtió el orden, ordenó de mayor a menor y reorganizó las lids correctamente?&quot;,</span>
+<span class="nc" id="L178">            &quot;Aceptación 1 - Gestión y reorganización&quot;</span>
+        );
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (!reverseChangedOrder) {</span>
+<span class="nc" id="L182">            System.out.println(&quot;Fallo lógico: reverseTower no cambió realmente el orden esperado.&quot;);</span>
+        }
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (!orderedCorrectly) {</span>
+<span class="nc" id="L185">            System.out.println(&quot;Fallo lógico: orderTower no dejó las cups de mayor a menor.&quot;);</span>
+        }
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (!coverPlacedLidsAfterCups) {</span>
+<span class="nc" id="L188">            System.out.println(&quot;Fallo lógico: cover no dejó las lids después de las cups.&quot;);</span>
+        }
+
+<span class="nc" id="L191">        System.out.println(</span>
+<span class="nc bnc" id="L192" title="All 8 branches missed.">            (accepted &amp;&amp; reverseChangedOrder &amp;&amp; orderedCorrectly &amp;&amp; coverPlacedLidsAfterCups)</span>
+<span class="nc" id="L193">                ? &quot;Prueba aceptada&quot;</span>
+<span class="nc" id="L194">                : &quot;Prueba rechazada&quot;</span>
+        );
+<span class="nc" id="L196">        tower.makeInvisible();</span>
+<span class="nc" id="L197">        return tower;</span>
+    }
+
+    /**
+     * Aceptación 2:
+     * eliminación + visibilidad + verificación real de desaparición.
+     */
+    public Tower demoRemovalVisibilityAndExit() {
+<span class="nc" id="L205">        Tower tower = createTower(100, 50);</span>
+
+<span class="nc" id="L207">        pushCupStep(tower, 9);</span>
+<span class="nc" id="L208">        pushCupStep(tower, 5);</span>
+<span class="nc" id="L209">        pushLidStep(tower, 5);</span>
+
+<span class="nc" id="L211">        boolean existsBefore =</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">            contains(tower, &quot;cup&quot;, &quot;5&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">            contains(tower, &quot;lid&quot;, &quot;5&quot;);</span>
+
+<span class="nc" id="L215">        removeLidStep(tower, 5);</span>
+<span class="nc" id="L216">        boolean lidRemoved =</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            !contains(tower, &quot;lid&quot;, &quot;5&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            tower.getLidByNumber(5) == null;</span>
+
+<span class="nc" id="L220">        removeCupStep(tower, 5);</span>
+<span class="nc" id="L221">        boolean cupRemoved =</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            !contains(tower, &quot;cup&quot;, &quot;5&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            tower.getCupByNumber(5) == null;</span>
+
+<span class="nc" id="L225">        invisibleStep(tower);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        boolean invisibleOk = !tower.isVisible();</span>
+
+<span class="nc" id="L228">        visibleStep(tower);</span>
+<span class="nc" id="L229">        boolean visibleOk = tower.isVisible();</span>
+
+<span class="nc" id="L231">        waitMillis(defaultDelay + 1000);</span>
+
+<span class="nc" id="L233">        boolean accepted = askUser(</span>
+<span class="nc" id="L234">            &quot;¿Visualmente se eliminaron la lid y la cup, y el simulador cambió correctamente entre invisible y visible?&quot;,</span>
+<span class="nc" id="L235">            &quot;Aceptación 2 - Eliminación y visibilidad&quot;</span>
+        );
+
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        if (!existsBefore) {</span>
+<span class="nc" id="L239">            System.out.println(&quot;Fallo lógico previo: los elementos iniciales no estaban donde debían.&quot;);</span>
+        }
+<span class="nc bnc" id="L241" title="All 2 branches missed.">        if (!lidRemoved) {</span>
+<span class="nc" id="L242">            System.out.println(&quot;Fallo lógico: la lid 5 no se eliminó completamente.&quot;);</span>
+        }
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (!cupRemoved) {</span>
+<span class="nc" id="L245">            System.out.println(&quot;Fallo lógico: la cup 5 no se eliminó completamente.&quot;);</span>
+        }
+<span class="nc bnc" id="L247" title="All 4 branches missed.">        if (!invisibleOk || !visibleOk) {</span>
+<span class="nc" id="L248">            System.out.println(&quot;Fallo lógico: makeInvisible/makeVisible no cambió el estado correctamente.&quot;);</span>
+        }
+
+<span class="nc" id="L251">        tower.exit();</span>
+<span class="nc" id="L252">        boolean exitOk =</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            tower.getCupsSize() == 0 &amp;&amp;</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            tower.getLidsSize() == 0 &amp;&amp;</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            tower.getInsertionOrder().size() == 0 &amp;&amp;</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">            !tower.isVisible();</span>
+
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (!exitOk) {</span>
+<span class="nc" id="L259">            System.out.println(&quot;Fallo lógico: exit no limpió completamente la torre.&quot;);</span>
+        }
+
+<span class="nc" id="L262">        System.out.println(</span>
+<span class="nc bnc" id="L263" title="All 14 branches missed.">            (accepted &amp;&amp; existsBefore &amp;&amp; lidRemoved &amp;&amp; cupRemoved &amp;&amp; invisibleOk &amp;&amp; visibleOk &amp;&amp; exitOk)</span>
+<span class="nc" id="L264">                ? &quot;Prueba aceptada&quot;</span>
+<span class="nc" id="L265">                : &quot;Prueba rechazada&quot;</span>
+        );
+        
+<span class="nc" id="L268">        tower.makeInvisible();</span>
+<span class="nc" id="L269">        return tower;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>OpenerCup.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">OpenerCup.java</span></div><h1>OpenerCup.java</h1><pre class="source lang-java linenums">package tower;
+import Shapes.*;
+import java.util.List;
+
+/**
+ * Representa una copa especial de tipo &quot;OpenerCup&quot;.
+ *
+ * Este tipo de copa tiene la capacidad de eliminar tapas que bloquean su
+ * entrada en la torre antes de ser posicionada, permitiendo así abrir espacio
+ * dentro de la estructura.
+ */
+public class OpenerCup extends Cup{
+    private Rectangle decoration1;
+    private Rectangle decoration2;
+    
+    public OpenerCup(int number, String color) {
+<span class="fc" id="L17">        super(number, color);</span>
+<span class="fc" id="L18">        decoration1 = new Rectangle();</span>
+<span class="fc" id="L19">        decoration2 = new Rectangle();</span>
+<span class="fc" id="L20">    }  </span>
+  
+    
+    /**
+     * Ejecuta la lógica previa a la inserción de la copa en la torre.
+     *
+     * Este método permite que la OpenerCup elimine cualquier tapa que impida
+     * su correcta ubicación antes de ser posicionada en el layout.
+     *
+     * El comportamiento depende de si existe una copa contenedora previa:
+     *
+     * - Si existe una copa contenedora, se eliminan todas las tapas ubicadas
+     *   entre dicha copa y la OpenerCup dentro del orden de inserción.
+     *
+     * - Si no existe una copa contenedora, se eliminan las tapas externas que
+     *   bloquean la entrada de la OpenerCup en su posición actual.
+     *
+     * Esto garantiza que la copa pueda insertarse sin interferencias.
+     *
+     * @param tower torre en la cual se va a insertar la copa.
+     */
+    @Override
+    public void beforeEnter(Tower tower) {
+<span class="fc" id="L43">        int index = tower.findCupIndex(getNumber());</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (index == -1) return;</span>
+    
+<span class="fc" id="L46">        Cup container = tower.findContainerBefore(index, this);</span>
+    
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (container != null) {</span>
+<span class="fc" id="L49">            List&lt;Lid&gt; lids = tower.getLidsBetween(container, this);</span>
+<span class="fc" id="L50">            tower.removeLids(lids);</span>
+<span class="fc" id="L51">        } else {</span>
+<span class="fc" id="L52">                       List&lt;Lid&gt; lids = tower.getOutsideBlockingLids(this, index);</span>
+<span class="fc" id="L53">            tower.removeLids(lids);</span>
+        }
+<span class="fc" id="L55">    }</span>
+    
+    /**
+     * Oculta completamente la representación visual de la OpenerCup.
+     *
+     * Este método hace invisibles tanto el cuerpo principal de la copa como
+     * su interior y los elementos de decoración asociados.
+     *
+     * Se utiliza principalmente durante procesos de redibujado para evitar
+     * artefactos visuales antes de recalcular posiciones.
+     */
+    public void erase() {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (body != null) body.makeInvisible();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (interior != null) interior.makeInvisible();</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (decoration1 != null) decoration1.makeInvisible();</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (decoration2 != null) decoration2.makeInvisible();</span>
+<span class="fc" id="L71">    }</span>
+    
+    /**
+     * Dibuja la decoración característica de la OpenerCup.
+     *
+     * La decoración consiste en dos rectángulos verticales ubicados a los lados
+     * de la copa, los cuales se posicionan en función de las coordenadas actuales
+     * y dimensiones del objeto.
+     *
+     * Cada vez que se invoca este método, se crean nuevas instancias de los
+     * elementos gráficos y se hacen visibles en pantalla.
+     *
+     * Este método es llamado como parte del proceso de renderizado de la copa.
+     */
+    @Override
+    public void drawDecoration() {
+<span class="fc" id="L87">        decoration1 = new Rectangle();</span>
+<span class="fc" id="L88">        decoration1.changeSize(getHeight(), 2);</span>
+<span class="fc" id="L89">        decoration1.changeColor(&quot;lightOrange&quot;);</span>
+<span class="fc" id="L90">        decoration1.changeP(getXpo() + 3, getYpo() - getHeight());</span>
+<span class="fc" id="L91">        decoration1.makeVisible();</span>
+    
+<span class="fc" id="L93">        decoration2 = new Rectangle();</span>
+<span class="fc" id="L94">        decoration2.changeSize(getHeight(), 2);</span>
+<span class="fc" id="L95">        decoration2.changeColor(&quot;lightOrange&quot;);</span>
+<span class="fc" id="L96">        decoration2.changeP(getXpo() + getWidth() - 5, getYpo() - getHeight());</span>
+<span class="fc" id="L97">        decoration2.makeVisible();</span>
+<span class="fc" id="L98">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

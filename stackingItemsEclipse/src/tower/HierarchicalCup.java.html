@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HierarchicalCup.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">HierarchicalCup.java</span></div><h1>HierarchicalCup.java</h1><pre class="source lang-java linenums">package tower;
+import Shapes.*;
+
+
+/**
+* Representa una copa jerárquica que puede cambiar su posición dentro
+* del orden de inserción antes de ser colocada en la torre.
+*
+* Este tipo de copa puede quedar bloqueada (locked), impidiendo que sea removida.
+*/
+public class HierarchicalCup extends Cup
+{
+    
+    private Rectangle decoration1;
+    private boolean deadlocked;
+    
+    /**
+     * Construye una nueva HierarchicalCup.
+     *
+     * Inicializa la copa con su número y color, y establece su estado
+     * como desbloqueado.
+     *
+     * @param number tamaño de la copa
+     * @param color color de la copa
+     */
+    public HierarchicalCup (int number, String color) {
+<span class="fc" id="L27">        super(number, color);</span>
+<span class="fc" id="L28">        deadlocked = false;</span>
+<span class="fc" id="L29">    }</span>
+    
+    /**
+     * Ejecuta la lógica previa a la inserción de la copa en la torre.
+     *
+     * Reposiciona la copa dentro del orden de inserción según las reglas
+     * jerárquicas definidas en la torre.
+     *
+     * @param tower torre donde se inserta la copa
+     */
+    @Override
+    public void beforeEnter(Tower tower){
+<span class="fc" id="L41">        tower.repositionForHierarchical(this);</span>
+<span class="fc" id="L42">    }</span>
+    
+    /**
+     * Indica si la copa se encuentra bloqueada.
+     *
+     * @return true si la copa no puede moverse o eliminarse
+     */
+    public boolean isLocked() {
+<span class="nc" id="L50">        return deadlocked;</span>
+    }
+
+    /**
+     * Bloquea la copa, evitando que pueda ser removida posteriormente.
+     */
+    public void lock(){
+<span class="fc" id="L57">        deadlocked = true;</span>
+<span class="fc" id="L58">    }</span>
+    
+    /**
+     * Determina si la copa puede ser removida de la torre.
+     *
+     * Una copa jerárquica no puede eliminarse si está bloqueada.
+     *
+     * @return true si puede ser removida, false en caso contrario
+     */
+    @Override
+    public boolean canBeRemoved() {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        return !deadlocked;</span>
+    }
+    
+    /**
+     * Dibuja la decoración de la copa jerárquica.
+     *
+     * Consiste en una franja horizontal en la parte superior de la copa.
+     */
+    @Override
+    public void drawDecoration() {
+<span class="fc" id="L79">        decoration1 = new Rectangle();</span>
+<span class="fc" id="L80">        decoration1.changeSize(3, getWidth()); </span>
+<span class="fc" id="L81">        decoration1.changeColor(&quot;turquoise&quot;);     </span>
+<span class="fc" id="L82">        decoration1.changeP(getXpo(), getYpo() - 3); </span>
+<span class="fc" id="L83">        decoration1.makeVisible();</span>
+<span class="fc" id="L84">    }</span>
+    
+    /**
+     * Elimina la representación visual completa de la copa.
+     *
+     * Oculta tanto el cuerpo como la decoración.
+     */
+    public void erase() {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (body != null) body.makeInvisible();</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (interior != null) interior.makeInvisible();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (decoration1 != null) decoration1.makeInvisible();</span>
+<span class="fc" id="L95">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

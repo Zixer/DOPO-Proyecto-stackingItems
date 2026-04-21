@@ -1,0 +1,1547 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Tower.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">Tower.java</span></div><h1>Tower.java</h1><pre class="source lang-java linenums">package tower; 
+import Shapes.*;
+import java.util.Stack;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import java.util.HashSet;
+
+/**
+ * Write a description of class Tower here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class Tower
+{
+    private int maxWidth;
+    private int maxHeight;
+<span class="fc" id="L23">    private int Y = 200;</span>
+<span class="fc" id="L24">    private int X = 130;</span>
+    private boolean isVisible;
+    private Stack&lt;Cup&gt; cups;
+    private Stack&lt;Lid&gt; lids; 
+    private boolean isOK;
+    private Random random;
+    private ArrayList&lt;String[]&gt; insertionOrder;
+    private Map&lt;Cup, Lid&gt; topInsideLidByCup;
+    private Map&lt;Cup, Lid&gt; topLidInContainer;
+    private Cup outer;
+    private Stack&lt;Cup&gt; insideStack;
+    private int outsideSize;
+    private int outsideBaseY;
+    private int highestCupTopY;    
+    private boolean lastOutsideWasLid;
+    private List&lt;String&gt; availableColors;
+    private HashSet&lt;String&gt; usedColors;
+    private Lid topOutsideLid;
+    private Map&lt;Cup, Cup&gt; parentByCup;
+    
+    /**
+     * Construye una torre vacía con límites máximos de altura y ancho.
+     *
+     * @param nmaxHeight altura máxima permitida para la torre (suma de alturas externas).
+     * @param nmaxWidth  tamaño máximo permitido para una copa (número/diámetro).
+     */
+<span class="fc" id="L50">    public Tower(int nmaxHeight, int nmaxWidth) {</span>
+<span class="fc" id="L51">        cups = new Stack&lt;Cup&gt;();</span>
+<span class="fc" id="L52">        lids = new Stack&lt;Lid&gt;();</span>
+<span class="fc" id="L53">        random = new Random();</span>
+<span class="fc" id="L54">        availableColors = new ArrayList&lt;&gt;(List.of(&quot;red&quot;,&quot;black&quot;,&quot;blue&quot;,&quot;yellow&quot;,&quot;green&quot;,</span>
+<span class="fc" id="L55">                                                  &quot;magenta&quot;,&quot;orange&quot;,&quot;cyan&quot;,</span>
+<span class="fc" id="L56">                                                  &quot;gray&quot;,&quot;pink&quot;,&quot;brown&quot;,&quot;purple&quot;,&quot;violet&quot;,</span>
+<span class="fc" id="L57">                                                  &quot;indigo&quot;,&quot;gold&quot;,&quot;silver&quot;,&quot;lightPink&quot;,</span>
+<span class="fc" id="L58">                                                  &quot;lightBlue&quot;,&quot;lavender&quot;,&quot;peach&quot;));</span>
+<span class="fc" id="L59">        usedColors = new HashSet&lt;&gt;();</span>
+        
+<span class="fc" id="L61">        insertionOrder = new ArrayList&lt;String[]&gt;();</span>
+<span class="fc" id="L62">        maxWidth = nmaxWidth;</span>
+<span class="fc" id="L63">        maxHeight = nmaxHeight;</span>
+<span class="fc" id="L64">        isVisible = false;</span>
+<span class="fc" id="L65">        isOK = true;</span>
+    
+<span class="fc" id="L67">        parentByCup = new HashMap&lt;Cup, Cup&gt;();</span>
+<span class="fc" id="L68">        insideStack = new Stack&lt;Cup&gt;();</span>
+<span class="fc" id="L69">        topInsideLidByCup = new HashMap&lt;Cup, Lid&gt;();</span>
+<span class="fc" id="L70">        topLidInContainer = new HashMap&lt;Cup, Lid&gt;();</span>
+    
+        
+<span class="fc" id="L73">        outer = null;</span>
+<span class="fc" id="L74">        outsideSize = -1;</span>
+<span class="fc" id="L75">        outsideBaseY = Y;</span>
+<span class="fc" id="L76">        highestCupTopY = Y;</span>
+<span class="fc" id="L77">        lastOutsideWasLid = false;</span>
+<span class="fc" id="L78">    }</span>
+    
+    private String getUniqueColor() {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        for (String color : availableColors) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (!usedColors.contains(color)) {</span>
+<span class="fc" id="L83">                usedColors.add(color);</span>
+<span class="fc" id="L84">                return color;</span>
+            }
+        }
+<span class="nc" id="L87">        return null;</span>
+    }
+    
+    /**
+     * Construye una torre inicial con una cantidad dada de copas.
+     *
+     * Las copas se crean con tamaños impares consecutivos:
+     * 1, 3, 5, ..., 2n-1.
+     * Después de crearlas, la torre se hace visible y se redibuja.
+     *
+     * @param numCups número de copas iniciales de la torre.
+     */
+    public Tower(int numCups) {
+<span class="fc" id="L100">        this(numCups * 2, numCups * 10); </span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (numCups &lt;= 0) {</span>
+<span class="fc" id="L102">            this.isVisible = false;</span>
+<span class="fc" id="L103">            return;</span>
+        }
+<span class="fc" id="L105">        availableColors = new ArrayList&lt;&gt;(List.of(</span>
+<span class="fc" id="L106">            &quot;magenta&quot;, &quot;green&quot;, &quot;yellow&quot;, &quot;blue&quot;, &quot;black&quot;,</span>
+<span class="fc" id="L107">            &quot;red&quot;, &quot;orange&quot;, &quot;cyan&quot;, &quot;pink&quot;, &quot;grey&quot;</span>
+        ));
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        for (int i = 1; i &lt;= numCups; i++) {</span>
+<span class="fc" id="L111">            int size = (2 * i) - 1;</span>
+<span class="fc" id="L112">            cups.push(new Cup(size, randomColor()));</span>
+<span class="fc" id="L113">            insertionOrder.add(new String[]{&quot;cup&quot;, String.valueOf(size)});</span>
+        }
+<span class="fc" id="L115">        makeVisible();</span>
+<span class="fc" id="L116">        redraw();</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Genera y retorna un color aleatorio de una lista predefinida.
+     *
+     * @return un String con el nombre del color aleatorio.
+     */
+    private String randomColor(){
+<span class="fc" id="L125">        random = new Random();</span>
+<span class="fc" id="L126">        List&lt;String&gt; lista = List.of(&quot;magenta&quot;, &quot;green&quot;, &quot;yellow&quot;, &quot;blue&quot;, &quot;black&quot;, &quot;red&quot;, &quot;orange&quot;, &quot;cyan&quot;, &quot;pink&quot;, &quot;grey&quot;);</span>
+<span class="fc" id="L127">        return lista.get(random.nextInt(lista.size()));</span>
+    }
+    
+    /**
+     * Agrega una nueva copa a la torre si cumple las restricciones definidas.
+     *
+     * Restricciones:
+     * - El tamaño no debe estar repetido.
+     * - El tamaño no debe ser mayor que el ancho máximo permitido.
+     * - Si existe una tapa del mismo color, la copa debe tener el mismo tamaño.
+     *
+     * Efectos:
+     * - Crea una nueva copa con color aleatorio.
+     * - La inserta en la estructura de copas.
+     * - Registra la inserción en insertionOrder.
+     * - Redibuja la torre.
+     * - Actualiza el estado de éxito de la operación.
+     *
+     * @param i tamaño o número de la copa a insertar.
+     */
+    public void pushCup(int i) {
+<span class="pc bpc" id="L148" title="1 of 4 branches missed.">        if (i &gt; maxWidth || duplicatedSize(i)) {</span>
+<span class="fc" id="L149">            isOK = false;</span>
+<span class="fc" id="L150">            return;</span>
+        }
+
+<span class="fc" id="L153">        Lid existingLid = null;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">            if (l.getNumber() == i &amp;&amp; !l.hasPartnerCup()) {</span>
+<span class="fc" id="L156">                existingLid = l;</span>
+<span class="fc" id="L157">                break;</span>
+            }
+        }
+
+        Cup nueva;
+        String color;
+
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (existingLid != null) {</span>
+<span class="fc" id="L165">            color = existingLid.getColor();</span>
+<span class="fc" id="L166">            nueva = new Cup(i, color);</span>
+<span class="fc" id="L167">            nueva.addLid(existingLid);</span>
+<span class="fc" id="L168">        } else {</span>
+<span class="fc" id="L169">            color = getUniqueColor();</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">            if (color == null) {</span>
+<span class="nc" id="L171">                isOK = false;</span>
+<span class="nc" id="L172">                return;</span>
+            }
+
+<span class="fc" id="L175">            nueva = new Cup(i, color);</span>
+        }
+
+<span class="fc" id="L178">        cups.push(nueva);</span>
+<span class="fc" id="L179">        insertionOrder.add(new String[]{&quot;cup&quot;, String.valueOf(i)});</span>
+<span class="fc" id="L180">        isOK = true;</span>
+
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L183">            redraw();</span>
+        }
+<span class="fc" id="L185">    }</span>
+
+    /**
+     * Recalcula completamente la disposición visual de copas y tapas.
+     *
+     * El algoritmo recorre insertionOrder y decide, para cada elemento,
+     * si debe ubicarse por fuera o por dentro de la torre según su tamaño
+     * y el estado actual del layout.
+     *
+     * Efectos:
+     * - Oculta temporalmente todos los elementos.
+     * - Reinicia el estado auxiliar de layout.
+     * - Reubica copas y tapas.
+     * - Vuelve visibles los elementos en el orden de inserción.
+     */
+    public void redraw() {
+<span class="fc" id="L201">        final int CANVAS_WIDTH = 300;</span>
+<span class="fc" id="L202">        final int GROSOR = 5;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (isVisible){</span>
+<span class="fc" id="L204">            prepareLayout();</span>
+<span class="fc" id="L205">            layoutElements(CANVAS_WIDTH, GROSOR);</span>
+        }
+<span class="fc" id="L207">    }</span>
+    
+    /**
+     * Recalcula por completo la disposición visual de todos los elementos de la torre.
+     *
+     * Si la torre está visible, este método reinicia el estado auxiliar del layout,
+     * prepara los elementos antes del reposicionamiento y recorre el orden de inserción
+     * para decidir, en cada caso, si una copa o tapa debe ubicarse por fuera o por dentro
+     * de la torre.
+     *
+     * La reconstrucción visual se hace desde cero, por lo que este método centraliza
+     * el comportamiento gráfico global del simulador.
+     */
+    private void hideAllElements() {
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for (Cup c : cups) c.makeInvisible();</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        for (Lid l : lids) l.makeInvisible();</span>
+<span class="fc" id="L223">    }</span>
+    
+    /**
+     * Reinicia el estado auxiliar usado para calcular el layout visual de la torre.
+     *
+     * Efectos:
+     * - Elimina la referencia a la copa externa actual.
+     * - Vacía la pila de copas internas.
+     * - Limpia el registro de tapas internas asociadas a cada copa.
+     * - Restablece los valores de tamaño y posición externos.
+     * - Reinicia la marca de si el último elemento externo fue una tapa.
+     */
+    private void resetLayoutState() {
+<span class="fc" id="L236">        outer = null;</span>
+<span class="fc" id="L237">        insideStack.clear();</span>
+<span class="fc" id="L238">        topInsideLidByCup.clear();</span>
+<span class="fc" id="L239">        topLidInContainer.clear();</span>
+<span class="fc" id="L240">        parentByCup.clear();</span>
+    
+<span class="fc" id="L242">        lastOutsideWasLid = false;</span>
+<span class="fc" id="L243">        topOutsideLid = null;</span>
+    
+<span class="fc" id="L245">        outsideSize = 0;</span>
+<span class="fc" id="L246">        outsideBaseY = 0;</span>
+<span class="fc" id="L247">        highestCupTopY = Y;</span>
+<span class="fc" id="L248">    }</span>
+    
+    /**
+     * Prepara el estado de la torre antes de recalcular el layout visual.
+     *
+     * Este método ejecuta una serie de pasos previos al redibujado:
+     * - Ejecuta acciones previas en cada copa (beforeEnter).
+     * - Reorganiza tapas especiales según su comportamiento.
+     * - Oculta todos los elementos actuales.
+     * - Reinicia el estado interno del layout.
+     *
+     * Es un paso obligatorio antes de volver a posicionar los elementos.
+     */
+    private void prepareLayout() {
+<span class="fc" id="L262">        prepareCupsBeforeLayout();</span>
+<span class="fc" id="L263">        reorderSpecialLidsInPlace();</span>
+<span class="fc" id="L264">        hideAllElements();</span>
+<span class="fc" id="L265">        resetLayoutState();</span>
+<span class="fc" id="L266">    }</span>
+    
+    /**
+     * Recorre el orden de inserción y ubica cada elemento (copa o tapa)
+     * en la torre según su tipo y reglas de posicionamiento.
+     *
+     * @param canvasWidth ancho disponible del lienzo.
+     * @param grosor grosor visual utilizado en cálculos de posición.
+     */
+    private void layoutElements(int canvasWidth, int grosor) {
+<span class="fc bfc" id="L276" title="All 2 branches covered.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L277">            String[] item = insertionOrder.get(i);</span>
+<span class="fc" id="L278">            String type = item[0];</span>
+<span class="fc" id="L279">            int number = Integer.parseInt(item[1]);</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">            if (isCup(type)) {</span>
+<span class="fc" id="L281">                layoutCup(number, i, canvasWidth, grosor);</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">            } else if (isLid(type)) {</span>
+<span class="fc" id="L283">                layoutLid(number, canvasWidth, grosor);</span>
+            }
+        }
+<span class="fc" id="L286">    }</span>
+
+    /**
+     * Ubica visualmente una copa específica dentro de la torre según el estado
+     * actual del layout y las reglas de posicionamiento.
+     *
+     * El método contempla varios escenarios: copas que deben apoyarse sobre una
+     * tapa base especial, copas que se convierten en el elemento exterior principal,
+     * y copas que deben entrar dentro de otra copa como parte de la estructura
+     * interna. Después de posicionarla, la vuelve visible y actualiza la altura
+     * máxima ocupada por la torre.
+     *
+     * @param number número de la copa a ubicar.
+     * @param currentIndex posición actual de la copa dentro del orden de inserción.
+     * @param canvasWidth ancho disponible del lienzo.
+     * @param grosor grosor visual usado para cálculos internos de posición.
+     */
+    private void layoutCup(int number, int currentIndex, int canvasWidth, int grosor) {
+<span class="fc" id="L304">        Cup c = findCup(number);</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">        if (c == null) return;</span>
+    
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">        if (c.shouldBePlacedOnBaseLid()) {</span>
+<span class="nc" id="L308">            c.placeOnBaseLid();</span>
+<span class="nc" id="L309">            parentByCup.remove(c);</span>
+<span class="nc" id="L310">        }</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        else if (outer == null) {</span>
+<span class="fc" id="L312">            c.placeAsFirst(canvasWidth, Y, topOutsideLid);</span>
+<span class="fc" id="L313">            parentByCup.remove(c);</span>
+<span class="fc" id="L314">            outer = c;</span>
+<span class="fc" id="L315">            insideStack.clear();</span>
+<span class="fc" id="L316">            outsideSize = c.getNumber();</span>
+<span class="fc" id="L317">            outsideBaseY = c.getYpo() - c.getHeight();</span>
+<span class="fc" id="L318">            lastOutsideWasLid = false;</span>
+<span class="fc" id="L319">            topOutsideLid = null;</span>
+<span class="fc" id="L320">        }</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        else if (c.shouldGoOutside(lastOutsideWasLid, outsideSize)) {</span>
+<span class="fc" id="L322">            c.placeAsOutside(canvasWidth, highestCupTopY, topOutsideLid, lastOutsideWasLid);</span>
+<span class="fc" id="L323">            parentByCup.remove(c);</span>
+<span class="fc" id="L324">            outer = c;</span>
+<span class="fc" id="L325">            insideStack.clear();</span>
+<span class="fc" id="L326">            outsideSize = c.getNumber();</span>
+<span class="fc" id="L327">            outsideBaseY = c.getYpo() - c.getHeight();</span>
+<span class="fc" id="L328">            lastOutsideWasLid = false;</span>
+<span class="fc" id="L329">            topOutsideLid = null;</span>
+<span class="fc" id="L330">        }</span>
+        else {
+<span class="fc" id="L332">            Cup container = findContainerForCup(c, currentIndex);</span>
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">            if (container == null) return;</span>
+<span class="fc" id="L334">            Cup support = findSupportForCup(c, container, currentIndex);</span>
+<span class="fc" id="L335">            Lid lidOnContainer = topInsideLidByCup.get(container);</span>
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">            Lid lidOnSupport = (support == null) ? null : topInsideLidByCup.get(support);</span>
+<span class="fc" id="L337">            c.placeInTower(container, support, lidOnContainer, lidOnSupport, grosor);</span>
+<span class="fc" id="L338">            parentByCup.put(c, container);</span>
+<span class="fc" id="L339">            insideStack.push(c);</span>
+        }
+<span class="fc" id="L341">        c.makeVisible();</span>
+<span class="fc" id="L342">        updateHighestCupTop(c);</span>
+<span class="fc" id="L343">    }</span>
+    
+    /**
+     * Ubica visualmente una tapa específica dentro de la torre según las reglas
+     * del layout actual.
+     *
+     * El método determina si la tapa debe quedar por fuera de la torre o dentro
+     * de una copa contenedora. En caso de ubicarse internamente, identifica si
+     * debe quedar directamente sobre su copa pareja, dentro del contenedor o
+     * sobre otra copa interna. Finalmente la hace visible y actualiza la altura
+     * máxima ocupada.
+     *
+     * @param number número de la tapa a ubicar.
+     * @param canvasWidth ancho disponible del lienzo.
+     * @param grosor grosor visual usado para cálculos de ubicación interna.
+     */
+    private void layoutLid(int number, int canvasWidth, int grosor) {
+<span class="fc" id="L360">        Lid l = findLid(number);</span>
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">        if (l == null) return;</span>
+<span class="fc" id="L362">        Cup container = findContainerForLid(l);</span>
+<span class="pc bpc" id="L363" title="1 of 2 branches missed.">        if (outer == null) {</span>
+<span class="nc" id="L364">            l.placeAsFirst(canvasWidth, highestCupTopY, topOutsideLid, lastOutsideWasLid);</span>
+<span class="nc" id="L365">            insideStack.clear();</span>
+<span class="nc" id="L366">            outsideSize = l.getNumber();</span>
+<span class="nc" id="L367">            outsideBaseY = l.getYpo() - l.getHeight();</span>
+<span class="nc" id="L368">            lastOutsideWasLid = true;</span>
+<span class="nc" id="L369">            topOutsideLid = l;</span>
+<span class="nc" id="L370">        }</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        else if (l.shouldGoOutside(lastOutsideWasLid, container, outsideSize)) {</span>
+<span class="fc" id="L372">            l.placeAsOutside(canvasWidth, highestCupTopY, topOutsideLid);</span>
+<span class="fc" id="L373">            insideStack.clear();</span>
+<span class="fc" id="L374">            outsideSize = l.getNumber();</span>
+<span class="fc" id="L375">            outsideBaseY = l.getYpo() - l.getHeight();</span>
+<span class="fc" id="L376">            lastOutsideWasLid = true;</span>
+<span class="fc" id="L377">            topOutsideLid = l;</span>
+<span class="fc" id="L378">        }</span>
+        else {
+<span class="fc" id="L380">            Cup support = findSupportForLid(l, container);</span>
+<span class="fc" id="L381">            Lid lidOnContainer = topInsideLidByCup.get(container);</span>
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">            Lid lidOnSupport = (support == null) ? null : topInsideLidByCup.get(support);</span>
+<span class="fc" id="L383">            l.placeAsInside(container, support, lidOnContainer, lidOnSupport, grosor);</span>
+<span class="pc bpc" id="L384" title="1 of 2 branches missed.">            if (container.getNumber() == l.getNumber()) {</span>
+<span class="nc" id="L385">                topInsideLidByCup.put(container, l);</span>
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">            } else if (support == null) {</span>
+<span class="fc" id="L387">                topLidInContainer.put(container, l);</span>
+<span class="fc" id="L388">            } else {</span>
+<span class="nc" id="L389">                topInsideLidByCup.put(support, l);</span>
+            }
+        }
+<span class="fc" id="L392">        l.makeVisible();</span>
+<span class="fc" id="L393">        updateHighestTopWithLid(l);</span>
+<span class="fc" id="L394">        isOK = true;</span>
+<span class="fc" id="L395">    }</span>
+    
+    private boolean isCup(String type) {
+<span class="fc" id="L398">        return &quot;cup&quot;.equals(type);</span>
+    }
+    
+    private boolean isLid(String type) {
+<span class="fc" id="L402">        return &quot;lid&quot;.equals(type);</span>
+    }
+    
+    /**
+     * Actualiza la coordenada más alta ocupada por una copa o tapa en la torre.
+     *
+     * Toma la parte superior de la copa dada y, si está más arriba que la
+     * registrada actualmente, actualiza highestCupTopY.
+     *
+     * @param c copa cuya posición superior se usa para actualizar el layout.
+     */
+    private void updateHighestCupTop(Cup c) {
+<span class="fc" id="L414">        int top = c.getYpo() - c.getHeight();</span>
+<span class="fc" id="L415">        highestCupTopY = Math.min(highestCupTopY, top);</span>
+<span class="fc" id="L416">    }</span>
+
+    /**
+     * Busca la mejor copa de soporte para ubicar una tapa dentro de un contenedor.
+     *
+     * El soporte elegido debe ser una copa interna hija del contenedor indicado
+     * cuyo tamaño sea menor o igual al de la tapa y, entre todas las candidatas
+     * válidas, se selecciona la de mayor tamaño.
+     *
+     * @param l tapa que se desea ubicar.
+     * @param container copa contenedora dentro de la cual se busca soporte.
+     * @return la mejor copa de soporte encontrada, o null si la tapa debe
+     *         ubicarse directamente dentro del contenedor.
+     */
+    private Cup findSupportForLid(Lid l, Cup container) {
+<span class="fc" id="L431">        Cup bestSupport = null;</span>
+<span class="pc bpc" id="L432" title="1 of 2 branches missed.">        for (Cup inside : insideStack) {</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">            if (inside == container) {</span>
+<span class="nc" id="L434">                continue;</span>
+            }
+<span class="nc" id="L436">            Cup parent = parentByCup.get(inside);</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">            if (parent != container) {</span>
+<span class="nc" id="L438">                continue;</span>
+            }
+    
+<span class="nc bnc" id="L441" title="All 2 branches missed.">            if (inside.getNumber() &lt;= l.getNumber()) {</span>
+<span class="nc bnc" id="L442" title="All 4 branches missed.">                if (bestSupport == null || inside.getNumber() &gt; bestSupport.getNumber()) {</span>
+<span class="nc" id="L443">                    bestSupport = inside;</span>
+                }
+            }
+        }
+<span class="fc" id="L447">        return bestSupport;</span>
+    }
+    
+    /**
+     * Actualiza la coordenada más alta ocupada por una tapa en la torre.
+     *
+     * Calcula la parte superior de la tapa dada y, si está más arriba que la
+     * registrada actualmente, actualiza highestCupTopY.
+     *
+     * @param l tapa cuya posición superior se usa para actualizar el layout.
+     */
+    private void updateHighestTopWithLid(Lid l) {
+<span class="fc" id="L459">        int top = l.getYpo() - l.getHeight();</span>
+<span class="fc" id="L460">        highestCupTopY = Math.min(highestCupTopY, top);</span>
+<span class="fc" id="L461">    }</span>
+    
+    /**
+     * Verifica si ya existe una copa con el tamaño indicado.
+     *
+     * @param newSize tamaño a validar.
+     * @return true si ya existe una copa con ese tamaño.
+     */
+    private boolean duplicatedSize(int newSize){
+<span class="fc bfc" id="L470" title="All 2 branches covered.">        for (int i = 0; i &lt; cups.size(); i++) {</span>
+<span class="fc" id="L471">            Cup c = cups.get(i);</span>
+<span class="fc bfc" id="L472" title="All 2 branches covered.">            if (newSize == c.getNumber()){</span>
+<span class="fc" id="L473">                return true;</span>
+            }
+        }
+<span class="fc" id="L476">        return false;</span>
+    }
+    
+    /**
+     * Elimina y retorna la copa ubicada en el tope de la torre.
+     *
+     * Efectos:
+     * - Oculta visualmente la copa removida.
+     * - Elimina su registro del orden de inserción.
+     * - Redibuja la torre.
+     *
+     * @return la copa removida, o null si no había copas.
+     */
+    public Cup popCup() {
+<span class="pc bpc" id="L490" title="1 of 2 branches missed.">        if (cups.isEmpty()) {</span>
+<span class="nc" id="L491">            isOK = false;</span>
+<span class="nc" id="L492">            return null;</span>
+        }
+<span class="fc" id="L494">        Cup removida = cups.peek();</span>
+<span class="fc" id="L495">        Lid lid = removida.getLid();    </span>
+<span class="pc bpc" id="L496" title="1 of 4 branches missed.">        if (lid != null &amp;&amp; isCoveringPartner(lid)) {</span>
+<span class="fc" id="L497">            removeLidForced(removida.getNumber());</span>
+        }
+    
+<span class="pc bpc" id="L500" title="1 of 2 branches missed.">        if (!removida.canBeRemoved()) {</span>
+<span class="nc" id="L501">            isOK = false;</span>
+<span class="nc" id="L502">            return null;</span>
+        }
+<span class="fc" id="L504">        removida = cups.pop();</span>
+<span class="fc" id="L505">        removida.makeInvisible();</span>
+<span class="pc bpc" id="L506" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L507">            String[] elem = insertionOrder.get(i);</span>
+<span class="pc bpc" id="L508" title="1 of 2 branches missed.">            if (elem[0].equals(&quot;cup&quot;) &amp;&amp;</span>
+<span class="fc bfc" id="L509" title="All 2 branches covered.">                elem[1].equals(String.valueOf(removida.getNumber()))) {</span>
+<span class="fc" id="L510">                insertionOrder.remove(i);</span>
+<span class="fc" id="L511">                break;</span>
+            }
+        }
+<span class="fc" id="L514">        isOK = true;</span>
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L516">            redraw();</span>
+        }
+<span class="fc" id="L518">        return removida;</span>
+    }
+        
+    /**
+     * Elimina la primera copa encontrada cuyo número coincida con el indicado.
+     *
+     * Efectos:
+     * - Remueve la copa del stack de copas.
+     * - La oculta visualmente.
+     * - Elimina su referencia de insertionOrder.
+     * - Redibuja la torre.
+     *
+     * @param number número de la copa que se desea eliminar.
+     */
+    public void removeCup(int number) {
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">        if (cups.isEmpty()) {</span>
+<span class="nc" id="L534">            isOK = false;</span>
+<span class="nc" id="L535">            return;</span>
+        }
+<span class="fc" id="L537">        Cup target = findCup(number);</span>
+<span class="pc bpc" id="L538" title="1 of 2 branches missed.">        if (target == null) {</span>
+<span class="nc" id="L539">            isOK = false;</span>
+<span class="nc" id="L540">            return;</span>
+        }
+<span class="fc" id="L542">        Lid lid = target.getLid();</span>
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">        if (lid != null) {</span>
+<span class="nc" id="L544">            removeLidForced(lid.getNumber());</span>
+        }
+    
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">        if (!target.canBeRemoved()) {</span>
+<span class="nc" id="L548">            isOK = false;</span>
+<span class="nc" id="L549">            return;</span>
+        }
+<span class="fc" id="L551">        Stack&lt;Cup&gt; temp = new Stack&lt;&gt;();</span>
+<span class="fc" id="L552">        boolean removed = false;</span>
+<span class="fc bfc" id="L553" title="All 2 branches covered.">        while (!cups.isEmpty()) {</span>
+<span class="fc" id="L554">            Cup c = cups.pop();</span>
+    
+<span class="fc bfc" id="L556" title="All 4 branches covered.">            if (!removed &amp;&amp; c.getNumber() == number) {</span>
+<span class="fc" id="L557">                c.makeInvisible();</span>
+<span class="fc" id="L558">                removed = true;</span>
+<span class="fc" id="L559">            } else {</span>
+<span class="fc" id="L560">                temp.push(c);</span>
+            }
+        }
+    
+<span class="fc bfc" id="L564" title="All 2 branches covered.">        while (!temp.isEmpty()) {</span>
+<span class="fc" id="L565">            cups.push(temp.pop());</span>
+        }
+    
+<span class="pc bpc" id="L568" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L569">            String[] elem = insertionOrder.get(i);</span>
+<span class="pc bpc" id="L570" title="1 of 2 branches missed.">            if (elem[0].equals(&quot;cup&quot;) &amp;&amp;</span>
+<span class="fc bfc" id="L571" title="All 2 branches covered.">                elem[1].equals(String.valueOf(number))) {</span>
+<span class="fc" id="L572">                insertionOrder.remove(i);</span>
+<span class="fc" id="L573">                break;</span>
+            }
+        }
+<span class="fc" id="L576">        isOK = removed;</span>
+<span class="pc bpc" id="L577" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L578">            redraw();</span>
+        }
+<span class="fc" id="L580">    }</span>
+    
+    /**
+     * Agrega una nueva tapa a la torre si cumple las restricciones definidas.
+     *
+     * Restricciones:
+     * - El tamaño no debe estar repetido entre las tapas.
+     * - El tamaño no debe superar el ancho máximo.
+     * - Si existe una copa del mismo color, la tapa debe tener el mismo tamaño.
+     *
+     * Efectos:
+     * - Crea la tapa.
+     * - La agrega al stack de tapas.
+     * - La registra en insertionOrder.
+     * - Intenta asociarla con una copa del mismo color.
+     * - Redibuja la torre.
+     *
+     * @param i tamaño o número de la tapa.
+     * @param color color de la tapa.
+     */
+    public void pushLid(int i) {
+<span class="pc bpc" id="L601" title="1 of 4 branches missed.">        if (i &gt; maxWidth || duplicatedLidSize(i)) {</span>
+<span class="fc" id="L602">            isOK = false;</span>
+<span class="fc" id="L603">            return;</span>
+        }
+
+<span class="fc" id="L606">        Cup cup = findCup(i);</span>
+        Lid nueva;
+
+<span class="fc bfc" id="L609" title="All 2 branches covered.">        if (cup != null) {</span>
+<span class="pc bpc" id="L610" title="1 of 2 branches missed.">            if (cup.getLid() != null) {</span>
+<span class="nc" id="L611">                isOK = false;</span>
+<span class="nc" id="L612">                return;</span>
+            }
+<span class="fc" id="L614">            nueva = new Lid(i, cup.getColor());</span>
+<span class="fc" id="L615">            cup.addLid(nueva);</span>
+<span class="fc" id="L616">        } else {</span>
+<span class="fc" id="L617">            String color = getUniqueColor();</span>
+<span class="pc bpc" id="L618" title="1 of 2 branches missed.">            if (color == null) {</span>
+<span class="nc" id="L619">                isOK = false;</span>
+<span class="nc" id="L620">                return;</span>
+            }
+<span class="fc" id="L622">            nueva = new Lid(i, color);</span>
+        }
+
+<span class="fc" id="L625">        lids.push(nueva);</span>
+<span class="fc" id="L626">        insertionOrder.add(new String[]{&quot;lid&quot;, String.valueOf(i)});</span>
+<span class="fc" id="L627">        isOK = true;</span>
+
+<span class="pc bpc" id="L629" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L630">            redraw();</span>
+        }
+<span class="fc" id="L632">    }</span>
+    
+    /**
+     * Elimina y retorna la tapa ubicada en el tope del stack de tapas.
+     *
+     * Efectos:
+     * - Oculta la tapa removida.
+     * - Elimina su referencia de insertionOrder.
+     * - Redibuja la torre.
+     *
+     * @return la tapa removida, o null si no había tapas.
+     */
+    public Lid popLid() {
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">        if (lids.isEmpty()) {</span>
+<span class="nc" id="L646">            isOK = false;</span>
+<span class="nc" id="L647">            return null;</span>
+        }    
+<span class="fc" id="L649">        Lid removida = lids.peek();</span>
+<span class="pc bpc" id="L650" title="1 of 2 branches missed.">        if (!removida.canExit(this)) {</span>
+<span class="nc" id="L651">            isOK = false;</span>
+<span class="nc" id="L652">            return null;</span>
+        }
+<span class="fc" id="L654">        removida = lids.pop();</span>
+<span class="fc" id="L655">        removida.makeInvisible();</span>
+<span class="pc bpc" id="L656" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L657">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L658" title="All 2 branches covered.">            if (elem[0].equals(&quot;lid&quot;) &amp;&amp;</span>
+<span class="fc bfc" id="L659" title="All 2 branches covered.">                elem[1].equals(String.valueOf(removida.getNumber()))) {</span>
+<span class="fc" id="L660">                insertionOrder.remove(i);</span>
+<span class="fc" id="L661">                break;</span>
+            }
+        }
+<span class="fc" id="L664">        isOK = true;</span>
+<span class="pc bpc" id="L665" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L666">            redraw();</span>
+        }
+<span class="fc" id="L668">        return removida;</span>
+    }
+    
+    /**
+     * Verifica si ya existe una tapa con el tamaño indicado.
+     *
+     * @param newSize tamaño a validar.
+     * @return true si ya existe una tapa con ese tamaño, false en caso contrario.
+     */
+    private boolean duplicatedLidSize(int newSize) {
+<span class="fc bfc" id="L678" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="fc bfc" id="L679" title="All 2 branches covered.">            if (l.getNumber() == newSize) {</span>
+<span class="fc" id="L680">                return true;</span>
+            }
+        }
+<span class="fc" id="L683">        return false;</span>
+    }
+    
+    /**
+     * Elimina la primera tapa encontrada cuyo número coincida con el indicado.
+     *
+     * Efectos:
+     * - Remueve la tapa del stack de tapas.
+     * - La oculta visualmente.
+     * - Elimina su relación en ListLid.
+     * - Elimina su referencia en insertionOrder.
+     * - Redibuja la torre al finalizar.
+     *
+     * @param number número de la tapa que se desea eliminar.
+     */
+    public void removeLid(int number) {
+<span class="pc bpc" id="L699" title="1 of 2 branches missed.">        if (lids.isEmpty()) {</span>
+<span class="nc" id="L700">            isOK = false;</span>
+<span class="nc" id="L701">            return;</span>
+        }
+<span class="fc" id="L703">        Stack&lt;Lid&gt; temp = new Stack&lt;&gt;();</span>
+<span class="fc" id="L704">        boolean found = false;</span>
+<span class="fc" id="L705">        Lid target = null;</span>
+<span class="pc bpc" id="L706" title="1 of 2 branches missed.">        while (!lids.isEmpty()) {</span>
+<span class="fc" id="L707">            Lid l = lids.pop();</span>
+<span class="pc bpc" id="L708" title="1 of 4 branches missed.">            if (!found &amp;&amp; l.getNumber() == number) {</span>
+<span class="fc" id="L709">                target = l;</span>
+<span class="fc" id="L710">                found = true;</span>
+<span class="fc" id="L711">                break;</span>
+            } else {
+<span class="fc" id="L713">                temp.push(l);</span>
+            }
+        }
+    
+<span class="pc bpc" id="L717" title="1 of 2 branches missed.">        if (!found) {</span>
+<span class="nc bnc" id="L718" title="All 2 branches missed.">            while (!temp.isEmpty()) {</span>
+<span class="nc" id="L719">                lids.push(temp.pop());</span>
+            }
+<span class="nc" id="L721">            isOK = false;</span>
+<span class="nc" id="L722">            return;</span>
+        }
+    
+<span class="pc bpc" id="L725" title="1 of 2 branches missed.">        if (!target.canExit(this)) {</span>
+<span class="nc" id="L726">            lids.push(target);</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">            while (!temp.isEmpty()) {</span>
+<span class="nc" id="L728">                lids.push(temp.pop());</span>
+            }
+<span class="nc" id="L730">            isOK = false;</span>
+<span class="nc" id="L731">            return;</span>
+        }
+<span class="fc" id="L733">        target.detachFromPartner();</span>
+<span class="fc" id="L734">        target.makeInvisible();</span>
+<span class="pc bpc" id="L735" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L736">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L737" title="All 4 branches covered.">            if (elem[0].equals(&quot;lid&quot;) &amp;&amp; elem[1].equals(String.valueOf(number))) {</span>
+<span class="fc" id="L738">                insertionOrder.remove(i);</span>
+<span class="fc" id="L739">                break;</span>
+            }
+        }
+    
+<span class="pc bfc" id="L743" title="All 2 branches covered.">        while (!temp.isEmpty()) {</span>
+<span class="fc" id="L744">            lids.push(temp.pop());</span>
+        }
+<span class="fc" id="L746">        isOK = true;</span>
+<span class="pc bpc" id="L747" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L748">            redraw();</span>
+        }
+<span class="fc" id="L750">    }</span>
+    
+    /**
+     * Ordena las copas de la torre de mayor a menor según su número.
+     *
+     * Efectos:
+     * - Extrae los tamaños actuales de las copas.
+     * - Vacía la estructura de copas y el orden de inserción.
+     * - Reconstruye la torre insertando nuevamente las copas en orden descendente.
+     * - Redibuja la torre.
+     *
+     * Nota:
+     * al reconstruir la torre, las copas se crean otra vez y pueden cambiar de color.
+     */
+    public void orderTower() {
+<span class="fc" id="L765">        ArrayList&lt;Cup&gt; orderedCups = new ArrayList&lt;Cup&gt;();</span>
+<span class="fc" id="L766">        this.makeInvisible();</span>
+<span class="fc bfc" id="L767" title="All 2 branches covered.">        for (Cup c : cups) {</span>
+<span class="fc" id="L768">            orderedCups.add(c);</span>
+        }
+    
+<span class="fc bfc" id="L771" title="All 2 branches covered.">        for (int i = 0; i &lt; orderedCups.size() - 1; i++) {</span>
+<span class="fc bfc" id="L772" title="All 2 branches covered.">            for (int j = i + 1; j &lt; orderedCups.size(); j++) {</span>
+<span class="fc bfc" id="L773" title="All 2 branches covered.">                if (orderedCups.get(i).getNumber() &lt; orderedCups.get(j).getNumber()) {</span>
+<span class="fc" id="L774">                    Cup temp = orderedCups.get(i);</span>
+<span class="fc" id="L775">                    orderedCups.set(i, orderedCups.get(j));</span>
+<span class="fc" id="L776">                    orderedCups.set(j, temp);</span>
+                }
+            }
+        }
+<span class="fc" id="L780">        cups.clear();</span>
+<span class="fc" id="L781">        insertionOrder.clear();</span>
+<span class="fc bfc" id="L782" title="All 2 branches covered.">        for (Cup c : orderedCups) {</span>
+<span class="fc" id="L783">            cups.push(c);</span>
+<span class="fc" id="L784">            insertionOrder.add(new String[]{&quot;cup&quot;, String.valueOf(c.getNumber())});</span>
+        }
+    
+<span class="fc bfc" id="L787" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="fc" id="L788">            insertionOrder.add(new String[]{&quot;lid&quot;, String.valueOf(l.getNumber())});</span>
+        }
+<span class="fc" id="L790">        redraw();</span>
+<span class="fc" id="L791">        isOK = true;</span>
+<span class="fc" id="L792">    }</span>
+
+    
+    /**
+     * Invierte el orden actual de las copas en la torre.
+     *
+     * Efectos:
+     * - Extrae las copas a un stack temporal para invertir su orden.
+     * - Invierte también el orden registrado en insertionOrder.
+     * - Redibuja la torre con la nueva disposición.
+     * - Marca la operación como exitosa.
+     */
+    public void reverseTower() {
+<span class="fc" id="L805">        Stack&lt;Cup&gt; temp = new Stack&lt;Cup&gt;();</span>
+<span class="fc bfc" id="L806" title="All 2 branches covered.">        while (!cups.isEmpty()) {</span>
+<span class="fc" id="L807">            temp.push(cups.pop());</span>
+        }
+<span class="fc" id="L809">        Collections.reverse(insertionOrder);</span>
+<span class="fc" id="L810">        cups = temp;</span>
+<span class="fc" id="L811">        redraw();</span>
+<span class="fc" id="L812">        isOK = true;</span>
+<span class="fc" id="L813">    }</span>
+    
+    /**
+     * Retorna el orden actual de inserción de los elementos de la torre.
+     *
+     * Cada elemento está representado como un arreglo de dos posiciones:
+     * [tipo, número], donde tipo puede ser &quot;cup&quot; o &quot;lid&quot;.
+     *
+     * @return lista con el orden de inserción de copas y tapas.
+     */
+    public ArrayList&lt;String[]&gt; getInsertionOrder(){
+<span class="fc" id="L824">        return insertionOrder;</span>
+    }
+    
+    /**
+     * Calcula la altura efectiva de la torre.
+     *
+     * Solo suma la altura de las copas que están posicionadas externamente,
+     * es decir, aquellas que no están marcadas como inside.
+     *
+     * @return altura total visible de la torre.
+     */
+    public int Height() {
+<span class="fc" id="L836">        int top = Integer.MAX_VALUE;</span>
+<span class="fc" id="L837">        int bottom = Integer.MIN_VALUE;</span>
+<span class="fc" id="L838">        boolean hasElements = false;</span>
+<span class="fc bfc" id="L839" title="All 2 branches covered.">        for (Cup c : cups) {</span>
+<span class="fc" id="L840">            int elementTop = c.getYpo() - c.getHeight();</span>
+<span class="fc" id="L841">            int elementBottom = c.getYpo();</span>
+    
+<span class="fc" id="L843">            top = Math.min(top, elementTop);</span>
+<span class="fc" id="L844">            bottom = Math.max(bottom, elementBottom);</span>
+<span class="fc" id="L845">            hasElements = true;</span>
+        }
+    
+<span class="fc bfc" id="L848" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="fc" id="L849">            int elementTop = l.getYpo() - l.getHeight();</span>
+<span class="fc" id="L850">            int elementBottom = l.getYpo();</span>
+    
+<span class="fc" id="L852">            top = Math.min(top, elementTop);</span>
+<span class="fc" id="L853">            bottom = Math.max(bottom, elementBottom);</span>
+<span class="fc" id="L854">            hasElements = true;</span>
+        }
+    
+<span class="fc bfc" id="L857" title="All 2 branches covered.">        if (!hasElements) {</span>
+<span class="fc" id="L858">            return 0;</span>
+        }
+<span class="fc" id="L860">        return bottom - top;</span>
+    }
+    
+    /**
+     * Marca la torre como visible.
+     *
+     * Este método solo cambia el estado lógico de visibilidad;
+     * no redibuja automáticamente los elementos.
+     */
+    public void makeVisible() {
+<span class="fc" id="L870">        isVisible = true;</span>
+<span class="fc" id="L871">        redraw();</span>
+<span class="fc" id="L872">    }</span>
+    
+    /**
+     * Hace invisible toda la torre.
+     *
+     * Efectos:
+     * - Marca la torre como no visible.
+     * - Oculta todas las copas y tapas actualmente existentes.
+     */
+    public void makeInvisible() {
+<span class="fc" id="L882">        isVisible = false;</span>
+<span class="fc bfc" id="L883" title="All 2 branches covered.">        for (Cup c : cups) {</span>
+<span class="pc bpc" id="L884" title="1 of 2 branches missed.">            if (c != null) {</span>
+<span class="fc" id="L885">                c.makeInvisible();</span>
+            }
+        }
+    
+<span class="fc bfc" id="L889" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="pc bpc" id="L890" title="1 of 2 branches missed.">            if (l != null) {</span>
+<span class="fc" id="L891">                l.makeInvisible();</span>
+            }
+        }
+<span class="fc" id="L894">    }</span>
+    
+    /**
+     * Verifica si la torre es visible.
+     */
+    public boolean isVisible() {
+<span class="fc" id="L900">        return this.isVisible;</span>
+    }
+    
+    /**
+     * Busca una copa por su número.
+     *
+     * @param number número de la copa a buscar.
+     * @return la copa encontrada, o null si no existe.
+     */
+    private Cup findCup(int number) {
+<span class="fc bfc" id="L910" title="All 2 branches covered.">        for (Cup c : cups) {</span>
+<span class="fc bfc" id="L911" title="All 2 branches covered.">            if (c.getNumber() == number) return c;</span>
+        }
+<span class="fc" id="L913">        return null;</span>
+    }
+    
+    /**
+     * Busca una tapa por su número.
+     *
+     * @param number número de la tapa a buscar.
+     * @return la tapa encontrada, o null si no existe.
+     */
+    private Lid findLid(int number) {
+<span class="fc bfc" id="L923" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="fc bfc" id="L924" title="All 2 branches covered.">            if (l.getNumber() == number) return l;</span>
+        }
+<span class="fc" id="L926">        return null;</span>
+    }
+    
+    /**
+     * Finaliza la simulación de la torre.
+     *
+     * Efectos:
+     * - Oculta todas las copas y tapas.
+     * - Vacía las estructuras principales.
+     * - Limpia el orden de inserción.
+     * - Marca la torre como no visible.
+     */
+    public void exit(){
+<span class="fc bfc" id="L939" title="All 2 branches covered.">        for (Cup c : cups) c.makeInvisible();</span>
+<span class="fc bfc" id="L940" title="All 2 branches covered.">        for (Lid l : lids) l.makeInvisible();</span>
+<span class="fc" id="L941">        cups.clear();</span>
+<span class="fc" id="L942">        lids.clear();</span>
+<span class="fc" id="L943">        insertionOrder.clear();</span>
+<span class="fc" id="L944">        isVisible = false;</span>
+<span class="fc" id="L945">    }</span>
+    
+    /**
+     * Verifica si la última operación fue exitosa.
+     */
+    public boolean isOk() {
+<span class="fc" id="L951">        return isOK;</span>
+    }
+    
+    public int getCupsSize() {
+<span class="fc" id="L955">        return cups.size();</span>
+    }
+    
+    public int getLidsSize() {
+<span class="fc" id="L959">        return lids.size();</span>
+    }
+    
+    public Cup getCupByNumber(int number) {
+<span class="fc" id="L963">        return findCup(number);</span>
+    }
+    
+    public Lid getLidByNumber(int number) {
+<span class="fc" id="L967">        return findLid(number);</span>
+    }
+    
+    /**
+     * Dibuja una regla vertical.
+     */
+    public void drawRule(){
+<span class="fc bfc" id="L974" title="All 2 branches covered.">        for (int i = 0; i &lt;= maxHeight; i = i + 1){</span>
+<span class="fc" id="L975">            Rectangle r = new Rectangle();</span>
+<span class="fc" id="L976">            r.changeSize(2, 10);</span>
+<span class="fc" id="L977">            r.changeP(0, i * 10);</span>
+<span class="fc" id="L978">            r.changeColor(&quot;black&quot;);</span>
+<span class="fc" id="L979">            r.makeVisible();</span>
+        }
+<span class="fc" id="L981">    }</span>
+    
+    /**
+     * Reorganiza el orden de inserción para que cada tapa quede ubicada
+     * inmediatamente después de su copa correspondiente, si ambas existen.
+     *
+     * Efectos:
+     * - Recorre insertionOrder.
+     * - Cuando encuentra una copa, busca una tapa con el mismo número.
+     * - Si la encuentra, mueve la tapa para dejarla justo después de la copa.
+     * - Redibuja la torre.
+     */
+    public void cover() {
+<span class="fc" id="L994">        ArrayList&lt;String[]&gt; cupsInOrder = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L995">        ArrayList&lt;String[]&gt; lidsInOrder = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L996" title="All 2 branches covered.">        for (String[] elem : insertionOrder) {</span>
+<span class="fc bfc" id="L997" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;)) {</span>
+<span class="fc" id="L998">                cupsInOrder.add(elem);</span>
+<span class="pc bpc" id="L999" title="1 of 2 branches missed.">            } else if (elem[0].equals(&quot;lid&quot;)) {</span>
+<span class="fc" id="L1000">                lidsInOrder.add(elem);</span>
+            }
+        }
+<span class="fc" id="L1003">        lidsInOrder.sort((a, b) -&gt; Integer.parseInt(a[1]) - Integer.parseInt(b[1]));</span>
+<span class="fc" id="L1004">        insertionOrder.clear();</span>
+<span class="fc" id="L1005">        insertionOrder.addAll(cupsInOrder);</span>
+<span class="fc" id="L1006">        insertionOrder.addAll(lidsInOrder);</span>
+<span class="fc" id="L1007">        redraw();</span>
+<span class="fc" id="L1008">        isOK = true;</span>
+<span class="fc" id="L1009">    }</span>
+    
+    /**
+     * Intercambia la posición de dos objetos dentro del orden de inserción.
+     *
+     * Cada objeto se identifica mediante un arreglo de dos posiciones:
+     * [tipo, numero], por ejemplo {&quot;cup&quot;, &quot;5&quot;} o {&quot;lid&quot;, &quot;5&quot;}.
+     *
+     * Efectos:
+     * - Busca ambos objetos dentro de insertionOrder.
+     * - Si existen, intercambia sus posiciones.
+     * - Redibuja la torre.
+     * - Si alguno no existe, marca la operación como fallida.
+     *
+     * @param o1 identificador del primer objeto.
+     * @param o2 identificador del segundo objeto.
+     */
+    public void swap(String[] o1, String[] o2) {
+<span class="fc" id="L1027">        int idx1 = -1, idx2 = -1;</span>
+<span class="fc bfc" id="L1028" title="All 2 branches covered.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L1029">            String[] item = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1030" title="All 4 branches covered.">            if (item[0].equals(o1[0]) &amp;&amp; item[1].equals(o1[1])) idx1 = i;</span>
+<span class="fc bfc" id="L1031" title="All 4 branches covered.">            if (item[0].equals(o2[0]) &amp;&amp; item[1].equals(o2[1])) idx2 = i;</span>
+        }
+    
+<span class="fc bfc" id="L1034" title="All 4 branches covered.">        if (idx1 == -1 || idx2 == -1) {</span>
+<span class="fc" id="L1035">            JOptionPane.showMessageDialog(null, &quot;Objeto no encontrado&quot;);</span>
+<span class="fc" id="L1036">            isOK = false;</span>
+<span class="fc" id="L1037">            return;</span>
+        }
+<span class="fc" id="L1039">        Collections.swap(insertionOrder, idx1, idx2);</span>
+<span class="fc" id="L1040">        redraw();</span>
+<span class="fc" id="L1041">        isOK = true;</span>
+<span class="fc" id="L1042">    }</span>
+    
+    /**
+     * Busca dos objetos de insertionOrder cuyo intercambio reduzca la altura
+     * de la torre lo máximo posible.
+     *
+     * No modifica la torre de forma permanente; solo analiza y retorna
+     * los dos objetos que deberían intercambiarse.
+     *
+     * @return un arreglo de la forma { {tipo1, numero1}, {tipo2, numero2} }.
+     *         Si no existe ningún intercambio que reduzca la altura,
+     *         retorna un arreglo vacío.
+     */
+    public String[][] swapToReduce() {
+<span class="fc bfc" id="L1056" title="All 2 branches covered.">        if (insertionOrder.size() &lt; 2) {</span>
+<span class="fc" id="L1057">            isOK = false;</span>
+<span class="fc" id="L1058">            return new String[0][0];</span>
+        }
+
+<span class="fc" id="L1061">        redraw();</span>
+<span class="fc" id="L1062">        int originalHeight = Height();</span>
+
+<span class="fc" id="L1064">        int bestI = -1;</span>
+<span class="fc" id="L1065">        int bestJ = -1;</span>
+<span class="fc" id="L1066">        int bestHeight = Integer.MAX_VALUE;</span>
+
+<span class="fc bfc" id="L1068" title="All 2 branches covered.">        for (int i = 0; i &lt; insertionOrder.size() - 1; i++) {</span>
+<span class="fc bfc" id="L1069" title="All 2 branches covered.">            for (int j = i + 1; j &lt; insertionOrder.size(); j++) {</span>
+
+<span class="fc" id="L1071">                Collections.swap(insertionOrder, i, j);</span>
+<span class="fc" id="L1072">                redraw();</span>
+<span class="fc" id="L1073">                int newHeight = Height();</span>
+
+<span class="fc bfc" id="L1075" title="All 2 branches covered.">                if (newHeight &lt; bestHeight) {</span>
+<span class="fc" id="L1076">                    bestHeight = newHeight;</span>
+<span class="fc" id="L1077">                    bestI = i;</span>
+<span class="fc" id="L1078">                    bestJ = j;</span>
+                }
+
+<span class="fc" id="L1081">                Collections.swap(insertionOrder, i, j);</span>
+<span class="fc" id="L1082">                redraw();</span>
+            }
+        }
+
+<span class="pc bpc" id="L1086" title="2 of 4 branches missed.">        if (bestI == -1 || bestJ == -1) {</span>
+<span class="nc" id="L1087">            isOK = false;</span>
+<span class="nc" id="L1088">            return new String[0][0];</span>
+        }
+
+<span class="pc bpc" id="L1091" title="1 of 2 branches missed.">        if (bestHeight &gt; originalHeight) {</span>
+<span class="nc" id="L1092">            isOK = false;</span>
+<span class="nc" id="L1093">            return new String[0][0];</span>
+        }
+
+<span class="fc" id="L1096">        isOK = true;</span>
+
+<span class="fc" id="L1098">        String[] obj1 = { insertionOrder.get(bestI)[0], insertionOrder.get(bestI)[1] };</span>
+<span class="fc" id="L1099">        String[] obj2 = { insertionOrder.get(bestJ)[0], insertionOrder.get(bestJ)[1] };</span>
+
+<span class="fc" id="L1101">        return new String[][] { obj1, obj2 };</span>
+    }
+    
+    /**
+     * Encuentra el contenedor correcto para una cup nueva.
+     * Es la cup más pequeña del insideStack dentro de la cual cabe c,
+     * es decir, insideStack[i].number &gt; c.number.
+     * Si ninguna cup del stack la contiene, usa outer.
+     */
+    private Cup findContainerForCup(Cup c, int currentIndex) {
+<span class="pc bpc" id="L1111" title="1 of 2 branches missed.">        for (int i = currentIndex - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1112">            String[] elem = insertionOrder.get(i);</span>
+    
+<span class="pc bpc" id="L1114" title="1 of 2 branches missed.">            if (!elem[0].equals(&quot;cup&quot;)) {</span>
+<span class="nc" id="L1115">                continue;</span>
+            }
+    
+<span class="fc" id="L1118">            Cup candidate = findCup(Integer.parseInt(elem[1]));</span>
+<span class="pc bpc" id="L1119" title="2 of 4 branches missed.">            if (candidate != null &amp;&amp; candidate.getNumber() &gt; c.getNumber()) {</span>
+<span class="fc" id="L1120">                return candidate;</span>
+            }
+        }
+<span class="nc" id="L1123">        return null;</span>
+    }
+    
+    /**
+     * Encuentra el contenedor correcto para una lid nueva.
+     * Es la cup más pequeña del insideStack dentro de la cual cabe la lid,
+     * es decir, insideStack[i].number &gt;= l.number.
+     * Si ninguna cup del stack la contiene, usa outer.
+     */
+    private Cup findContainerForLid(Lid l) {
+<span class="pc bpc" id="L1133" title="1 of 2 branches missed.">        for (int i = insideStack.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L1134">            Cup inside = insideStack.get(i);</span>
+    
+<span class="nc bnc" id="L1136" title="All 2 branches missed.">            if (inside.getNumber() &gt;= l.getNumber()) {</span>
+<span class="nc" id="L1137">                return inside;</span>
+            }
+        }
+    
+<span class="pc bpc" id="L1141" title="2 of 4 branches missed.">        if (outer != null &amp;&amp; outer.getNumber() &gt;= l.getNumber()) {</span>
+<span class="fc" id="L1142">            return outer;</span>
+        }
+<span class="nc" id="L1144">        return null;</span>
+    }
+    
+    /**
+     * Encuentra el soporte para una cup nueva DENTRO de un contenedor dado.
+     * Es la cup más grande del insideStack que esté contenida en 'container'
+     * y cuyo número sea menor que c.number.
+     */
+    private Cup findSupportForCup(Cup c, Cup container, int currentIndex) {
+<span class="fc" id="L1153">        Cup best = null;</span>
+<span class="fc bfc" id="L1154" title="All 2 branches covered.">        for (int i = 0; i &lt; currentIndex; i++) {</span>
+<span class="fc" id="L1155">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1156" title="All 2 branches covered.">            if (!elem[0].equals(&quot;cup&quot;)) {</span>
+<span class="fc" id="L1157">                continue;</span>
+            }
+<span class="fc" id="L1159">            Cup candidate = findCup(Integer.parseInt(elem[1]));</span>
+<span class="pc bpc" id="L1160" title="1 of 4 branches missed.">            if (candidate == null || candidate == container) {</span>
+<span class="fc" id="L1161">                continue;</span>
+            }
+<span class="fc" id="L1163">            Cup parent = parentByCup.get(candidate);</span>
+<span class="pc bpc" id="L1164" title="3 of 4 branches missed.">            if (parent == container &amp;&amp; candidate.getNumber() &lt; c.getNumber()) {</span>
+<span class="nc bnc" id="L1165" title="All 4 branches missed.">                if (best == null || candidate.getNumber() &gt; best.getNumber()) {</span>
+<span class="nc" id="L1166">                    best = candidate;</span>
+                }
+            }
+        }
+<span class="fc" id="L1170">        return best;</span>
+    }
+    
+    /**
+     * Agrega una nueva copa del tipo indicado a la torre.
+     *
+     * Valida que el tamaño solicitado sea admisible, obtiene un color único libre
+     * y crea la subclase correspondiente según el tipo recibido. Si existe una tapa
+     * previa del mismo tamaño sin pareja, la nueva copa se asocia con ella antes
+     * de ser insertada. Finalmente registra la copa en la torre y actualiza el
+     * layout si el simulador se encuentra visible.
+     *
+     * @param type tipo de copa que se desea crear.
+     * @param i número o tamaño de la copa.
+     * @throws towerException si el tamaño está duplicado o si el tipo solicitado
+     *                        no existe en la implementación.
+     */
+    public void pushCup(String type, int i) throws towerException {
+<span class="pc bpc" id="L1188" title="1 of 4 branches missed.">        if (i &gt; maxWidth || duplicatedSize(i)) {</span>
+<span class="fc" id="L1189">            throw new towerException(towerException.DUPLICATED_SIZE);</span>
+        }
+<span class="fc" id="L1191">        String color = getUniqueColor();</span>
+<span class="pc bpc" id="L1192" title="1 of 2 branches missed.">        if (color == null) {</span>
+<span class="nc" id="L1193">            isOK = false;</span>
+<span class="nc" id="L1194">            return;</span>
+        }
+        Cup nueva;
+<span class="fc bfc" id="L1197" title="All 2 branches covered.">        if (type.equalsIgnoreCase(&quot;normal&quot;)) {</span>
+<span class="fc" id="L1198">            nueva = new Cup(i, color);</span>
+<span class="fc bfc" id="L1199" title="All 2 branches covered.">        } else if (type.equalsIgnoreCase(&quot;opener&quot;)) {</span>
+<span class="fc" id="L1200">            nueva = new OpenerCup(i, color);</span>
+<span class="fc bfc" id="L1201" title="All 2 branches covered.">        } else if (type.equalsIgnoreCase(&quot;hierarchical&quot;)) {</span>
+<span class="fc" id="L1202">            nueva = new HierarchicalCup(i, color);</span>
+<span class="pc bpc" id="L1203" title="1 of 2 branches missed.">        }else if (type.equalsIgnoreCase(&quot;bottom&quot;)) {</span>
+<span class="fc" id="L1204">            nueva = new BottomCup(i, color);</span>
+<span class="fc" id="L1205">        } else {</span>
+<span class="nc" id="L1206">            throw new towerException(towerException.NON_EXISTENT_TYPE);</span>
+        }
+<span class="fc" id="L1208">        Lid partner = null;</span>
+<span class="fc bfc" id="L1209" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="pc bpc" id="L1210" title="3 of 4 branches missed.">            if (l.getNumber() == i &amp;&amp; !l.hasPartnerCup()) {</span>
+<span class="nc" id="L1211">                partner = l;</span>
+<span class="nc" id="L1212">                break;</span>
+            }
+        }
+    
+<span class="pc bpc" id="L1216" title="1 of 2 branches missed.">        if (partner != null) {</span>
+<span class="nc" id="L1217">            nueva.addLid(partner);</span>
+        }
+<span class="fc" id="L1219">        cups.push(nueva);</span>
+<span class="fc" id="L1220">        insertionOrder.add(new String[]{&quot;cup&quot;, String.valueOf(i)});</span>
+<span class="fc" id="L1221">        isOK = true;</span>
+<span class="pc bpc" id="L1222" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L1223">            redraw();</span>
+        }
+<span class="fc" id="L1225">    }</span>
+    
+    public Cup findContainerBefore(int cupIndex, Cup cup) {
+<span class="fc" id="L1228">        Cup best = null;</span>
+<span class="fc bfc" id="L1229" title="All 2 branches covered.">        for (int i = cupIndex - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1230">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1231" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;)) {</span>
+<span class="fc" id="L1232">                int num = Integer.parseInt(elem[1]);</span>
+<span class="fc bfc" id="L1233" title="All 2 branches covered.">                if (num &gt; cup.getNumber()) {</span>
+<span class="fc" id="L1234">                    Cup candidate = findCup(num);</span>
+<span class="pc bpc" id="L1235" title="1 of 4 branches missed.">                    if (best == null || num &lt; best.getNumber()) {</span>
+<span class="fc" id="L1236">                        best = candidate; </span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L1241">        return best;</span>
+    }
+    
+    
+    private void removeSpecificLid(Lid lid) {
+<span class="fc" id="L1246">        Stack&lt;Lid&gt; temp = new Stack&lt;&gt;();</span>
+<span class="fc bfc" id="L1247" title="All 2 branches covered.">        while (!lids.isEmpty()) {</span>
+<span class="fc" id="L1248">            Lid actual = lids.pop();</span>
+<span class="pc bpc" id="L1249" title="1 of 2 branches missed.">            if (actual != lid) {</span>
+<span class="nc" id="L1250">                temp.push(actual);</span>
+<span class="nc" id="L1251">            } else {</span>
+<span class="fc" id="L1252">                actual.makeInvisible();</span>
+            }
+        }
+    
+<span class="pc bpc" id="L1256" title="1 of 2 branches missed.">        while (!temp.isEmpty()) {</span>
+<span class="nc" id="L1257">            lids.push(temp.pop());</span>
+        }
+    
+<span class="pc bpc" id="L1260" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L1261">            String[] elemento = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1262" title="All 2 branches covered.">            if (elemento[0].equals(&quot;lid&quot;) &amp;&amp;</span>
+<span class="pc bpc" id="L1263" title="1 of 2 branches missed.">                elemento[1].equals(String.valueOf(lid.getNumber()))) {</span>
+<span class="fc" id="L1264">                insertionOrder.remove(i);</span>
+<span class="fc" id="L1265">                break;</span>
+            }
+        }
+<span class="fc" id="L1268">        lid.detachFromPartner();</span>
+<span class="fc" id="L1269">    }</span>
+    
+    public void repositionForHierarchical(HierarchicalCup cup) {
+<span class="fc" id="L1272">        int currentIndex = findCupIndex(cup.getNumber());</span>
+<span class="pc bpc" id="L1273" title="1 of 2 branches missed.">        if (!isValidIndex(currentIndex)) {</span>
+<span class="nc" id="L1274">            return;</span>
+        }
+<span class="fc" id="L1276">        int targetIndex = findTargetIndexForHierarchical(cup.getNumber(), currentIndex);</span>
+<span class="fc" id="L1277">        moveCupInInsertionOrder(currentIndex, targetIndex);</span>
+<span class="fc" id="L1278">        lockCupIfNeeded(cup, targetIndex);</span>
+<span class="fc" id="L1279">    }</span>
+    
+    private int findTargetIndexForHierarchical(int cupNumber, int currentIndex) {
+<span class="fc" id="L1282">        int targetIndex = currentIndex;</span>
+<span class="fc bfc" id="L1283" title="All 2 branches covered.">        for (int i = currentIndex - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1284">            String[] element = insertionOrder.get(i);</span>
+    
+<span class="fc bfc" id="L1286" title="All 2 branches covered.">            if (isSmallerObject(element, cupNumber)) {</span>
+<span class="fc" id="L1287">                targetIndex = i;</span>
+            } else {
+                break;
+            }
+        }
+<span class="fc" id="L1292">        return targetIndex;</span>
+    }
+    
+    private void moveCupInInsertionOrder(int currentIndex, int targetIndex) {
+<span class="fc bfc" id="L1296" title="All 2 branches covered.">        if (currentIndex == targetIndex) {</span>
+<span class="fc" id="L1297">            return;</span>
+        }
+<span class="fc" id="L1299">        String[] cupData = insertionOrder.remove(currentIndex);</span>
+<span class="fc" id="L1300">        insertionOrder.add(targetIndex, cupData);</span>
+<span class="fc" id="L1301">    }</span>
+    
+    private void lockCupIfNeeded(Cup cup, int targetIndex) {
+<span class="fc bfc" id="L1304" title="All 2 branches covered.">        if (targetIndex == 0) {</span>
+<span class="fc" id="L1305">            cup.lock();</span>
+        }
+<span class="fc" id="L1307">    }</span>
+    
+    private boolean isValidIndex(int index) {
+<span class="pc bpc" id="L1310" title="1 of 2 branches missed.">        return index != -1;</span>
+    }
+    
+    private boolean isSmallerObject(String[] element, int cupNumber) {
+<span class="fc" id="L1314">        int number = Integer.parseInt(element[1]);</span>
+<span class="fc bfc" id="L1315" title="All 2 branches covered.">        return number &lt; cupNumber;</span>
+    }
+    
+    public boolean containsCup(Cup cup) {
+<span class="fc" id="L1319">        return cups.contains(cup);</span>
+    }
+    
+    public boolean isCoveringPartner(Lid lid) {
+<span class="pc bpc" id="L1323" title="2 of 4 branches missed.">        if (lid == null || !lid.hasPartnerCup()) {</span>
+<span class="nc" id="L1324">            return false;</span>
+        }
+<span class="fc" id="L1326">        Cup cup = lid.getPartnerCup();</span>
+<span class="pc bpc" id="L1327" title="2 of 4 branches missed.">        if (!cups.contains(cup) || !lids.contains(lid)) {</span>
+<span class="nc" id="L1328">            return false;</span>
+        }
+<span class="fc" id="L1330">        int cupIndex = -1;</span>
+<span class="fc" id="L1331">        int lidIndex = -1;</span>
+<span class="fc bfc" id="L1332" title="All 2 branches covered.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L1333">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1334" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;) &amp;&amp;</span>
+<span class="pc bpc" id="L1335" title="1 of 2 branches missed.">                elem[1].equals(String.valueOf(cup.getNumber()))) {</span>
+<span class="fc" id="L1336">                cupIndex = i;</span>
+            }
+    
+<span class="fc bfc" id="L1339" title="All 2 branches covered.">            if (elem[0].equals(&quot;lid&quot;) &amp;&amp;</span>
+<span class="pc bpc" id="L1340" title="1 of 2 branches missed.">                elem[1].equals(String.valueOf(lid.getNumber()))) {</span>
+<span class="fc" id="L1341">                lidIndex = i;</span>
+            }
+        }
+    
+<span class="pc bpc" id="L1345" title="2 of 4 branches missed.">        if (cupIndex == -1 || lidIndex == -1) {</span>
+<span class="nc" id="L1346">            return false;</span>
+        }
+<span class="pc bpc" id="L1348" title="1 of 2 branches missed.">        return lidIndex == cupIndex + 1;</span>
+    }
+    
+    public void pushLid(String type, int i) throws towerException {
+<span class="pc bpc" id="L1352" title="2 of 4 branches missed.">        if (i &gt; maxWidth || duplicatedLidSize(i)) {</span>
+<span class="nc" id="L1353">            throw new towerException(towerException.DUPLICATED_SIZE);</span>
+        }
+<span class="fc" id="L1355">        Cup cup = findCup(i);</span>
+        String color;
+<span class="fc bfc" id="L1357" title="All 2 branches covered.">        if (cup != null) {</span>
+<span class="fc" id="L1358">            color = cup.getColor();</span>
+<span class="fc" id="L1359">        } else {</span>
+<span class="fc" id="L1360">            color = getUniqueColor();</span>
+<span class="pc bpc" id="L1361" title="1 of 2 branches missed.">            if (color == null) {</span>
+<span class="nc" id="L1362">                isOK = false;</span>
+<span class="nc" id="L1363">                return;</span>
+            }
+        }
+        Lid nueva;
+<span class="fc bfc" id="L1367" title="All 2 branches covered.">        if (type.equalsIgnoreCase(&quot;normal&quot;)) {</span>
+<span class="fc" id="L1368">            nueva = new Lid(i, color);</span>
+<span class="fc bfc" id="L1369" title="All 2 branches covered.">        } else if (type.equalsIgnoreCase(&quot;fearful&quot;)) {</span>
+<span class="fc" id="L1370">            nueva = new FearfulLid(i, color);</span>
+<span class="pc bpc" id="L1371" title="1 of 2 branches missed.">        } else if (type.equalsIgnoreCase(&quot;crazy&quot;)) {</span>
+<span class="fc" id="L1372">            nueva = new CrazyLid(i, color);</span>
+<span class="fc" id="L1373">        } else {</span>
+<span class="nc" id="L1374">            throw new towerException(towerException.NON_EXISTENT_TYPE);</span>
+        }
+    
+<span class="fc bfc" id="L1377" title="All 2 branches covered.">        if (cup != null) {</span>
+<span class="fc" id="L1378">            cup.addLid(nueva);</span>
+        }
+    
+<span class="fc bfc" id="L1381" title="All 2 branches covered.">        if (!nueva.canEnter(this)) {</span>
+<span class="fc" id="L1382">            isOK = false;</span>
+<span class="fc" id="L1383">            return;</span>
+        }
+<span class="fc" id="L1385">        lids.push(nueva);</span>
+<span class="fc" id="L1386">        insertionOrder.add(new String[]{&quot;lid&quot;, String.valueOf(i)});</span>
+<span class="fc" id="L1387">        reorderSpecialLidsInPlace();</span>
+<span class="fc" id="L1388">        isOK = true;</span>
+<span class="pc bpc" id="L1389" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L1390">            this.redraw();</span>
+        }
+<span class="fc" id="L1392">    }</span>
+    
+    private void removeLidForced(int number) {
+<span class="fc" id="L1395">        Stack&lt;Lid&gt; temp = new Stack&lt;&gt;();</span>
+<span class="fc" id="L1396">        Lid removed = null;</span>
+<span class="fc bfc" id="L1397" title="All 2 branches covered.">        while (!lids.isEmpty()) {</span>
+<span class="fc" id="L1398">            Lid current = lids.pop();</span>
+<span class="pc bpc" id="L1399" title="2 of 4 branches missed.">            if (removed == null &amp;&amp; current.getNumber() == number) {</span>
+<span class="fc" id="L1400">                removed = current;</span>
+<span class="fc" id="L1401">                current.makeInvisible();</span>
+<span class="fc" id="L1402">            } else {</span>
+<span class="nc" id="L1403">                temp.push(current);</span>
+            }
+        }
+    
+<span class="pc bpc" id="L1407" title="1 of 2 branches missed.">        while (!temp.isEmpty()) {</span>
+<span class="nc" id="L1408">            lids.push(temp.pop());</span>
+        }
+    
+<span class="pc bpc" id="L1411" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L1412">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1413" title="All 2 branches covered.">            if (elem[0].equals(&quot;lid&quot;) &amp;&amp;</span>
+<span class="pc bpc" id="L1414" title="1 of 2 branches missed.">                elem[1].equals(String.valueOf(number))) {</span>
+<span class="fc" id="L1415">                insertionOrder.remove(i);</span>
+<span class="fc" id="L1416">                break;</span>
+            }
+        }
+<span class="fc" id="L1419">    }</span>
+    
+    private void reorderSpecialLidsInPlace() {
+<span class="fc bfc" id="L1422" title="All 2 branches covered.">        for (Lid l : lids) {</span>
+<span class="fc bfc" id="L1423" title="All 2 branches covered.">            if (!l.shouldBeBeforeCup()) continue;</span>
+<span class="fc" id="L1424">            int lidIndex = -1;</span>
+<span class="fc" id="L1425">            int cupIndex = -1;</span>
+<span class="fc bfc" id="L1426" title="All 2 branches covered.">            for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L1427">                String[] e = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1428" title="All 4 branches covered.">                if (e[0].equals(&quot;lid&quot;) &amp;&amp; e[1].equals(String.valueOf(l.getNumber()))) {</span>
+<span class="fc" id="L1429">                    lidIndex = i;</span>
+                }
+<span class="fc" id="L1431">                Cup partner = l.getPartnerCup();</span>
+<span class="pc bpc" id="L1432" title="1 of 2 branches missed.">                if (partner != null &amp;&amp;</span>
+<span class="fc bfc" id="L1433" title="All 2 branches covered.">                    e[0].equals(&quot;cup&quot;) &amp;&amp;</span>
+<span class="fc bfc" id="L1434" title="All 2 branches covered.">                    e[1].equals(String.valueOf(partner.getNumber()))) {</span>
+<span class="fc" id="L1435">                    cupIndex = i;</span>
+                }
+            }
+<span class="pc bpc" id="L1438" title="2 of 4 branches missed.">            if (lidIndex == -1 || cupIndex == -1) continue;</span>
+<span class="pc bpc" id="L1439" title="1 of 2 branches missed.">            if (lidIndex &lt; cupIndex) continue;</span>
+<span class="fc" id="L1440">            String[] lidElem = insertionOrder.remove(lidIndex);</span>
+<span class="fc" id="L1441">            insertionOrder.add(cupIndex, lidElem);</span>
+        }
+<span class="fc" id="L1443">    }</span>
+    
+    private void prepareCupsBeforeLayout() {
+<span class="fc" id="L1446">        ArrayList&lt;String[]&gt; snapshot = new ArrayList&lt;&gt;(insertionOrder);    </span>
+<span class="fc bfc" id="L1447" title="All 2 branches covered.">        for (String[] elem : snapshot) {</span>
+<span class="fc bfc" id="L1448" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;)) {</span>
+<span class="fc" id="L1449">                int numero = Integer.parseInt(elem[1]);</span>
+<span class="fc" id="L1450">                Cup c = findCup(numero);</span>
+<span class="pc bpc" id="L1451" title="1 of 2 branches missed.">                if (c != null) {</span>
+<span class="fc" id="L1452">                    c.beforeEnter(this);</span>
+                }
+            }
+        }
+<span class="fc" id="L1456">    }</span>
+    
+        public int findCupIndex(int number) {
+<span class="pc bpc" id="L1459" title="1 of 2 branches missed.">        for (int i = 0; i &lt; insertionOrder.size(); i++) {</span>
+<span class="fc" id="L1460">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1461" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;) &amp;&amp; </span>
+<span class="fc bfc" id="L1462" title="All 2 branches covered.">                elem[1].equals(String.valueOf(number))) {</span>
+<span class="fc" id="L1463">                return i;</span>
+            }
+        }
+<span class="nc" id="L1466">        return -1;</span>
+    }
+    
+    public List&lt;Lid&gt; getLidsBetween(Cup container, Cup target) {
+<span class="fc" id="L1470">        List&lt;Lid&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L1471">        int containerIndex = findCupIndex(container.getNumber());</span>
+<span class="fc" id="L1472">        int targetIndex = findCupIndex(target.getNumber());</span>
+<span class="pc bpc" id="L1473" title="1 of 2 branches missed.">        for (int i = containerIndex + 1; i &lt; targetIndex; i++) {</span>
+<span class="nc" id="L1474">            String[] elem = insertionOrder.get(i);</span>
+<span class="nc bnc" id="L1475" title="All 2 branches missed.">            if (elem[0].equals(&quot;lid&quot;)) {</span>
+<span class="nc" id="L1476">                Lid lid = findLid(Integer.parseInt(elem[1]));</span>
+<span class="nc bnc" id="L1477" title="All 2 branches missed.">                if (lid != null) {</span>
+<span class="nc" id="L1478">                    result.add(lid);</span>
+                }
+            }
+        }
+<span class="fc" id="L1482">        return result;</span>
+    }
+    
+    public List&lt;Lid&gt; getOutsideBlockingLids(Cup cup, int cupIndex) {
+<span class="fc" id="L1486">        List&lt;Lid&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L1487">        int previousCupNumber = -1;</span>
+<span class="pc bpc" id="L1488" title="1 of 2 branches missed.">        for (int i = cupIndex - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1489">            String[] elem = insertionOrder.get(i);</span>
+    
+<span class="fc bfc" id="L1491" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;)) {</span>
+<span class="fc" id="L1492">                previousCupNumber = Integer.parseInt(elem[1]);</span>
+<span class="fc" id="L1493">                break;</span>
+            }
+        }
+    
+<span class="pc bpc" id="L1497" title="1 of 2 branches missed.">        if (previousCupNumber == -1) return result;</span>
+    
+<span class="pc bpc" id="L1499" title="1 of 2 branches missed.">        for (int i = cupIndex - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1500">            String[] elem = insertionOrder.get(i);</span>
+<span class="fc bfc" id="L1501" title="All 2 branches covered.">            if (elem[0].equals(&quot;cup&quot;)) break;</span>
+    
+<span class="pc bpc" id="L1503" title="1 of 2 branches missed.">            if (elem[0].equals(&quot;lid&quot;)) {</span>
+<span class="fc" id="L1504">                int lidNum = Integer.parseInt(elem[1]);</span>
+    
+<span class="pc bpc" id="L1506" title="1 of 2 branches missed.">                if (lidNum &gt; previousCupNumber) {</span>
+<span class="fc" id="L1507">                    Lid lid = findLid(lidNum);</span>
+<span class="pc bpc" id="L1508" title="1 of 2 branches missed.">                    if (lid != null) {</span>
+<span class="fc" id="L1509">                        result.add(lid);</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L1514">        return result;</span>
+    }
+    
+    /**
+     * Elimina una lista de tapas de la torre.
+     *
+     * Cada tapa es removida individualmente utilizando el método interno
+     * de eliminación específica.
+     *
+     * @param lidsToRemove lista de tapas a eliminar.
+     */
+    public void removeLids(List&lt;Lid&gt; lidsToRemove) {
+<span class="fc bfc" id="L1526" title="All 2 branches covered.">        for (Lid lid : lidsToRemove) {</span>
+<span class="fc" id="L1527">            removeSpecificLid(lid);</span>
+        }
+<span class="fc" id="L1529">    }</span>
+    
+    /**
+     * Mueve una copa específica al inicio del orden de inserción,
+     * simulando que queda en la base de la torre.
+     *
+     * @param cup copa que se desea mover.
+     */
+    public void moveCupToBottom(Cup cup) {
+<span class="fc" id="L1538">        int currentIndex = findCupIndex(cup.getNumber());</span>
+<span class="fc bfc" id="L1539" title="All 2 branches covered.">        if (currentIndex &lt;= 0) {</span>
+<span class="fc" id="L1540">            return;</span>
+        }
+<span class="fc" id="L1542">        String[] cupData = insertionOrder.remove(currentIndex);</span>
+<span class="fc" id="L1543">        insertionOrder.add(0, cupData);</span>
+<span class="fc" id="L1544">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

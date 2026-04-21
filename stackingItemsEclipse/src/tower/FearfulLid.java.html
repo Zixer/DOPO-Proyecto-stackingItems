@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FearfulLid.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">FearfulLid.java</span></div><h1>FearfulLid.java</h1><pre class="source lang-java linenums">package tower;
+import Shapes.*;
+
+/**
+ * Representa una tapa que depende de su copa asociada para poder entrar
+ * o salir de la torre.
+ */
+public class FearfulLid extends Lid
+{
+    private Rectangle mark; 
+    
+    /**
+     * Constructor for objects of class Fearful
+     */
+    public FearfulLid(int number, String color){
+<span class="fc" id="L16">        super(number,color);</span>
+<span class="fc" id="L17">        mark = new Rectangle();</span>
+<span class="fc" id="L18">    }</span>
+
+    /**
+     * Determina si la tapa puede entrar en la torre.
+     *
+     * Solo puede hacerlo si su copa asociada existe y está en la torre.
+     */
+    @Override
+    public boolean canEnter(Tower tower) {
+<span class="pc bpc" id="L27" title="1 of 4 branches missed.">        return getPartnerCup() != null &amp;&amp; tower.containsCup(getPartnerCup());</span>
+    }
+
+    public void erase() {
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if (lid != null) lid.makeInvisible();  </span>
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (mark!= null) mark.makeInvisible();</span>
+<span class="fc" id="L33">    }</span>
+    
+    @Override
+    public boolean canExit(Tower tower) {
+<span class="fc" id="L37">        return tower.isCoveringPartner(this);</span>
+    }
+    
+    /**
+     * Hace visible la tapa y fuerza su redibujado con decoración.
+     */
+    @Override
+    public void makeVisible() {
+<span class="nc" id="L45">        super.makeVisible();</span>
+<span class="nc" id="L46">        draw();</span>
+<span class="nc" id="L47">    }</span>
+    
+    /**
+     * Dibuja la tapa junto con su marca decorativa.
+     */
+    public void draw() {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (!isVisible()) return;</span>
+<span class="nc" id="L54">        erase();</span>
+    
+<span class="nc" id="L56">        lid = new Rectangle();</span>
+<span class="nc" id="L57">        lid.changeSize(getHeight(), getWidth());</span>
+<span class="nc" id="L58">        lid.changeColor(getColor());</span>
+<span class="nc" id="L59">        lid.changeP(getXpo(), getYpo() - getHeight());</span>
+<span class="nc" id="L60">        lid.makeVisible();</span>
+    
+        
+<span class="nc" id="L63">        mark.changeSize(2, getWidth() / 2);</span>
+<span class="nc" id="L64">        mark.changeColor(&quot;lightYellow&quot;);</span>
+<span class="nc" id="L65">        mark.changeP(getXpo() + (getWidth() / 4), getYpo()- getHeight() + 1);</span>
+<span class="nc" id="L66">        mark.makeVisible();</span>
+        
+<span class="nc" id="L68">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

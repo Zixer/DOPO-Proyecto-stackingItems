@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerContest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">TowerContest.java</span></div><h1>TowerContest.java</h1><pre class="source lang-java linenums">package tower;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+<span class="fc" id="L8">public class TowerContest {</span>
+    /**
+     * Genera una representación en texto de una secuencia válida de copas
+     * que construye una torre cuya altura total sea exactamente h.
+     *
+     * Internamente utiliza buildSolution para calcular el orden de inserción.
+     * Si existe una solución, retorna los tamaños de las copas separados por espacios.
+     * Si no existe, retorna la cadena &quot;impossible&quot;.
+     *
+     * @param n número de copas disponibles (1, 3, 5, ..., 2n-1).
+     * @param h altura objetivo que se desea alcanzar.
+     * @return un String con los tamaños de las copas en orden de inserción,
+     *         o &quot;impossible&quot; si no existe solución.
+     */
+    public String solve(int n, long h) {
+<span class="fc" id="L23">        List&lt;Integer&gt; order = buildSolution(n, h);</span>
+    
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (order == null) {</span>
+<span class="fc" id="L26">            return &quot;impossible&quot;;</span>
+        }
+    
+<span class="fc" id="L29">        String ans = &quot;&quot;;</span>
+    
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        for (int i = 0; i &lt; order.size(); i++) {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">            if (i &gt; 0) {</span>
+<span class="fc" id="L33">                ans = ans + &quot; &quot;;</span>
+            }
+<span class="fc" id="L35">            ans = ans + order.get(i);</span>
+        }
+    
+<span class="fc" id="L38">        return ans;</span>
+    }
+    
+    /**
+     * Construye una torre real (objeto Tower) a partir de la solución generada
+     * por el método solve.
+     *
+     * Si solve retorna &quot;impossible&quot;, este método retorna null.
+     * En caso contrario, crea una torre, inserta las copas en el orden indicado,
+     * la hace visible y la dibuja.
+     *
+     * @param n número de copas disponibles.
+     * @param h altura objetivo de la torre.
+     * @return una instancia de Tower con la configuración correspondiente,
+     *         o null si no existe solución.
+     */
+    public Tower simulate(int n, long h) {
+<span class="fc" id="L55">        String solution = solve(n, h);</span>
+ 
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (&quot;impossible&quot;.equals(solution)) {</span>
+<span class="fc" id="L58">            return null;</span>
+        }
+
+<span class="nc" id="L61">        Tower tower = new Tower(100,50);</span>
+<span class="nc" id="L62">        String[] parts = solution.split(&quot; &quot;);</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        for (String p : parts) {</span>
+<span class="nc" id="L65">            tower.pushCup(Integer.parseInt(p));</span>
+        }
+
+<span class="nc" id="L68">        tower.makeVisible();</span>
+<span class="nc" id="L69">        tower.redraw();</span>
+<span class="nc" id="L70">        tower.exit();</span>
+<span class="nc" id="L71">        return tower;</span>
+    }
+
+    /**
+     * Construye una secuencia válida de tamaños de copas (1, 3, 5, ..., 2n-1)
+     * cuya altura total sea exactamente h.
+     *
+     * Este método aplica una estrategia recursiva:
+     * - Define límites mínimos y máximos posibles.
+     * - Maneja casos especiales donde no existe solución.
+     * - Selecciona subconjuntos de copas que aportan la altura requerida.
+     * - Construye la solución combinando copas seleccionadas y restantes.
+     *
+     * @param n número de copas disponibles.
+     * @param h altura objetivo.
+     * @return una lista con los tamaños de copas en orden de inserción,
+     *         o null si no existe solución.
+     */
+    private List&lt;Integer&gt; buildSolution(int n, long h) {
+<span class="fc" id="L90">        long min = 2L * n - 1;</span>
+<span class="fc" id="L91">        long max = 1L * n * n;</span>
+
+<span class="fc bfc" id="L93" title="All 6 branches covered.">        if (h &lt; min || h &gt; max || h == max - 2) {</span>
+<span class="fc" id="L94">            return null;</span>
+        }
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (n == 1) {</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (h == 1) {</span>
+<span class="fc" id="L99">                List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L100">                res.add(1);</span>
+<span class="fc" id="L101">                return res;</span>
+            }
+<span class="nc" id="L103">            return null;</span>
+        }
+
+<span class="fc" id="L106">        long extra = h - (2L * n - 1);</span>
+
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (extra == 2) {</span>
+<span class="nc" id="L109">            List&lt;Integer&gt; sub = buildSolution(n - 1, h - 1);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (sub == null) return null;</span>
+
+<span class="nc" id="L112">            List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L113">            res.add(sizeOf(n));</span>
+<span class="nc" id="L114">            res.addAll(sub);</span>
+<span class="nc" id="L115">            return res;</span>
+        }
+
+<span class="fc" id="L118">        List&lt;Integer&gt; chosen = buildSubsetHeights(n - 1, extra);</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (chosen == null) {</span>
+<span class="nc" id="L120">            return null;</span>
+        }
+
+<span class="fc" id="L123">        Set&lt;Integer&gt; used = new HashSet&lt;&gt;(chosen);</span>
+
+<span class="fc" id="L125">        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L126">        res.addAll(chosen);          </span>
+<span class="fc" id="L127">        res.add(sizeOf(n));         </span>
+
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for (int i = n - 1; i &gt;= 1; i--) {</span>
+<span class="fc" id="L130">            int size = sizeOf(i);</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (!used.contains(size)) {</span>
+<span class="fc" id="L132">                res.add(size);       </span>
+            }
+        }
+
+<span class="fc" id="L136">        return res;</span>
+    }
+
+    /**
+     * Construye un subconjunto de alturas impares:
+     * 1, 3, 5, ..., 2m-1
+     * cuya suma sea exactamente target.
+     *
+     * Utiliza un enfoque greedy desde los valores más grandes hacia los más pequeños,
+     * evitando combinaciones inválidas conocidas (como casos que no tienen solución).
+     *
+     * El resultado se devuelve en orden ascendente.
+     *
+     * @param m número máximo de elementos disponibles (genera hasta 2m-1).
+     * @param target suma objetivo que se desea alcanzar.
+     * @return lista de alturas seleccionadas en orden ascendente,
+     *         o null si no es posible construir la suma exacta.
+     */
+    private List&lt;Integer&gt; buildSubsetHeights(int m, long target) {
+<span class="fc" id="L155">        List&lt;Integer&gt; chosenDescending = new ArrayList&lt;&gt;();</span>
+
+<span class="pc bpc" id="L157" title="1 of 4 branches missed.">        while (target &gt; 0 &amp;&amp; m &gt; 0) {</span>
+<span class="fc" id="L158">            long prevMax = 1L * (m - 1) * (m - 1);</span>
+
+<span class="pc bpc" id="L160" title="5 of 6 branches missed.">            if (target &lt;= prevMax &amp;&amp; target != 2 &amp;&amp; target != prevMax - 2) {</span>
+<span class="nc" id="L161">                m--;</span>
+<span class="nc" id="L162">            } else {</span>
+<span class="fc" id="L163">                int size = sizeOf(m);</span>
+<span class="fc" id="L164">                chosenDescending.add(size);</span>
+<span class="fc" id="L165">                target -= size;</span>
+<span class="fc" id="L166">                m--;</span>
+            }
+        }
+
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (target != 0) {</span>
+<span class="nc" id="L171">            return null;</span>
+        }
+
+<span class="fc" id="L174">        List&lt;Integer&gt; chosenAscending = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (int i = chosenDescending.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L176">            chosenAscending.add(chosenDescending.get(i));</span>
+        }
+
+<span class="fc" id="L179">        return chosenAscending;</span>
+    }
+
+    /**
+     * Calcula el tamaño (altura) de una copa a partir de su índice.
+     *
+     * La secuencia de tamaños es:
+     * 1, 3, 5, ..., (2n - 1)
+     *
+     * @param cupIndex índice de la copa (1-based).
+     * @return el tamaño correspondiente a la copa.
+     */
+    private int sizeOf(int cupIndex) {
+<span class="fc" id="L192">        return 2 * cupIndex - 1;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TowerContestAcceptanceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Test</a> &gt; <span class="el_source">TowerContestAcceptanceTest.java</span></div><h1>TowerContestAcceptanceTest.java</h1><pre class="source lang-java linenums">package Test;
+import tower.*;
+import javax.swing.JOptionPane;
+
+public class TowerContestAcceptanceTest {
+
+    private long defaultDelay;
+
+<span class="nc" id="L9">    public TowerContestAcceptanceTest(long defaultDelay) {</span>
+<span class="nc" id="L10">        this.defaultDelay = defaultDelay + 500;</span>
+<span class="nc" id="L11">    }</span>
+
+    private void waitMillis(long millis) {
+        try {
+<span class="nc" id="L15">            Thread.sleep(millis);</span>
+<span class="nc" id="L16">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L17">            Thread.currentThread().interrupt();</span>
+        }
+<span class="nc" id="L19">    }</span>
+
+    private boolean askUser(String message, String title) {
+<span class="nc" id="L22">        int answer = JOptionPane.showConfirmDialog(</span>
+<span class="nc" id="L23">            null,</span>
+<span class="nc" id="L24">            message,</span>
+<span class="nc" id="L25">            title,</span>
+<span class="nc" id="L26">            JOptionPane.YES_NO_OPTION</span>
+        );
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        return answer == JOptionPane.YES_OPTION;</span>
+    }
+
+    private void printCaseHeader(String title, int n, int h) {
+<span class="nc" id="L32">        System.out.println();</span>
+<span class="nc" id="L33">        System.out.println(&quot;======================================&quot;);</span>
+<span class="nc" id="L34">        System.out.println(title);</span>
+<span class="nc" id="L35">        System.out.println(&quot;simulate(&quot; + n + &quot;, &quot; + h + &quot;)&quot;);</span>
+<span class="nc" id="L36">        System.out.println(&quot;======================================&quot;);</span>
+<span class="nc" id="L37">    }</span>
+
+    /**
+     * Caso 1:
+     * Caso pequeño y simple.
+     */
+    public void acceptanceSimulateSmallCase() {
+<span class="nc" id="L44">        TowerContest contest = new TowerContest();</span>
+
+<span class="nc" id="L46">        int n = 1;</span>
+<span class="nc" id="L47">        int h = 10;</span>
+
+<span class="nc" id="L49">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 1 - CASO PEQUEÑO&quot;, n, h);</span>
+<span class="nc" id="L50">        waitMillis(defaultDelay);</span>
+
+<span class="nc" id="L52">        contest.simulate(n, h);</span>
+<span class="nc" id="L53">        waitMillis(defaultDelay + 1500);</span>
+
+<span class="nc" id="L55">        boolean accepted = askUser(</span>
+<span class="nc" id="L56">            &quot;¿La simulación del caso pequeño se ejecutó correctamente y se vio coherente?&quot;,</span>
+<span class="nc" id="L57">            &quot;Aceptación - simulate caso pequeño&quot;</span>
+        );
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        System.out.println(accepted ? &quot;Prueba aceptada&quot; : &quot;Prueba rechazada&quot;);</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Caso 2:
+     * Caso medio para una demo normal.
+     */
+    public void acceptanceSimulateMediumCase() {
+<span class="nc" id="L67">        TowerContest contest = new TowerContest();</span>
+
+<span class="nc" id="L69">        int n = 4;</span>
+<span class="nc" id="L70">        int h = 20;</span>
+
+<span class="nc" id="L72">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 2 - CASO MEDIO&quot;, n, h);</span>
+<span class="nc" id="L73">        waitMillis(defaultDelay);</span>
+
+<span class="nc" id="L75">        contest.simulate(n, h);</span>
+<span class="nc" id="L76">        waitMillis(defaultDelay + 2000);</span>
+
+<span class="nc" id="L78">        boolean accepted = askUser(</span>
+<span class="nc" id="L79">            &quot;¿La simulación del caso medio se ejecutó correctamente y mostró una solución consistente?&quot;,</span>
+<span class="nc" id="L80">            &quot;Aceptación - simulate caso medio&quot;</span>
+        );
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        System.out.println(accepted ? &quot;Prueba aceptada&quot; : &quot;Prueba rechazada&quot;);</span>
+<span class="nc" id="L84">    }</span>
+
+    /**
+     * Caso 3:
+     * Caso borde n = 0.
+     */
+    public void acceptanceSimulateZeroCase() {
+<span class="nc" id="L91">        TowerContest contest = new TowerContest();</span>
+
+<span class="nc" id="L93">        int n = 0;</span>
+<span class="nc" id="L94">        int h = 10;</span>
+
+<span class="nc" id="L96">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 3 - CASO BORDE&quot;, n, h);</span>
+<span class="nc" id="L97">        waitMillis(defaultDelay);</span>
+
+<span class="nc" id="L99">        contest.simulate(n, h);</span>
+<span class="nc" id="L100">        waitMillis(defaultDelay + 1000);</span>
+
+<span class="nc" id="L102">        boolean accepted = askUser(</span>
+<span class="nc" id="L103">            &quot;¿La simulación del caso borde con n=0 fue manejada correctamente sin errores?&quot;,</span>
+<span class="nc" id="L104">            &quot;Aceptación - simulate caso borde&quot;</span>
+        );
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        System.out.println(accepted ? &quot;Prueba aceptada&quot; : &quot;Prueba rechazada&quot;);</span>
+<span class="nc" id="L108">    }</span>
+
+    /**
+     * Caso 4:
+     * Caso muy restringido o imposible.
+     */
+    public void acceptanceSimulateRestrictedCase() {
+<span class="nc" id="L115">        TowerContest contest = new TowerContest();</span>
+
+<span class="nc" id="L117">        int n = 8;</span>
+<span class="nc" id="L118">        int h = 1;</span>
+
+<span class="nc" id="L120">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 4 - CASO RESTRINGIDO&quot;, n, h);</span>
+<span class="nc" id="L121">        waitMillis(defaultDelay);</span>
+
+<span class="nc" id="L123">        contest.simulate(n, h);</span>
+<span class="nc" id="L124">        waitMillis(defaultDelay + 1500);</span>
+
+<span class="nc" id="L126">        boolean accepted = askUser(</span>
+<span class="nc" id="L127">            &quot;¿La simulación del caso restringido fue manejada correctamente, incluso si no había solución?&quot;,</span>
+<span class="nc" id="L128">            &quot;Aceptación - simulate caso restringido&quot;</span>
+        );
+
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        System.out.println(accepted ? &quot;Prueba aceptada&quot; : &quot;Prueba rechazada&quot;);</span>
+<span class="nc" id="L132">    }</span>
+
+    /**
+     * Caso 5:
+     * Comparación visual con otra altura para el mismo número de tazas.
+     */
+    public void acceptanceSimulateCompareHeights() {
+<span class="nc" id="L139">        TowerContest contest = new TowerContest();</span>
+
+<span class="nc" id="L141">        int n = 5;</span>
+<span class="nc" id="L142">        int h1 = 10;</span>
+<span class="nc" id="L143">        int h2 = 30;</span>
+
+<span class="nc" id="L145">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 5A - ALTURA MENOR&quot;, n, h1);</span>
+<span class="nc" id="L146">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L147">        contest.simulate(n, h1);</span>
+<span class="nc" id="L148">        waitMillis(defaultDelay + 1500);</span>
+
+<span class="nc" id="L150">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 5B - ALTURA MAYOR&quot;, n, h2);</span>
+<span class="nc" id="L151">        waitMillis(defaultDelay);</span>
+<span class="nc" id="L152">        contest.simulate(n, h2);</span>
+<span class="nc" id="L153">        waitMillis(defaultDelay + 2000);</span>
+
+<span class="nc" id="L155">        boolean accepted = askUser(</span>
+<span class="nc" id="L156">            &quot;¿Se observó un comportamiento coherente al simular el mismo n con dos alturas distintas?&quot;,</span>
+<span class="nc" id="L157">            &quot;Aceptación - simulate comparación de alturas&quot;</span>
+        );
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        System.out.println(accepted ? &quot;Prueba aceptada&quot; : &quot;Prueba rechazada&quot;);</span>
+<span class="nc" id="L161">    }</span>
+
+    /**
+     * Caso 6:
+     * Caso más grande para mostrar estabilidad.
+     */
+    public void acceptanceSimulateLargeCase() {
+<span class="nc" id="L168">        TowerContest contest = new TowerContest();</span>
+
+<span class="nc" id="L170">        int n = 7;</span>
+<span class="nc" id="L171">        int h = 40;</span>
+
+<span class="nc" id="L173">        printCaseHeader(&quot;PRUEBA DE ACEPTACIÓN 6 - CASO GRANDE&quot;, n, h);</span>
+<span class="nc" id="L174">        waitMillis(defaultDelay);</span>
+
+<span class="nc" id="L176">        contest.simulate(n, h);</span>
+<span class="nc" id="L177">        waitMillis(defaultDelay + 2500);</span>
+
+<span class="nc" id="L179">        boolean accepted = askUser(</span>
+<span class="nc" id="L180">            &quot;¿La simulación del caso grande se ejecutó correctamente sin bloquearse ni verse inconsistente?&quot;,</span>
+<span class="nc" id="L181">            &quot;Aceptación - simulate caso grande&quot;</span>
+        );
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        System.out.println(accepted ? &quot;Prueba aceptada&quot; : &quot;Prueba rechazada&quot;);</span>
+<span class="nc" id="L185">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

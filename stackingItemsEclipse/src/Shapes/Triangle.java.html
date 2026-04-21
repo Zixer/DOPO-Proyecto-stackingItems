@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Triangle.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">Shapes</a> &gt; <span class="el_source">Triangle.java</span></div><h1>Triangle.java</h1><pre class="source lang-java linenums">package Shapes;
+import java.awt.*;
+
+/**
+ * A triangle that can be manipulated and that draws itself on a canvas.
+ * 
+ * @author  Michael Kolling and David J. Barnes
+ * @version 1.0  (15 July 2000)
+ */
+
+public class Triangle{
+    
+<span class="nc" id="L13">    public static int VERTICES=3;</span>
+    
+    private int height;
+    private int width;
+    private int xPosition;
+    private int yPosition;
+    private String color;
+    private boolean isVisible;
+
+    /**
+     * Create a new triangle at default position with default color.
+     */
+<span class="nc" id="L25">    public Triangle(){</span>
+<span class="nc" id="L26">        height = 30;</span>
+<span class="nc" id="L27">        width = 40;</span>
+<span class="nc" id="L28">        xPosition = 140;</span>
+<span class="nc" id="L29">        yPosition = 15;</span>
+<span class="nc" id="L30">        color = &quot;green&quot;;</span>
+<span class="nc" id="L31">        isVisible = false;</span>
+<span class="nc" id="L32">    }</span>
+
+    /**
+     * Make this triangle visible. If it was already visible, do nothing.
+     */
+    public void makeVisible(){
+<span class="nc" id="L38">        isVisible = true;</span>
+<span class="nc" id="L39">        draw();</span>
+<span class="nc" id="L40">    }</span>
+    
+    /**
+     * Make this triangle invisible. If it was already invisible, do nothing.
+     */
+    public void makeInvisible(){
+<span class="nc" id="L46">        erase();</span>
+<span class="nc" id="L47">        isVisible = false;</span>
+<span class="nc" id="L48">    }</span>
+    
+    /**
+     * Move the triangle a few pixels to the right.
+     */
+    public void moveRight(){
+<span class="nc" id="L54">        moveHorizontal(20);</span>
+<span class="nc" id="L55">    }</span>
+
+    /**
+     * Move the triangle a few pixels to the left.
+     */
+    public void moveLeft(){
+<span class="nc" id="L61">        moveHorizontal(-20);</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Move the triangle a few pixels up.
+     */
+    public void moveUp(){
+<span class="nc" id="L68">        moveVertical(-20);</span>
+<span class="nc" id="L69">    }</span>
+
+    /**
+     * Move the triangle a few pixels down.
+     */
+    public void moveDown(){
+<span class="nc" id="L75">        moveVertical(20);</span>
+<span class="nc" id="L76">    }</span>
+
+    /**
+     * Move the triangle horizontally.
+     * @param distance the desired distance in pixels
+     */
+    public void moveHorizontal(int distance){
+<span class="nc" id="L83">        erase();</span>
+<span class="nc" id="L84">        xPosition += distance;</span>
+<span class="nc" id="L85">        draw();</span>
+<span class="nc" id="L86">    }</span>
+
+    /**
+     * Move the triangle vertically.
+     * @param distance the desired distance in pixels
+     */
+    public void moveVertical(int distance){
+<span class="nc" id="L93">        erase();</span>
+<span class="nc" id="L94">        yPosition += distance;</span>
+<span class="nc" id="L95">        draw();</span>
+<span class="nc" id="L96">    }</span>
+
+    /**
+     * Slowly move the triangle horizontally.
+     * @param distance the desired distance in pixels
+     */
+    public void slowMoveHorizontal(int distance){
+        int delta;
+
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if(distance &lt; 0) {</span>
+<span class="nc" id="L106">            delta = -1;</span>
+<span class="nc" id="L107">            distance = -distance;</span>
+<span class="nc" id="L108">        } else {</span>
+<span class="nc" id="L109">            delta = 1;</span>
+        }
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        for(int i = 0; i &lt; distance; i++){</span>
+<span class="nc" id="L113">            xPosition += delta;</span>
+<span class="nc" id="L114">            draw();</span>
+        }
+<span class="nc" id="L116">    }</span>
+
+    /**
+     * Slowly move the triangle vertically.
+     * @param distance the desired distance in pixels
+     */
+    public void slowMoveVertical(int distance){
+        int delta;
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if(distance &lt; 0) {</span>
+<span class="nc" id="L126">            delta = -1;</span>
+<span class="nc" id="L127">            distance = -distance;</span>
+<span class="nc" id="L128">        } else {</span>
+<span class="nc" id="L129">            delta = 1;</span>
+        }
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for(int i = 0; i &lt; distance; i++){</span>
+<span class="nc" id="L133">            yPosition += delta;</span>
+<span class="nc" id="L134">            draw();</span>
+        }
+<span class="nc" id="L136">    }</span>
+
+    /**
+     * Change the size to the new size
+     * @param newHeight the new height in pixels. newHeight must be &gt;=0.
+     * @param newWidht the new width in pixels. newWidht must be &gt;=0.
+     */
+    public void changeSize(int newHeight, int newWidth) {
+<span class="nc" id="L144">        erase();</span>
+<span class="nc" id="L145">        height = newHeight;</span>
+<span class="nc" id="L146">        width = newWidth;</span>
+<span class="nc" id="L147">        draw();</span>
+<span class="nc" id="L148">    }</span>
+    
+    /**
+     * Change the color. 
+     * @param color the new color. Valid colors are &quot;red&quot;, &quot;yellow&quot;, &quot;blue&quot;, &quot;green&quot;,
+     * &quot;magenta&quot; and &quot;black&quot;.
+     */
+    public void changeColor(String newColor){
+<span class="nc" id="L156">        color = newColor;</span>
+<span class="nc" id="L157">        draw();</span>
+<span class="nc" id="L158">    }</span>
+
+    /*
+     * Draw the triangle with current specifications on screen.
+     */
+    private void draw(){
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if(isVisible) {</span>
+<span class="nc" id="L165">            Canvas canvas = Canvas.getCanvas();</span>
+<span class="nc" id="L166">            int[] xpoints = { xPosition, xPosition + (width/2), xPosition - (width/2) };</span>
+<span class="nc" id="L167">            int[] ypoints = { yPosition, yPosition + height, yPosition + height };</span>
+<span class="nc" id="L168">            canvas.draw(this, color, new Polygon(xpoints, ypoints, 3));</span>
+<span class="nc" id="L169">            canvas.wait(10);</span>
+        }
+<span class="nc" id="L171">    }</span>
+
+    /*
+     * Erase the triangle on screen.
+     */
+    private void erase(){
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if(isVisible) {</span>
+<span class="nc" id="L178">            Canvas canvas = Canvas.getCanvas();</span>
+<span class="nc" id="L179">            canvas.erase(this);</span>
+        }
+<span class="nc" id="L181">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>

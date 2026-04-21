@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BottomCup.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</a> &gt; <a href="../../index.html" class="el_group">stackingItemsEclipse</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.source.html" class="el_package">tower</a> &gt; <span class="el_source">BottomCup.java</span></div><h1>BottomCup.java</h1><pre class="source lang-java linenums">package tower;
+import Shapes.*;
+
+/**
+ * Representa una copa especial que siempre se mueve al fondo
+ * del orden de inserción antes de posicionarse en la torre.
+ */
+public class BottomCup extends Cup {
+    private Rectangle decoration;
+
+    public BottomCup(int number, String color) {
+<span class="fc" id="L12">        super(number, color);</span>
+<span class="fc" id="L13">    }</span>
+
+    /**
+     * Ejecuta la lógica previa a la inserción.
+     *
+     * Mueve la copa al inicio del orden de inserción, simulando que
+     * queda en la base de la torre.
+     *
+     * @param tower torre donde se inserta la copa
+     */
+    @Override
+    public void beforeEnter(Tower tower) {
+<span class="fc" id="L25">        tower.moveCupToBottom(this);</span>
+<span class="fc" id="L26">    }</span>
+
+    /**
+     * Elimina la representación visual de la copa.
+     */
+    public void erase() {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (body != null) body.makeInvisible();</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (interior != null) interior.makeInvisible();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (decoration != null) decoration.makeInvisible();</span>
+<span class="fc" id="L35">    }</span>
+    
+    /**
+     * Dibuja la decoración característica de la BottomCup.
+     *
+     * Se representa como una línea horizontal en la parte superior.
+     */
+    @Override
+    public void drawDecoration() {
+<span class="fc" id="L44">        decoration = new Rectangle();</span>
+<span class="fc" id="L45">        decoration.changeSize(3, getWidth());</span>
+<span class="fc" id="L46">        decoration.changeColor(&quot;mint&quot;);</span>
+<span class="fc" id="L47">        decoration.changeP(getXpo(), getYpo() - 2);</span>
+<span class="fc" id="L48">        decoration.makeVisible();</span>
+<span class="fc" id="L49">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>stackingItemsEclipse (Apr 21, 2026 4:54:13 PM)</div></body></html>
