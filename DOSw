@@ -1,0 +1,116 @@
+**spring boot**
+si tiene una clase esto @ RestController va a devoler datos en json/xml
+ahora para definir la **URL** toca usar los siguintes @
+
+clase:@requestMappin(aqui va la url)
+
+metodo:@elMetodoHTTPmapping(aqui pueden ir varuias cosas)
+
+@cosas que pueden ir-
+
+@PathVariable toma un trozo del endpoint y lo 
+pasa como argumento del 
+método del controlador.
+
+@RequestBody Tomar el cuerpo de la petición
+HTTP (normalmente JSON) y lo 
+convierte en un objeto Java 
+que el método recibe como
+parámetro
+
+@RequestParam toma un parámetro del 
+endpoint (query string) y lo pasa 
+como argumento del método.
+(se usa mas para filtrar que para otra cosa)
+
+@autowirtred para intyectar dependencias e instancias el services
+ 
+para serivces solo toca agregar el services
+
+## entity
+
+@EntitySe coloca justo encima de la declaración de la clase (public class User) para indicarle al framework que esta clase representa una tabla en la base de datos. Cada objeto o instancia que crees de esta clase corresponderá a una fila dentro de esa tabla.   
+
+@Id: Se ubica sobre el atributo id para definirlo como la clave primaria (Primary Key) de la tabla. Esto asegura que sea el identificador único e irrepetible para cada registro de usuario.  
+
+@GeneratedValue: Acompaña a @Id para establecer que el valor de ese identificador será generado automáticamente por la propia base de datos (generalmente de forma secuencial o autoincremental) cada vez que se guarde un nuevo registro.
+
+@Table(name = "productos"): Le indica al framework que esta clase debe guardarse específicamente en una tabla llamada "productos". Si omites esta anotación, JPA nombraría la tabla igual que la clase ("Producto" por defecto).
+
+@NotBlank: Es una anotación de validación. Asegura que el atributo nombre no sea nulo, no esté vacío y no contenga únicamente espacios en blanco antes de intentar guardarlo en la base de datos.
+
+@Column: Sirve para personalizar las características físicas de la columna en la base de datos.
+
+nullable = false: Aplica una restricción NOT NULL en la base de datos, haciendo que el campo sea obligatorio (como ocurre con nombre y precio).
+
+length = 100 (o 250): Define el límite máximo de caracteres permitidos para esa columna de texto, creando por ejemplo un VARCHAR(100) en SQL.
+
+@ManyToOne (Muchos a Uno):
+
+Qué hace: Relaciona múltiples registros de tu clase actual con un único registro de otra clase. Por ejemplo, muchos Trabajadores pertenecen a una sola Ciudad.
+
+Uso de la llave foránea: Siempre lleva @JoinColumn. En bases de datos relacionales, la tabla que tiene el lado de los "Muchos" es la dueña de la relación y debe guardar la llave foránea.
+
+Ejemplo: @JoinColumn(name = "ciudad_id")
+
+@OneToMany (Uno a Muchos):
+
+Qué hace: Es la inversa de la anterior. Un registro de esta clase está asociado a múltiples registros de otra. Ejemplo: Una Ciudad tiene muchos Trabajadores.
+
+Uso de la llave foránea: Por lo general, no usa @JoinColumn. En su lugar, se utiliza el atributo mappedBy dentro de la misma anotación para indicarle a JPA que la llave foránea ya está definida en la otra clase (la que tiene el @ManyToOne).
+
+Ejemplo: @OneToMany(mappedBy = "ciudad")
+
+@OneToOne (Uno a Uno):
+
+Qué hace: Un registro de una entidad se asocia exclusivamente con un solo registro de otra. Por ejemplo, un Usuario tiene una única CuentaBancaria, y esa cuenta pertenece solo a ese usuario.
+
+Uso de la llave foránea: Solo una de las dos clases debe llevar el @JoinColumn. Tú decides cuál tabla será la "dueña" de la relación y guardará el ID de la otra tabla. La clase contraria usará el mappedBy.
+
+@ManyToMany (Muchos a Muchos):
+
+Qué hace: Múltiples registros de una clase se asocian con múltiples registros de otra. Por ejemplo, un Trabajador puede tener múltiples Habilidades, y una Habilidad puede pertenecer a múltiples trabajadores.
+
+Uso de la llave foránea: No se usa un @JoinColumn simple porque las bases de datos necesitan una tabla intermedia para resolver esto. En JPA, la clase dueña de la relación debe usar la anotación @JoinTable para definir el nombre de esa nueva tabla puente y las llaves foráneas de ambas partes.
+
+## REPOSITORIO 
+
+Paso 4: Capa de Datos (Repositories)El repositorio es el encargado de comunicarse directamente con la base de datos.Se crea una interfaz (en este caso UserRepository) que hereda de CrudRepository. Las interfaces como CrudRepository o JpaRepository son herramientas de Spring Data que proveen operaciones básicas de base de datos automáticamente.   Al heredar, se deben especificar dos parámetros entre los signos menor y mayor: primero la entidad que representa la tabla (el objeto User) y luego el tipo de dato de su identificador primario (Long).   Puedes definir métodos de búsqueda personalizados con solo nombrarlos adecuadamente, como User findByEmail(String email);, y Spring construirá la consulta SQL por debajo automáticamente.   
+
+Paso 5: Capa de Negocio (Services)El servicio contiene la lógica de negocio de tu aplicación y actúa como puente entre el controlador y el repositorio.La clase UserService se marca con la anotación @Service para que Spring la registre en su contenedor de dependencias.   Para usar el repositorio creado en el paso anterior, se inyecta la dependencia UserRepository a través del constructor de la clase UserService.   El servicio crea un método findByEmail que simplemente llama y retorna el resultado de userRepository.findByEmail(email). Aquí es donde agregarías validaciones o transformaciones de datos si fueran necesarias antes de consultar la base de datos.   
+
+Paso 6: Capa de Presentación (Controllers)El controlador expone los servicios a internet creando una API REST para que aplicaciones externas (como una app móvil o web) puedan consumirlos.La clase UserController utiliza la anotación @RestController para indicar que responderá a peticiones web, y @RequestMapping("/users") para definir la ruta base de este controlador.   Al igual que en el paso anterior, se inyecta la lógica de negocio pasando UserService por el constructor del controlador.   Se crea un endpoint HTTP GET utilizando la anotación @GetMapping("/{email}").   El método getUserByEmail recibe el parámetro de la URL gracias a la anotación @PathVariable String email, se lo envía al servicio inyectado y finalmente retorna la información del usuario al cliente que hizo la petición.
+
+docker pull postgres
+
+docker run --name postgres-lab7 \
+  -e POSTGRES_DB=lab7db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  -d postgres
+
+## swager
+
+para configurar toca crear una clase 
+toca poner @bean y depsues la información
+
+## comandos de interes
+
+# Ejecutar pruebas
+mvn test
+
+# Compilar y validar cobertura
+mvn clean verify
+
+# Abrir reporte de cobertura
+# target/site/jacoco/index.html
+
+# Ver contenedores
+docker ps
+
+# Ver logs de SonarQube
+docker logs -f sonarqube
+
+# Ejecutar análisis SonarQube
+mvn sonar:sonar -Dsonar.token=$SONAR_TOKE
