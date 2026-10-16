@@ -114,3 +114,8 @@ docker logs -f sonarqube
 
 # Ejecutar análisis SonarQube
 mvn sonar:sonar -Dsonar.token=$SONAR_TOKE
+
+
+mvn spring-boot:run
+
+$env:DB_PASSWORD="postgres123"
